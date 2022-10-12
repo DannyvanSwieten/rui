@@ -40,7 +40,7 @@ impl<Model: ApplicationModel + 'static> UserInterface<Model> {
 
     pub fn file_hovered(&mut self, state: &mut Model, path: &Path, position: &Point) {}
 
-    fn build_popup(&mut self, request: PopupRequest<Model>, position: &Point) {}
+    fn build_popup(&mut self, request: popup::PopupRequest<Model>, position: &Point) {}
 
     pub fn resize(&mut self, state: &Model, width: u32, height: u32) {
         let constraints = BoxConstraints::new().with_tight_constraints(width as f32, height as f32);
