@@ -54,7 +54,7 @@ pub struct Application<Model: ApplicationModel> {
 
 impl<Model: ApplicationModel + 'static> Application<Model> {
     pub fn new(name: &str) -> Self {
-        let layers = [CString::new("VK_LAYER_KHRONOS_validation").expect("String Creation Failed")];
+        let layers = [CString::new("VK_LAYER_KHRONOS_validation").unwrap()];
         let instance_extensions = [
             Surface::name(),
             surface_extension_name(),

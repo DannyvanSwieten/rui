@@ -108,12 +108,14 @@ impl<Model: ApplicationModel> ApplicationDelegate<Model> for UIApplicationDelega
         target: &EventLoopWindowTarget<()>,
         request: WindowRequest<Model>,
     ) {
-        let window = window_registry.create_window(
-            target,
-            &request.title.unwrap_or_else(|| "Untitled".to_string()),
-            request.width,
-            request.height,
-        );
+        let window = window_registry
+            .create_window(
+                target,
+                &request.title.unwrap_or_else(|| "Untitled".to_string()),
+                request.width,
+                request.height,
+            )
+            .expect("Window creation failed");
 
         let mut window_delegate =
             UIGpuDrawingWindowDelegate::new(self.device.as_ref().unwrap().clone(), request.builder);
