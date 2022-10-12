@@ -105,8 +105,8 @@ impl<Model: ApplicationModel> ApplicationDelegate<Model> for UIApplicationDelega
         &mut self,
         app: &Application<Model>,
         state: &mut Model,
-        target: &EventLoopWindowTarget<()>,
         window_registry: &mut WindowRegistry<Model>,
+        target: &EventLoopWindowTarget<()>,
         request: WindowRequest<Model>,
     ) {
         let window = window_registry.create_window(

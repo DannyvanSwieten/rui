@@ -1,9 +1,9 @@
-use super::WindowDelegate;
+use super::{WindowDelegate, WindowId};
 use crate::application::{Application, ApplicationModel};
 use std::{collections::HashMap, path::Path};
 use winit::{
     event_loop::EventLoopWindowTarget,
-    window::{Window, WindowBuilder, WindowId},
+    window::{Window, WindowBuilder},
 };
 
 pub struct WindowRegistry<Model: 'static> {

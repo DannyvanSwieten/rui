@@ -5,3 +5,4 @@ mod window_registry;
 pub use window_delegate::WindowDelegate;
 pub use window_event::{MouseEvent, MouseEventType};
 pub use window_registry::WindowRegistry;
+pub use winit::window::WindowId;

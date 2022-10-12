@@ -1,8 +1,13 @@
+mod application_delegate;
 mod application_model;
 
+pub use application_delegate::ApplicationDelegate;
 pub use application_model::ApplicationModel;
 
-use crate::{widget::Widget, window::WindowRegistry};
+use crate::{
+    widget::Widget,
+    window::{WindowId, WindowRegistry},
+};
 use std::collections::VecDeque;
 use vk_utils::vulkan::Vulkan;
 
@@ -33,66 +38,6 @@ use ash::extensions::khr::Win32Surface;
 #[cfg(target_os = "windows")]
 pub fn surface_extension_name() -> &'static CStr {
     Win32Surface::name()
-}
-
-pub trait ApplicationDelegate<Model: ApplicationModel> {
-    fn application_will_start(
-        &mut self,
-        _: &mut Application<Model>,
-        _: &mut Model,
-        _: &mut WindowRegistry<Model>,
-        _: &EventLoopWindowTarget<()>,
-    ) {
-    }
-    fn application_will_quit(&mut self, _: &mut Application<Model>, _: &EventLoopWindowTarget<()>) {
-    }
-
-    fn application_will_update(
-        &mut self,
-        _: &Application<Model>,
-        _: &mut Model,
-        _: &mut WindowRegistry<Model>,
-        _: &EventLoopWindowTarget<()>,
-    ) {
-    }
-
-    fn window_requested(
-        &mut self,
-        _: &Application<Model>,
-        _: &mut Model,
-        _: &EventLoopWindowTarget<()>,
-        _: &mut WindowRegistry<Model>,
-        _: WindowRequest<Model>,
-    ) {
-    }
-
-    fn window_moved(
-        &mut self,
-        _: &winit::window::WindowId,
-        _: &winit::dpi::PhysicalPosition<i32>,
-    ) -> ControlFlow {
-        ControlFlow::Wait
-    }
-
-    fn window_got_focus(&mut self, _: &winit::window::WindowId) -> ControlFlow {
-        ControlFlow::Wait
-    }
-    fn window_lost_focus(&mut self, _: &winit::window::WindowId) -> ControlFlow {
-        ControlFlow::Wait
-    }
-
-    fn window_requested_redraw(
-        &mut self,
-        _: &Application<Model>,
-        _: &Model,
-        _: &winit::window::WindowId,
-    ) -> ControlFlow {
-        ControlFlow::Wait
-    }
-
-    fn file_dropped(&mut self, _: &winit::window::WindowId, _: &Path) -> ControlFlow {
-        ControlFlow::Wait
-    }
 }
 
 pub struct WindowRequest<Model: ApplicationModel> {
@@ -163,7 +108,7 @@ impl<Model: ApplicationModel + 'static> Application<Model> {
             }
 
             while let Some(request) = self.pending_window_requests.pop_front() {
-                d.window_requested(&self, &mut s, event_loop, &mut window_registry, request)
+                d.window_requested(&self, &mut s, &mut window_registry, event_loop, request)
             }
             *control_flow = winit::event_loop::ControlFlow::Poll;
             match e {
