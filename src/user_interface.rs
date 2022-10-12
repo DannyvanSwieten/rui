@@ -2,7 +2,7 @@ use crate::application::{Application, ApplicationModel};
 use crate::canvas_2d::Canvas2D;
 use crate::constraints::BoxConstraints;
 use crate::widget::{style::StyleContext, *};
-use crate::window_event::MouseEvent;
+use crate::window::MouseEvent;
 use skia_safe::{Point, Size};
 use std::path::Path;
 use winit::{event::KeyboardInput, window::WindowId};

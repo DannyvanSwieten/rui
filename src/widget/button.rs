@@ -5,7 +5,7 @@ use crate::{
     canvas_2d::Canvas2D,
     constraints::BoxConstraints,
     widget::{style::Theme, Properties, Widget},
-    window_event::MouseEvent,
+    window::MouseEvent,
 };
 
 enum ButtonState {

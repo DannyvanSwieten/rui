@@ -3,7 +3,7 @@ use crate::canvas_2d::Canvas2D;
 use crate::image_renderer::ImageRenderer;
 use crate::skia_vulkan_canvas::SkiaGpuCanvas2D;
 use crate::widget::Widget;
-use crate::window_delegate::WindowDelegate;
+use crate::window::{MouseEvent, WindowDelegate};
 
 use ash::vk::QueueFlags;
 use vk_utils::command_buffer::CommandBuffer;
@@ -14,7 +14,6 @@ use vk_utils::swapchain::Swapchain;
 use vk_utils::wait_handle::WaitHandle;
 
 use super::user_interface::UserInterface;
-use super::window_event::MouseEvent;
 
 use std::{path::Path, rc::Rc};
 

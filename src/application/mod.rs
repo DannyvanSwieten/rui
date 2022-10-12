@@ -3,7 +3,7 @@ mod application_model;
 pub use application_model::ApplicationModel;
 
 use crate::widget::Widget;
-use crate::window_delegate::WindowDelegate;
+use crate::window::WindowDelegate;
 use std::collections::{HashMap, VecDeque};
 use vk_utils::vulkan::Vulkan;
 

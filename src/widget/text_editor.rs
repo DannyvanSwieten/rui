@@ -11,6 +11,7 @@ use winit::event::{ElementState, VirtualKeyCode};
 use crate::{
     application::ApplicationModel,
     widget::{style::Theme, Widget},
+    window::MouseEvent,
 };
 
 #[derive(Default)]
@@ -101,7 +102,7 @@ impl<Model: ApplicationModel> Widget<Model> for TextBox {
 
     fn mouse_up(
         &mut self,
-        event: &crate::window_event::MouseEvent,
+        event: &MouseEvent,
         app: &mut crate::application::Application<Model>,
         model: &mut Model,
     ) {
@@ -109,17 +110,17 @@ impl<Model: ApplicationModel> Widget<Model> for TextBox {
 
     fn mouse_dragged(
         &mut self,
-        event: &crate::window_event::MouseEvent,
+        event: &MouseEvent,
         properties: &crate::widget::Properties,
         model: &mut Model,
     ) {
     }
 
-    fn mouse_moved(&mut self, event: &crate::window_event::MouseEvent, model: &mut Model) {}
+    fn mouse_moved(&mut self, event: &MouseEvent, model: &mut Model) {}
 
-    fn mouse_entered(&mut self, event: &crate::window_event::MouseEvent, model: &mut Model) {}
+    fn mouse_entered(&mut self, event: &MouseEvent, model: &mut Model) {}
 
-    fn mouse_left(&mut self, event: &crate::window_event::MouseEvent, model: &mut Model) {}
+    fn mouse_left(&mut self, event: &MouseEvent, model: &mut Model) {}
 
     fn keyboard_event(&mut self, event: &winit::event::KeyboardInput, model: &mut Model) -> bool {
         if let Some(keycode) = event.virtual_keycode {
@@ -147,7 +148,7 @@ impl<Model: ApplicationModel> Widget<Model> for TextBox {
 
     fn mouse_down(
         &mut self,
-        event: &crate::window_event::MouseEvent,
+        event: &MouseEvent,
         _: &crate::widget::Properties,
         _: &mut crate::application::Application<Model>,
         model: &mut Model,
