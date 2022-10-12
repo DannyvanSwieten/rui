@@ -1,13 +1,13 @@
 [package]
-name = "ui"
-version = "0.1.0"
 authors = ["Danny van Swieten <dannyvanswieten@gmail.com>"]
 edition = "2018"
+name = "rui"
+version = "0.1.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-vk_utils = {git = "https://github.com/DannyvanSwieten/vk_utils.git"}
 ash = "*"
 ash-window = "0.11.0"
+skia-safe = {version = "*", features = ["vulkan", "gpu", "textlayout"]}
+vk_utils = {git = "https://github.com/DannyvanSwieten/vk_utils.git"}
 winit = "*"
-skia-safe = { version = "*", features = ["vulkan", "gpu", "textlayout"] }
