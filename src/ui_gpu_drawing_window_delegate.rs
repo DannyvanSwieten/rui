@@ -1,5 +1,4 @@
-use crate::application::Application;
-use crate::application_model::ApplicationModel;
+use crate::application::{Application, ApplicationModel};
 use crate::canvas_2d::Canvas2D;
 use crate::image_renderer::ImageRenderer;
 use crate::skia_vulkan_canvas::SkiaGpuCanvas2D;

@@ -1,12 +1,11 @@
 use skia_safe::{Paint, Point, Rect, Size};
 
 use crate::{
-    application::Application,
-    application_model::ApplicationModel,
+    application::{Application, ApplicationModel},
     canvas_2d::Canvas2D,
     constraints::BoxConstraints,
     style::Theme,
-    widget::{map_range, ChildSlot, Properties, Widget},
+    widget::{map_range, Properties, Widget},
     window_event::MouseEvent,
 };
 enum SliderState {

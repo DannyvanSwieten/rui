@@ -1,4 +1,4 @@
-use crate::{application::Application, application_model::ApplicationModel};
+use crate::application::{Application, ApplicationModel};
 use std::path::Path;
 
 pub trait WindowDelegate<Model: ApplicationModel> {

@@ -1,5 +1,6 @@
-use crate::application::{Application, ApplicationDelegate, WindowRegistry, WindowRequest};
-use crate::application_model::ApplicationModel;
+use crate::application::{
+    Application, ApplicationDelegate, ApplicationModel, WindowRegistry, WindowRequest,
+};
 use crate::ui_gpu_drawing_window_delegate::UIGpuDrawingWindowDelegate;
 use crate::window_delegate::WindowDelegate;
 use std::rc::Rc;

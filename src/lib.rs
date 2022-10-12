@@ -1,5 +1,4 @@
 pub mod application;
-pub mod application_model;
 pub mod button;
 pub mod canvas_2d;
 pub mod constraints;

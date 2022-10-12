@@ -1,9 +1,12 @@
+mod application_model;
+
+pub use application_model::ApplicationModel;
+
 use crate::widget::Widget;
 use crate::window_delegate::WindowDelegate;
 use std::collections::{HashMap, VecDeque};
 use vk_utils::vulkan::Vulkan;
 
-use super::application_model::ApplicationModel;
 use std::ffi::{CStr, CString};
 use std::path::Path;
 

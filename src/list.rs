@@ -1,8 +1,7 @@
 use skia_safe::{Point, Size};
 
 use crate::{
-    application::Application,
-    application_model::ApplicationModel,
+    application::{Application, ApplicationModel},
     canvas_2d::Canvas2D,
     constraints::BoxConstraints,
     style::Theme,

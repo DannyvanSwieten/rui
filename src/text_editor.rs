@@ -8,7 +8,8 @@ use skia_safe::{
 };
 use winit::event::{ElementState, VirtualKeyCode};
 
-use crate::{application_model::ApplicationModel, widget::Widget};
+use crate::{application::ApplicationModel, widget::Widget};
+
 #[derive(Default)]
 struct EditorState {
     text: String,
