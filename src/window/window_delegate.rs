@@ -2,27 +2,85 @@ use crate::application::{Application, ApplicationModel};
 use std::path::Path;
 
 pub trait WindowDelegate<Model: ApplicationModel> {
-    fn close_button_pressed(&mut self, _state: &mut Model) -> bool {
+    fn close_button_pressed(&mut self, state: &mut Model) -> bool {
+        let _ = state;
+
         true
     }
-    fn file_hovered(&mut self, _state: &mut Model, _path: &Path, _x: f32, _y: f32) {}
-    fn file_dropped(&mut self, _state: &mut Model, _path: &Path, _x: f32, _y: f32) {}
-    fn mouse_moved(&mut self, _state: &mut Model, _x: f32, _y: f32) {}
-    fn mouse_dragged(&mut self, _state: &mut Model, _x: f32, _y: f32, _dx: f32, _dy: f32) {}
-    fn mouse_down(&mut self, app: &mut Application<Model>, _state: &mut Model, _x: f32, _y: f32) {}
-    fn mouse_up(&mut self, app: &mut Application<Model>, _state: &mut Model, _x: f32, _y: f32) {}
+
+    fn file_hovered(&mut self, state: &mut Model, path: &Path, x: f32, y: f32) {
+        let _ = state;
+        let _ = path;
+        let _ = x;
+        let _ = y;
+    }
+
+    fn file_dropped(&mut self, state: &mut Model, path: &Path, x: f32, y: f32) {
+        let _ = state;
+        let _ = path;
+        let _ = x;
+        let _ = y;
+    }
+
+    fn mouse_moved(&mut self, state: &mut Model, x: f32, y: f32) {
+        let _ = state;
+        let _ = x;
+        let _ = y;
+    }
+
+    fn mouse_dragged(&mut self, state: &mut Model, x: f32, y: f32, dx: f32, dy: f32) {
+        let _ = state;
+        let _ = x;
+        let _ = y;
+        let _ = dx;
+        let _ = dy;
+    }
+
+    fn mouse_down(&mut self, app: &mut Application<Model>, state: &mut Model, x: f32, y: f32) {
+        let _ = app;
+        let _ = state;
+        let _ = x;
+        let _ = y;
+    }
+
+    fn mouse_up(&mut self, app: &mut Application<Model>, state: &mut Model, x: f32, y: f32) {
+        let _ = app;
+        let _ = state;
+        let _ = x;
+        let _ = y;
+    }
+
     fn resized(
         &mut self,
-        _window: &winit::window::Window,
-        _app: &Application<Model>,
-        _state: &mut Model,
-        _width: u32,
-        _height: u32,
+        window: &winit::window::Window,
+        app: &Application<Model>,
+        state: &mut Model,
+        width: u32,
+        height: u32,
     ) {
+        let _ = window;
+        let _ = app;
+        let _ = state;
+        let _ = width;
+        let _ = height;
     }
-    fn keyboard_event(&mut self, _state: &mut Model, _event: &winit::event::KeyboardInput) {}
-    fn character_received(&mut self, _state: &mut Model, _character: char) {}
-    fn draw(&mut self, _app: &Application<Model>, _state: &Model) {}
 
-    fn update(&mut self, _state: &mut Model) {}
+    fn keyboard_event(&mut self, state: &mut Model, event: &winit::event::KeyboardInput) {
+        let _ = state;
+        let _ = event;
+    }
+
+    fn character_received(&mut self, state: &mut Model, character: char) {
+        let _ = state;
+        let _ = character;
+    }
+
+    fn draw(&mut self, app: &Application<Model>, state: &Model) {
+        let _ = app;
+        let _ = state;
+    }
+
+    fn update(&mut self, state: &mut Model) {
+        let _ = state;
+    }
 }
