@@ -2,8 +2,7 @@ mod application_model;
 
 pub use application_model::ApplicationModel;
 
-use crate::widget::Widget;
-use crate::window::WindowDelegate;
+use crate::{widget::Widget, window::WindowRegistry};
 use std::collections::{HashMap, VecDeque};
 use vk_utils::vulkan::Vulkan;
 
@@ -13,7 +12,6 @@ use std::path::Path;
 use winit::{
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop, EventLoopWindowTarget},
-    window::{Window, WindowBuilder, WindowId},
 };
 
 use ash::extensions::{ext::DebugUtils, khr::Surface};
@@ -97,183 +95,6 @@ pub trait ApplicationDelegate<Model: ApplicationModel> {
     }
 }
 
-pub struct WindowRegistry<Model: 'static> {
-    windows: HashMap<WindowId, Window>,
-    window_delegates: HashMap<WindowId, Box<dyn WindowDelegate<Model>>>,
-}
-
-impl<Model: ApplicationModel> WindowRegistry<Model> {
-    pub fn create_window(
-        &self,
-        target: &EventLoopWindowTarget<()>,
-        title: &str,
-        width: u32,
-        height: u32,
-    ) -> Window {
-        WindowBuilder::new()
-            .with_title(title)
-            .with_inner_size(winit::dpi::LogicalSize { width, height })
-            .build(target)
-            .unwrap()
-    }
-
-    pub fn register_with_delegate(
-        &mut self,
-        window: Window,
-        delegate: Box<dyn WindowDelegate<Model>>,
-    ) {
-        self.window_delegates.insert(window.id(), delegate);
-        self.windows.insert(window.id(), window);
-    }
-
-    pub fn register(&mut self, window: Window) {
-        self.windows.insert(window.id(), window);
-    }
-
-    pub fn active_window_count(&self) -> usize {
-        self.windows.len()
-    }
-
-    fn update(&mut self, state: &mut Model) {
-        for (_, delegate) in self.window_delegates.iter_mut() {
-            delegate.update(state)
-        }
-    }
-
-    fn window_resized(
-        &mut self,
-        app: &Application<Model>,
-        state: &mut Model,
-        id: &winit::window::WindowId,
-        size: &winit::dpi::PhysicalSize<u32>,
-    ) {
-        if let Some(window) = self.window_delegates.get_mut(id) {
-            window.resized(
-                self.windows.get(id).unwrap(),
-                app,
-                state,
-                size.width,
-                size.height,
-            )
-        }
-    }
-
-    fn character_received(&mut self, id: &WindowId, character: char, state: &mut Model) {
-        if let Some(delegate) = self.window_delegates.get_mut(id) {
-            delegate.character_received(state, character)
-        }
-    }
-
-    fn keyboard_event(
-        &mut self,
-        id: &WindowId,
-        event: &winit::event::KeyboardInput,
-        state: &mut Model,
-    ) {
-        if let Some(delegate) = self.window_delegates.get_mut(id) {
-            delegate.keyboard_event(state, event)
-        }
-    }
-
-    fn close_button_pressed(&mut self, id: &WindowId, state: &mut Model) {
-        if let Some(delegate) = self.window_delegates.get_mut(id) {
-            if delegate.close_button_pressed(state) {
-                self.windows.remove(id);
-            }
-        }
-    }
-
-    fn mouse_moved(
-        &mut self,
-        state: &mut Model,
-        id: &WindowId,
-        position: &winit::dpi::PhysicalPosition<f64>,
-    ) {
-        if let Some(delegate) = self.window_delegates.get_mut(id) {
-            delegate.mouse_moved(state, position.x as f32, position.y as f32);
-        }
-    }
-
-    fn mouse_dragged(
-        &mut self,
-        state: &mut Model,
-        id: &winit::window::WindowId,
-        position: &winit::dpi::PhysicalPosition<f64>,
-        delta: &winit::dpi::PhysicalPosition<f64>,
-    ) {
-        if let Some(delegate) = self.window_delegates.get_mut(id) {
-            delegate.mouse_dragged(
-                state,
-                position.x as f32,
-                position.y as f32,
-                delta.x as f32,
-                delta.y as f32,
-            );
-        }
-    }
-
-    fn mouse_down(
-        &mut self,
-        app: &mut Application<Model>,
-        state: &mut Model,
-        id: &winit::window::WindowId,
-        position: &winit::dpi::PhysicalPosition<f64>,
-    ) {
-        if let Some(delegate) = self.window_delegates.get_mut(id) {
-            delegate.mouse_down(app, state, position.x as f32, position.y as f32);
-        }
-    }
-
-    fn mouse_up(
-        &mut self,
-        app: &mut Application<Model>,
-        state: &mut Model,
-        id: &winit::window::WindowId,
-        position: &winit::dpi::PhysicalPosition<f64>,
-    ) {
-        if let Some(delegate) = self.window_delegates.get_mut(id) {
-            delegate.mouse_up(app, state, position.x as f32, position.y as f32);
-        }
-    }
-
-    fn window_moved(&mut self, _: &winit::window::WindowId, _: &winit::dpi::PhysicalPosition<i32>) {
-    }
-
-    fn draw(&mut self, app: &Application<Model>, state: &mut Model) {
-        for (_, delegate) in self.window_delegates.iter_mut() {
-            delegate.draw(app, state)
-        }
-    }
-
-    fn window_destroyed(&mut self, id: &WindowId) {
-        self.window_delegates.remove(id);
-    }
-
-    fn file_dropped(
-        &mut self,
-        id: &WindowId,
-        state: &mut Model,
-        file: &Path,
-        position: &winit::dpi::PhysicalPosition<f64>,
-    ) {
-        if let Some(delegate) = self.window_delegates.get_mut(id) {
-            delegate.file_dropped(state, file, position.x as f32, position.y as f32)
-        }
-    }
-
-    fn file_hovered(
-        &mut self,
-        id: &WindowId,
-        state: &mut Model,
-        file: &Path,
-        position: &winit::dpi::PhysicalPosition<f64>,
-    ) {
-        if let Some(delegate) = self.window_delegates.get_mut(id) {
-            delegate.file_hovered(state, file, position.x as f32, position.y as f32)
-        }
-    }
-}
-
 pub struct WindowRequest<Model: ApplicationModel> {
     pub builder: Box<dyn Fn(&Model) -> Box<dyn Widget<Model>>>,
     pub title: Option<String>,
@@ -330,10 +151,7 @@ impl<Model: ApplicationModel + 'static> Application<Model> {
         let event_loop = EventLoop::new();
         let mut d = delegate;
 
-        let mut window_registry = WindowRegistry {
-            windows: HashMap::new(),
-            window_delegates: HashMap::new(),
-        };
+        let mut window_registry = WindowRegistry::new();
 
         d.application_will_start(&mut self, &mut s, &mut window_registry, &event_loop);
         let mut last_mouse_position = winit::dpi::PhysicalPosition::<f64>::new(0., 0.);
