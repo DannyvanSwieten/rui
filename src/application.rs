@@ -1,7 +1,3 @@
-extern crate ash;
-extern crate ash_window;
-extern crate winit;
-
 use crate::widget::Widget;
 use crate::window_delegate::WindowDelegate;
 use std::collections::{HashMap, VecDeque};
