@@ -48,7 +48,7 @@ impl<Model: ApplicationModel> Widget<Model> for TextBox {
         paragraph_builder.push_style(&ts);
         paragraph_builder.add_text(&self.placeholder);
         let mut paragraph = paragraph_builder.build();
-        paragraph.layout(constraints.max_width().unwrap() - 4f32);
+        paragraph.layout(constraints.max_width().unwrap() - 4.0);
         Size::new(constraints.max_width().unwrap(), paragraph.height())
     }
 
@@ -75,7 +75,7 @@ impl<Model: ApplicationModel> Widget<Model> for TextBox {
         }
 
         let mut paragraph = paragraph_builder.build();
-        paragraph.layout(rect.width - 4f32);
+        paragraph.layout(rect.width - 4.0);
         let selection_boxes = paragraph.get_rects_for_range(
             self.state.selection.clone(),
             skia_safe::textlayout::RectHeightStyle::IncludeLineSpacingBottom,

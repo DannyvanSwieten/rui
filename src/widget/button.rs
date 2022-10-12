@@ -90,8 +90,8 @@ impl<Model: ApplicationModel> Widget<Model> for TextButton<Model> {
                 };
                 canvas.draw_rounded_rect(
                     &Rect::from_wh(size.width, size.height),
-                    4f32,
-                    4f32,
+                    4.0,
+                    4.0,
                     &bg_paint,
                 );
                 text_paint.set_color(theme.text);
@@ -105,8 +105,8 @@ impl<Model: ApplicationModel> Widget<Model> for TextButton<Model> {
                 bg_paint.set_stroke(true);
                 canvas.draw_rounded_rect(
                     &Rect::from_wh(size.width, size.height),
-                    4f32,
-                    4f32,
+                    4.0,
+                    4.0,
                     &bg_paint,
                 );
 
@@ -117,8 +117,8 @@ impl<Model: ApplicationModel> Widget<Model> for TextButton<Model> {
                         bg_paint.set_stroke(false);
                         canvas.draw_rounded_rect(
                             &Rect::from_wh(size.width, size.height),
-                            4f32,
-                            4f32,
+                            4.0,
+                            4.0,
                             &bg_paint,
                         );
                     }
@@ -127,8 +127,8 @@ impl<Model: ApplicationModel> Widget<Model> for TextButton<Model> {
                         bg_paint.set_stroke(false);
                         canvas.draw_rounded_rect(
                             &Rect::from_wh(size.width, size.height),
-                            4f32,
-                            4f32,
+                            4.0,
+                            4.0,
                             &bg_paint,
                         );
                     }
@@ -150,8 +150,8 @@ impl<Model: ApplicationModel> Widget<Model> for TextButton<Model> {
                         bg_paint.set_stroke(false);
                         canvas.draw_rounded_rect(
                             &Rect::from_wh(size.width, size.height),
-                            4f32,
-                            4f32,
+                            4.0,
+                            4.0,
                             &bg_paint,
                         );
                     }
@@ -160,8 +160,8 @@ impl<Model: ApplicationModel> Widget<Model> for TextButton<Model> {
                         bg_paint.set_stroke(false);
                         canvas.draw_rounded_rect(
                             &Rect::from_wh(size.width, size.height),
-                            4f32,
-                            4f32,
+                            4.0,
+                            4.0,
                             &bg_paint,
                         );
                     }

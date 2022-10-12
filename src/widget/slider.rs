@@ -68,7 +68,7 @@ impl<Model: ApplicationModel> Widget<Model> for Slider<Model> {
         let mut fill_paint = Paint::default();
         fill_paint.set_anti_alias(true);
 
-        let rounding = 4f32;
+        let rounding = 4.0;
         let gutter_height = rect.height / 8.0;
         let thumb_size = gutter_height * 1.5;
         let active_thumb_size = thumb_size * 2.5;
@@ -188,7 +188,7 @@ impl<Model: ApplicationModel> Widget<Model> for Switch<Model> {
         let mut fill_paint = Paint::default();
         fill_paint.set_anti_alias(true);
 
-        let rounding = 4f32;
+        let rounding = 4.0;
         let gutter_height = rect.height / 4.0;
         let thumb_size = gutter_height * 1.25;
         let active_thumb_size = thumb_size * 1.5;
