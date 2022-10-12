@@ -3,7 +3,7 @@ mod application_model;
 pub use application_model::ApplicationModel;
 
 use crate::{widget::Widget, window::WindowRegistry};
-use std::collections::{HashMap, VecDeque};
+use std::collections::VecDeque;
 use vk_utils::vulkan::Vulkan;
 
 use std::ffi::{CStr, CString};

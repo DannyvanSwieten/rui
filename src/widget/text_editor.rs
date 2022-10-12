@@ -90,14 +90,14 @@ impl<Model: ApplicationModel> Widget<Model> for TextBox {
         let mut border_paint = Paint::default();
         border_paint.set_color(Color::from_rgb(255, 255, 255));
         canvas.draw_rect(&Rect::from_size(*rect), &border_paint);
-        if selected_rect.width() > 0f32 {
+        if selected_rect.width() > 0.0 {
             border_paint.set_color(Color::from_rgb(0, 0, 255));
             canvas.draw_rect(&selected_rect, &border_paint);
         }
         border_paint.set_stroke(true);
         border_paint.set_color(Color::from_rgb(0, 0, 0));
         canvas.draw_rect(&Rect::from_size(*rect), &border_paint);
-        canvas.draw_paragraph(&Point::new(2f32, 0f32), &paragraph)
+        canvas.draw_paragraph(&Point::new(2.0, 0.0), &paragraph)
     }
 
     fn mouse_up(
@@ -143,7 +143,7 @@ impl<Model: ApplicationModel> Widget<Model> for TextBox {
     }
 
     fn flex(&self) -> f32 {
-        0f32
+        0.0
     }
 
     fn mouse_down(

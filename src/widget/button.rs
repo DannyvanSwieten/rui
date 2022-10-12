@@ -42,7 +42,7 @@ impl<Model: ApplicationModel> TextButton<Model> {
         bg_paint.set_color4f(skia_safe::Color4f::new(0.25, 0.25, 0.25, 1.0), None);
         let mut text_paint = Paint::default();
         text_paint.set_anti_alias(true);
-        text_paint.set_color4f(skia_safe::Color4f::new(1f32, 1f32, 1f32, 1f32), None);
+        text_paint.set_color4f(skia_safe::Color4f::new(1.0, 1.0, 1.0, 1.0), None);
         Self {
             state: ButtonState::Inactive,
             text: text.to_string(),

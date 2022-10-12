@@ -75,10 +75,10 @@ impl<Model: ApplicationModel> Widget<Model> for Slider<Model> {
 
         let rect = Rect::from_size(*rect);
         let mut fill_rect = Rect::from_wh(rect.width(), gutter_height);
-        fill_rect.offset(Point::new(0f32, rect.center_y() - fill_rect.center_y()));
+        fill_rect.offset(Point::new(0.0, rect.center_y() - fill_rect.center_y()));
 
         let mut unfill_rect = Rect::from_wh(rect.width(), gutter_height);
-        unfill_rect.offset(Point::new(0f32, rect.center_y() - unfill_rect.center_y()));
+        unfill_rect.offset(Point::new(0.0, rect.center_y() - unfill_rect.center_y()));
 
         fill_paint.set_color(theme.slider.fill);
         fill_paint.set_stroke(true);
@@ -90,7 +90,7 @@ impl<Model: ApplicationModel> Widget<Model> for Slider<Model> {
 
         fill_paint.set_alpha_f(1.0);
         let mut fill_rect = Rect::from_wh(self.last_position, gutter_height);
-        fill_rect.offset(Point::new(0f32, rect.center_y() - fill_rect.center_y()));
+        fill_rect.offset(Point::new(0.0, rect.center_y() - fill_rect.center_y()));
         canvas.draw_rounded_rect(&fill_rect, rounding, rounding, &fill_paint);
         canvas.draw_circle(
             &Point::new(self.last_position, rect.center_y()),
@@ -195,9 +195,9 @@ impl<Model: ApplicationModel> Widget<Model> for Switch<Model> {
 
         let rect = Rect::from_size(*rect);
         let mut fill_rect = Rect::from_wh(rect.width(), gutter_height);
-        fill_rect.offset(Point::new(0f32, rect.center_y() - fill_rect.center_y()));
+        fill_rect.offset(Point::new(0.0, rect.center_y() - fill_rect.center_y()));
         let mut unfill_rect = Rect::from_wh(rect.width(), gutter_height);
-        unfill_rect.offset(Point::new(0f32, rect.center_y() - unfill_rect.center_y()));
+        unfill_rect.offset(Point::new(0.0, rect.center_y() - unfill_rect.center_y()));
 
         fill_paint.set_color(theme.slider.fill);
         fill_paint.set_stroke(true);
@@ -208,13 +208,13 @@ impl<Model: ApplicationModel> Widget<Model> for Switch<Model> {
         canvas.draw_rounded_rect(&unfill_rect, rounding, rounding, &fill_paint);
 
         fill_paint.set_alpha_f(1.0);
-        let mut fill_rect = Rect::from_wh(0f32, gutter_height);
-        fill_rect.offset(Point::new(0f32, rect.center_y() - fill_rect.center_y()));
+        let mut fill_rect = Rect::from_wh(0.0, gutter_height);
+        fill_rect.offset(Point::new(0.0, rect.center_y() - fill_rect.center_y()));
         canvas.draw_rounded_rect(&fill_rect, rounding, rounding, &fill_paint);
         let thumb_position = if self.active {
             rect.right() - thumb_size * 0.5
         } else {
-            0f32
+            0.0
         };
         canvas.draw_circle(
             &Point::new(thumb_position, rect.center_y()),

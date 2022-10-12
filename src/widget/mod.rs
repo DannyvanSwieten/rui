@@ -48,7 +48,7 @@ pub trait Widget<Model: ApplicationModel> {
     fn layout(&mut self, constraints: &BoxConstraints, model: &Model) -> Size;
     fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, model: &Model);
     fn flex(&self) -> f32 {
-        0f32
+        0.0
     }
     fn mouse_down(
         &mut self,
@@ -278,17 +278,17 @@ impl<Model: ApplicationModel> Widget<Model> for Container<Model> {
             } else {
                 let mut child_constraints = BoxConstraints::new();
                 if self.width.is_some() {
-                    child_constraints = child_constraints.with_max_width(self.width.unwrap_or(0f32))
+                    child_constraints = child_constraints.with_max_width(self.width.unwrap_or(0.0))
                 }
                 if self.height.is_some() {
                     child_constraints =
-                        child_constraints.with_max_height(self.height.unwrap_or(0f32))
+                        child_constraints.with_max_height(self.height.unwrap_or(0.0))
                 }
                 self.child
                     .layout(&child_constraints.shrunk(space_around, space_around), model)
             }
         } else {
-            let child_constraints = constraints.shrunk(space_around * 2f32, space_around * 2f32);
+            let child_constraints = constraints.shrunk(space_around * 2.0, space_around * 2.0);
             self.child.layout(&child_constraints, model)
         };
 
@@ -297,8 +297,8 @@ impl<Model: ApplicationModel> Widget<Model> for Container<Model> {
         self.child.set_size(&child_size);
 
         Size::new(
-            (child_size.width + space_around * 2f32).max(constraints.min_width().unwrap_or(0f32)),
-            (child_size.height + space_around * 2f32).max(constraints.min_height().unwrap_or(0f32)),
+            (child_size.width + space_around * 2.0).max(constraints.min_width().unwrap_or(0.0)),
+            (child_size.height + space_around * 2.0).max(constraints.min_height().unwrap_or(0.0)),
         )
     }
 
@@ -345,7 +345,7 @@ impl<Model: ApplicationModel> Widget<Model> for Container<Model> {
     }
 
     fn flex(&self) -> f32 {
-        0f32
+        0.0
     }
 
     fn character_received(&mut self, character: char, model: &mut Model) -> bool {
@@ -390,8 +390,8 @@ impl<Model: ApplicationModel> Widget<Model> for Center<Model> {
 
         self.child.set_size(&child_size);
 
-        let x_offset = (my_size.width - child_size.width) / 2f32;
-        let y_offset = (my_size.height - child_size.height) / 2f32;
+        let x_offset = (my_size.width - child_size.width) / 2.0;
+        let y_offset = (my_size.height - child_size.height) / 2.0;
         self.child.set_position(&Point::new(x_offset, y_offset));
 
         my_size
@@ -569,8 +569,8 @@ impl<Model: ApplicationModel> Widget<Model> for FlexBox<Model> {
 
 // impl<Model: ApplicationModel> Widget<Model> for Label {
 //     fn paint(&mut self, _: &Model, rect: &Rect, canvas: &mut dyn Canvas2D, style: &StyleSheet) {
-//         assert_ne!(rect.width(), 0f32);
-//         assert_ne!(rect.height(), 0f32);
+//         assert_ne!(rect.width(), 0.0);
+//         assert_ne!(rect.height(), 0.0);
 //         self.paint.set_color(*style.get("bg-color").unwrap());
 //         self.paint.set_anti_alias(true);
 //         canvas.draw_rounded_rect(rect, 15., 15., &self.paint);
@@ -629,8 +629,8 @@ impl<Model: ApplicationModel> Widget<Model> for FlexBox<Model> {
 
 // impl<Model: ApplicationModel> Widget<Model> for Table<Model> {
 //     fn paint(&mut self, state: &Model, rect: &Rect, canvas: &mut dyn Canvas2D, style: &StyleSheet) {
-//         assert_ne!(rect.width(), 0f32);
-//         assert_ne!(rect.height(), 0f32);
+//         assert_ne!(rect.width(), 0.0);
+//         assert_ne!(rect.height(), 0.0);
 //         let e_color = *style.get("even").unwrap_or(&Color::CYAN);
 //         let u_color = *style.get("uneven").unwrap_or(&Color::RED);
 

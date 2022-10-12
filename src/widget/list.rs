@@ -22,12 +22,12 @@ pub struct List<Model> {
 impl<Model: ApplicationModel> List<Model> {
     pub fn new() -> Self {
         Self {
-            spacing: 0f32,
+            spacing: 0.0,
             item_size: None,
             item_count: None,
             builder: None,
             children: Vec::new(),
-            viewport_position: 0f32,
+            viewport_position: 0.0,
         }
     }
 
@@ -42,7 +42,7 @@ impl<Model: ApplicationModel> List<Model> {
 
     pub fn new_with_children(children: Vec<Box<dyn Widget<Model>>>) -> Self {
         Self {
-            spacing: 0f32,
+            spacing: 0.0,
             item_size: None,
             item_count: None,
             builder: None,
@@ -50,7 +50,7 @@ impl<Model: ApplicationModel> List<Model> {
                 .into_iter()
                 .map(|child| ChildSlot::new_with_box(child))
                 .collect(),
-            viewport_position: 0f32,
+            viewport_position: 0.0,
         }
     }
 
@@ -80,7 +80,7 @@ impl<Model: ApplicationModel> Widget<Model> for List<Model> {
             }
         }
 
-        let mut y = 0f32;
+        let mut y = 0.0;
 
         for child in &mut self.children {
             let child_constraints = if let Some(item_size) = self.item_size {
@@ -93,7 +93,7 @@ impl<Model: ApplicationModel> Widget<Model> for List<Model> {
             let mut child_size = child.layout(&child_constraints, model);
             child_size.height = self.item_size.unwrap_or(child_size.height);
             child.set_size(&child_size);
-            child.set_position(&Point::new(0f32, y));
+            child.set_position(&Point::new(0.0, y));
             y += child_size.height + self.spacing
         }
 

@@ -17,7 +17,7 @@ impl<Model: ApplicationModel> Row<Model> {
     pub fn new() -> Self {
         Self {
             children: Vec::new(),
-            spacing: 0f32,
+            spacing: 0.0,
         }
     }
 
@@ -45,7 +45,7 @@ impl<Model: ApplicationModel> Widget<Model> for Row<Model> {
             .children
             .iter_mut()
             .flat_map(|child| {
-                if child.flex() == 0f32 {
+                if child.flex() == 0.0 {
                     let child_size = child.layout(&child_constraints, model);
                     child.set_size(&child_size);
                     Some(child_size)
@@ -58,7 +58,7 @@ impl<Model: ApplicationModel> Widget<Model> for Row<Model> {
         let constrained_size =
             constrained_sizes
                 .iter()
-                .fold(Size::new(0f32, 0f32), |mut acc, child_size| {
+                .fold(Size::new(0.0, 0.0), |mut acc, child_size| {
                     acc.width += child_size.width + self.spacing;
                     acc.height = acc.height.max(child_size.height);
                     acc
@@ -67,14 +67,14 @@ impl<Model: ApplicationModel> Widget<Model> for Row<Model> {
         let total_flex = self
             .children
             .iter()
-            .fold(0f32, |acc, child| acc + child.flex());
+            .fold(0.0, |acc, child| acc + child.flex());
 
-        if total_flex > 0f32 {
+        if total_flex > 0.0 {
             let width = constraints.max_width().unwrap();
             let unconstraint_width = width - constrained_size.width;
             let flex_factor = unconstraint_width / total_flex;
             for child in &mut self.children {
-                if child.flex() != 0f32 {
+                if child.flex() != 0.0 {
                     let child_constraints = BoxConstraints::new()
                         .with_max_width(flex_factor * child.flex())
                         .with_max_height(constraints.max_height().unwrap());
@@ -84,7 +84,7 @@ impl<Model: ApplicationModel> Widget<Model> for Row<Model> {
             }
         }
 
-        let mut position = Point::new(0f32, 0f32);
+        let mut position = Point::new(0.0, 0.0);
         for child in &mut self.children {
             child.set_position(&position);
             position.x += child.size().width + self.spacing;
@@ -145,7 +145,7 @@ impl<Model: ApplicationModel> Widget<Model> for Row<Model> {
     }
 
     fn flex(&self) -> f32 {
-        0f32
+        0.0
     }
 
     fn keyboard_event(&mut self, event: &winit::event::KeyboardInput, model: &mut Model) -> bool {
@@ -178,7 +178,7 @@ impl<Model: ApplicationModel> Column<Model> {
     pub fn new() -> Self {
         Self {
             children: Vec::new(),
-            spacing: 0f32,
+            spacing: 0.0,
         }
     }
 
@@ -207,7 +207,7 @@ impl<Model: ApplicationModel> Widget<Model> for Column<Model> {
             .children
             .iter_mut()
             .flat_map(|child| {
-                if child.flex() == 0f32 {
+                if child.flex() == 0.0 {
                     let child_size = child.layout(&child_constraints, model);
                     child.set_size(&child_size);
                     Some(child_size)
@@ -220,7 +220,7 @@ impl<Model: ApplicationModel> Widget<Model> for Column<Model> {
         let constrained_size =
             constrained_sizes
                 .iter()
-                .fold(Size::new(0f32, 0f32), |mut acc, child_size| {
+                .fold(Size::new(0.0, 0.0), |mut acc, child_size| {
                     acc.height += child_size.height + self.spacing;
                     acc.width = acc.width.max(child_size.width);
                     acc
@@ -229,14 +229,14 @@ impl<Model: ApplicationModel> Widget<Model> for Column<Model> {
         let total_flex = self
             .children
             .iter()
-            .fold(0f32, |acc, child| acc + child.flex());
+            .fold(0.0, |acc, child| acc + child.flex());
 
-        if total_flex > 0f32 {
+        if total_flex > 0.0 {
             let height = constraints.max_height().unwrap();
             let unconstraint_height = height - total_spacing - constrained_size.height;
             let flex_factor = unconstraint_height / total_flex;
             for child in &mut self.children {
-                if child.flex() != 0f32 {
+                if child.flex() != 0.0 {
                     let child_constraints = BoxConstraints::new()
                         .with_max_height(flex_factor * child.flex())
                         .with_max_width(constraints.max_width().unwrap());
@@ -246,7 +246,7 @@ impl<Model: ApplicationModel> Widget<Model> for Column<Model> {
             }
         }
 
-        let mut position = Point::new(0f32, 0f32);
+        let mut position = Point::new(0.0, 0.0);
         for child in &mut self.children {
             child.set_position(&position);
             position.y += child.size().height + self.spacing;
@@ -307,7 +307,7 @@ impl<Model: ApplicationModel> Widget<Model> for Column<Model> {
     }
 
     fn flex(&self) -> f32 {
-        0f32
+        0.0
     }
 
     fn keyboard_event(&mut self, event: &winit::event::KeyboardInput, model: &mut Model) -> bool {
@@ -344,7 +344,7 @@ impl<Model: ApplicationModel> Expanded<Model> {
             child: ChildSlot::new(child),
             width: None,
             height: None,
-            flex: 1f32,
+            flex: 1.0,
         }
     }
 
