@@ -6,19 +6,15 @@ pub use application_delegate::ApplicationDelegate;
 pub use application_model::ApplicationModel;
 pub use ui_application_delegate::UIApplicationDelegate;
 
-use crate::{
-    widget::Widget,
-    window::{WindowId, WindowRegistry},
-};
+use crate::{widget::Widget, window::WindowRegistry};
 use std::collections::VecDeque;
 use vk_utils::vulkan::Vulkan;
 
 use std::ffi::{CStr, CString};
-use std::path::Path;
 
 use winit::{
     event::{Event, WindowEvent},
-    event_loop::{ControlFlow, EventLoop, EventLoopWindowTarget},
+    event_loop::{ControlFlow, EventLoop},
 };
 
 use ash::extensions::{ext::DebugUtils, khr::Surface};
@@ -141,7 +137,7 @@ impl<Model: ApplicationModel + 'static> Application<Model> {
 
                 Event::WindowEvent {
                     event: WindowEvent::DroppedFile(path_buffer),
-                    window_id,
+                    ..
                 } => last_file_drop.push(path_buffer),
                 Event::WindowEvent {
                     event: WindowEvent::HoveredFile(path_buffer),
@@ -168,12 +164,7 @@ impl<Model: ApplicationModel + 'static> Application<Model> {
                 }
 
                 Event::WindowEvent {
-                    event:
-                        WindowEvent::CursorMoved {
-                            device_id,
-                            position,
-                            ..
-                        },
+                    event: WindowEvent::CursorMoved { position, .. },
                     window_id,
                 } => {
                     if mouse_is_down {
@@ -207,22 +198,11 @@ impl<Model: ApplicationModel + 'static> Application<Model> {
 
                 Event::WindowEvent {
                     window_id,
-                    event:
-                        WindowEvent::KeyboardInput {
-                            device_id,
-                            input,
-                            is_synthetic,
-                        },
+                    event: WindowEvent::KeyboardInput { input, .. },
                 } => window_registry.keyboard_event(&window_id, &input, &mut s),
 
                 Event::WindowEvent {
-                    event:
-                        WindowEvent::MouseInput {
-                            device_id,
-                            state,
-                            button,
-                            ..
-                        },
+                    event: WindowEvent::MouseInput { state, .. },
                     window_id,
                 } => match state {
                     winit::event::ElementState::Pressed => {
