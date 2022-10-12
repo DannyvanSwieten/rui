@@ -1,3 +1,7 @@
+pub mod button;
+pub mod slider;
+pub mod text_editor;
+
 use crate::application::{Application, ApplicationModel};
 use crate::canvas_2d::Canvas2D;
 use crate::constraints::BoxConstraints;
