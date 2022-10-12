@@ -6,8 +6,8 @@ version = "0.1.0"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 [dependencies]
-ash = "*"
+ash = "0.37.0"
 ash-window = "0.11.0"
-skia-safe = {version = "*", features = ["vulkan", "gpu", "textlayout"]}
+skia-safe = {version = "0.55.0", features = ["vulkan", "gpu", "textlayout"]}
 vk_utils = {git = "https://github.com/DannyvanSwieten/vk_utils.git"}
-winit = "*"
+winit = "0.27.4"
