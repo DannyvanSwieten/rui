@@ -1,8 +1,8 @@
-use skia_safe::{font::Edging, Font, Paint, Rect, Size};
-
 use crate::{
     application::{Application, ApplicationModel},
-    canvas_2d::Canvas2D,
+    canvas::{
+        font::Edging, Canvas2D, Color4f, Font, FontStyle, Paint, Rect, Size, TextBlob, Typeface,
+    },
     constraints::BoxConstraints,
     widget::{style::Theme, Properties, Widget},
     window::MouseEvent,
@@ -31,18 +31,17 @@ pub struct TextButton<Model: ApplicationModel> {
 impl<Model: ApplicationModel> TextButton<Model> {
     pub fn new(text: &str, font_size: f32) -> Self {
         let mut font = Font::new(
-            skia_safe::typeface::Typeface::new("arial black", skia_safe::FontStyle::normal())
-                .unwrap(),
+            Typeface::new("arial black", FontStyle::normal()).unwrap(),
             font_size,
         );
         font.set_edging(Edging::SubpixelAntiAlias);
         font.set_subpixel(true);
         let mut bg_paint = Paint::default();
         bg_paint.set_anti_alias(true);
-        bg_paint.set_color4f(skia_safe::Color4f::new(0.25, 0.25, 0.25, 1.0), None);
+        bg_paint.set_color4f(Color4f::new(0.25, 0.25, 0.25, 1.0), None);
         let mut text_paint = Paint::default();
         text_paint.set_anti_alias(true);
-        text_paint.set_color4f(skia_safe::Color4f::new(1.0, 1.0, 1.0, 1.0), None);
+        text_paint.set_color4f(Color4f::new(1.0, 1.0, 1.0, 1.0), None);
         Self {
             state: ButtonState::Inactive,
             text: text.to_string(),
@@ -68,7 +67,7 @@ impl<Model: ApplicationModel> TextButton<Model> {
 
 impl<Model: ApplicationModel> Widget<Model> for TextButton<Model> {
     fn layout(&mut self, constraints: &BoxConstraints, _: &Model) -> Size {
-        let blob = skia_safe::TextBlob::from_str(&self.text, &self.font);
+        let blob = TextBlob::from_str(&self.text, &self.font);
         let size = blob.unwrap().bounds().size();
         let width = constraints.max_width().unwrap_or(size.width);
         let height = constraints.max_height().unwrap_or(size.height);

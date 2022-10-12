@@ -1,7 +1,6 @@
 use crate::application::{Application, ApplicationModel};
-use crate::canvas_2d::Canvas2D;
+use crate::canvas::{Canvas2D, Point, SkiaGpuCanvas2D};
 use crate::image_renderer::ImageRenderer;
-use crate::skia_vulkan_canvas::SkiaGpuCanvas2D;
 use crate::user_interface::UserInterface;
 use crate::widget::Widget;
 use crate::window::{MouseEvent, WindowDelegate};
@@ -75,7 +74,7 @@ impl<Model: ApplicationModel + 'static> WindowDelegate<Model>
     for UIGpuDrawingWindowDelegate<Model>
 {
     fn mouse_moved(&mut self, state: &mut Model, x: f32, y: f32) {
-        let p = skia_safe::Point::from((x, y));
+        let p = Point::from((x, y));
         if let Some(ui) = self.ui.as_mut() {
             ui.user_interface
                 .mouse_moved(state, &MouseEvent::new(0, &p, &p));
@@ -83,8 +82,8 @@ impl<Model: ApplicationModel + 'static> WindowDelegate<Model>
     }
 
     fn mouse_dragged(&mut self, state: &mut Model, x: f32, y: f32, dx: f32, dy: f32) {
-        let p = skia_safe::Point::from((x, y));
-        let d = skia_safe::Point::from((dx, dy));
+        let p = Point::from((x, y));
+        let d = Point::from((dx, dy));
         if let Some(ui) = self.ui.as_mut() {
             ui.user_interface
                 .mouse_drag(state, &MouseEvent::new_with_delta(0, &p, &p, &d));
@@ -92,7 +91,7 @@ impl<Model: ApplicationModel + 'static> WindowDelegate<Model>
     }
 
     fn mouse_down(&mut self, app: &mut Application<Model>, state: &mut Model, x: f32, y: f32) {
-        let p = skia_safe::Point::from((x, y));
+        let p = Point::from((x, y));
         if let Some(ui) = self.ui.as_mut() {
             ui.user_interface
                 .mouse_down(app, state, &MouseEvent::new(0, &p, &p));
@@ -100,7 +99,7 @@ impl<Model: ApplicationModel + 'static> WindowDelegate<Model>
     }
 
     fn mouse_up(&mut self, app: &mut Application<Model>, state: &mut Model, x: f32, y: f32) {
-        let p = skia_safe::Point::from((x, y));
+        let p = Point::from((x, y));
         if let Some(ui) = self.ui.as_mut() {
             ui.user_interface
                 .mouse_up(app, state, &MouseEvent::new(0, &p, &p));
@@ -175,14 +174,14 @@ impl<Model: ApplicationModel + 'static> WindowDelegate<Model>
     fn file_dropped(&mut self, state: &mut Model, path: &Path, x: f32, y: f32) {
         if let Some(ui) = self.ui.as_mut() {
             ui.user_interface
-                .file_dropped(state, path, &skia_safe::Point::new(x, y))
+                .file_dropped(state, path, &Point::new(x, y))
         }
     }
 
     fn file_hovered(&mut self, state: &mut Model, path: &Path, x: f32, y: f32) {
         if let Some(ui) = self.ui.as_mut() {
             ui.user_interface
-                .file_hovered(state, path, &skia_safe::Point::new(x, y))
+                .file_hovered(state, path, &Point::new(x, y))
         }
     }
 

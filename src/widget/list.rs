@@ -1,8 +1,6 @@
-use skia_safe::{Point, Size};
-
 use crate::{
     application::{Application, ApplicationModel},
-    canvas_2d::Canvas2D,
+    canvas::{Canvas2D, Point, Size},
     constraints::BoxConstraints,
     widget::{style::Theme, ChildSlot, Properties, Widget},
     window::MouseEvent,

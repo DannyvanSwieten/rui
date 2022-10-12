@@ -1,18 +1,15 @@
-use std::ops::Range;
-
-use skia_safe::{
-    font::Edging,
-    shaper::{BiDiRunIterator, TextBlobBuilderRunHandler},
-    textlayout::{FontCollection, Paragraph, ParagraphBuilder, ParagraphStyle, TextStyle},
-    Color, Color4f, Font, FontMgr, FourByteTag, Paint, Point, Rect, Shaper, Size, TextBlobBuilder,
-};
-use winit::event::{ElementState, VirtualKeyCode};
-
 use crate::{
     application::ApplicationModel,
+    canvas::{
+        textlayout::{self, FontCollection, ParagraphBuilder, ParagraphStyle, TextStyle},
+        Canvas2D, Color, Color4f, Paint, Point, Rect, Size,
+    },
     widget::{style::Theme, Widget},
     window::MouseEvent,
 };
+use skia_safe::FontMgr;
+use std::ops::Range;
+use winit::event::{ElementState, VirtualKeyCode};
 
 #[derive(Default)]
 struct EditorState {
@@ -52,13 +49,7 @@ impl<Model: ApplicationModel> Widget<Model> for TextBox {
         Size::new(constraints.max_width().unwrap(), paragraph.height())
     }
 
-    fn paint(
-        &self,
-        theme: &Theme,
-        canvas: &mut dyn crate::canvas_2d::Canvas2D,
-        rect: &skia_safe::Size,
-        model: &Model,
-    ) {
+    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, model: &Model) {
         let mut font_collection = FontCollection::new();
         font_collection.set_default_font_manager(FontMgr::new(), None);
         let mut paragraph_builder = ParagraphBuilder::new(&self.style, font_collection);
@@ -78,8 +69,8 @@ impl<Model: ApplicationModel> Widget<Model> for TextBox {
         paragraph.layout(rect.width - 4.0);
         let selection_boxes = paragraph.get_rects_for_range(
             self.state.selection.clone(),
-            skia_safe::textlayout::RectHeightStyle::IncludeLineSpacingBottom,
-            skia_safe::textlayout::RectWidthStyle::Tight,
+            textlayout::RectHeightStyle::IncludeLineSpacingBottom,
+            textlayout::RectWidthStyle::Tight,
         );
 
         let mut selected_rect = Rect::default();

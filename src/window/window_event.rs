@@ -1,4 +1,4 @@
-use skia_safe::Point;
+use crate::canvas::Point;
 
 #[derive(PartialEq, Eq, Hash)]
 pub enum MouseEventType {

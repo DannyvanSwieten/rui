@@ -1,5 +1,11 @@
-use crate::skia_vulkan_canvas::SkiaCanvasImage;
-use skia_safe::{textlayout::Paragraph, Color, Font, Paint, Point, Rect, TextBlob};
+mod skia_vulkan_canvas;
+
+pub use skia_vulkan_canvas::{SkiaCanvasImage, SkiaGpuCanvas2D};
+
+pub use skia_safe::{
+    font, textlayout, textlayout::Paragraph, Color, Color4f, Font, FontStyle, Paint, Point, Rect,
+    Size, TextBlob, Typeface,
+};
 
 pub trait Canvas2D {
     fn clear(&mut self, color: &Color);

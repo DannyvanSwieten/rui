@@ -1,4 +1,4 @@
-use crate::canvas_2d::Canvas2D;
+use crate::canvas::Canvas2D;
 use ash::vk::Handle;
 use skia_safe::gpu::{vk, DirectContext, RecordingContext, SemaphoresSubmitted, SurfaceOrigin};
 use skia_safe::{Budgeted, Color, Font, Image, ImageInfo, Paint, Point, Rect, Surface};

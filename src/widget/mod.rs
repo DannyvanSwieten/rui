@@ -6,10 +6,9 @@ pub mod style;
 pub mod text_editor;
 
 use crate::application::{Application, ApplicationModel};
-use crate::canvas_2d::Canvas2D;
+use crate::canvas::{Canvas2D, Color4f, Paint, Point, Rect, Size};
 use crate::constraints::BoxConstraints;
 use crate::window::MouseEvent;
-use skia_safe::{Color4f, Paint, Point, Rect, Size};
 use style::Theme;
 use winit::event::KeyboardInput;
 

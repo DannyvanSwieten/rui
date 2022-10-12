@@ -1,4 +1,4 @@
-use skia_safe::{Color, Font};
+use crate::canvas::{Color, Font};
 use std::collections::HashMap;
 #[derive(Default)]
 pub struct SliderThumbStyle {
