@@ -8,7 +8,10 @@ use skia_safe::{
 };
 use winit::event::{ElementState, VirtualKeyCode};
 
-use crate::{application::ApplicationModel, widget::Widget};
+use crate::{
+    application::ApplicationModel,
+    widget::{style::Theme, Widget},
+};
 
 #[derive(Default)]
 struct EditorState {
@@ -50,7 +53,7 @@ impl<Model: ApplicationModel> Widget<Model> for TextBox {
 
     fn paint(
         &self,
-        theme: &crate::style::Theme,
+        theme: &Theme,
         canvas: &mut dyn crate::canvas_2d::Canvas2D,
         rect: &skia_safe::Size,
         model: &Model,

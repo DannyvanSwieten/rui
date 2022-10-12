@@ -1,8 +1,7 @@
 use crate::application::{Application, ApplicationModel};
 use crate::canvas_2d::Canvas2D;
 use crate::constraints::BoxConstraints;
-use crate::style::StyleContext;
-use crate::widget::*;
+use crate::widget::{style::StyleContext, *};
 use crate::window_event::MouseEvent;
 use skia_safe::{Point, Size};
 use std::path::Path;

@@ -4,8 +4,7 @@ use crate::{
     application::{Application, ApplicationModel},
     canvas_2d::Canvas2D,
     constraints::BoxConstraints,
-    style::Theme,
-    widget::{Properties, Widget},
+    widget::{style::Theme, Properties, Widget},
     window_event::MouseEvent,
 };
 
