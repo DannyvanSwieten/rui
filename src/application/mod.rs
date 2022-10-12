@@ -1,8 +1,10 @@
 mod application_delegate;
 mod application_model;
+mod ui_application_delegate;
 
 pub use application_delegate::ApplicationDelegate;
 pub use application_model::ApplicationModel;
+pub use ui_application_delegate::UIApplicationDelegate;
 
 use crate::{
     widget::Widget,

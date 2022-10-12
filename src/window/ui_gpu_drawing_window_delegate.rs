@@ -2,6 +2,7 @@ use crate::application::{Application, ApplicationModel};
 use crate::canvas_2d::Canvas2D;
 use crate::image_renderer::ImageRenderer;
 use crate::skia_vulkan_canvas::SkiaGpuCanvas2D;
+use crate::user_interface::UserInterface;
 use crate::widget::Widget;
 use crate::window::{MouseEvent, WindowDelegate};
 
@@ -12,8 +13,6 @@ use vk_utils::queue::CommandQueue;
 use vk_utils::renderpass::RenderPass;
 use vk_utils::swapchain::Swapchain;
 use vk_utils::wait_handle::WaitHandle;
-
-use super::user_interface::UserInterface;
 
 use std::{path::Path, rc::Rc};
 

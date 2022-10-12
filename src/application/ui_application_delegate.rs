@@ -1,5 +1,4 @@
-use crate::ui_gpu_drawing_window_delegate::UIGpuDrawingWindowDelegate;
-use crate::window::WindowDelegate;
+use crate::window::{UIGpuDrawingWindowDelegate, WindowDelegate};
 use crate::{
     application::{Application, ApplicationDelegate, ApplicationModel, WindowRequest},
     window::WindowRegistry,
