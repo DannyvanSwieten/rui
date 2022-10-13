@@ -1,9 +1,8 @@
 use crate::{
-    app::{App, AppState},
+    app::AppState,
     canvas::{Canvas2D, Size},
     constraints::BoxConstraints,
-    widget::{Action, Properties, Theme, Widget},
-    window::MouseEvent,
+    widget::{Action, Event, EventCtx, Theme, Widget},
 };
 
 pub struct PopupMenu {
@@ -27,31 +26,19 @@ impl PopupMenuWidget {
 }
 
 impl<State: AppState> Widget<State> for PopupMenuWidget {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool {
+        let _ = event;
+        let _ = ctx;
+        let _ = state;
+
+        false
+    }
+
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
         todo!()
     }
 
     fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, size: &Size, state: &State) {
-        todo!()
-    }
-
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<State>, state: &mut State) {
-        todo!()
-    }
-
-    fn mouse_dragged(&mut self, event: &MouseEvent, properies: &Properties, state: &mut State) {
-        todo!()
-    }
-
-    fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {
-        todo!()
-    }
-
-    fn mouse_entered(&mut self, event: &MouseEvent, state: &mut State) {
-        todo!()
-    }
-
-    fn mouse_left(&mut self, event: &MouseEvent, state: &mut State) {
         todo!()
     }
 }

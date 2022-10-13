@@ -1,9 +1,8 @@
 use crate::{
-    app::{App, AppState},
+    app::AppState,
     canvas::{Canvas2D, Point, Size},
     constraints::BoxConstraints,
-    widget::{style::Theme, ChildSlot, Properties, Widget},
-    window::MouseEvent,
+    widget::{style::Theme, ChildSlot, Event, EventCtx, Widget},
 };
 
 pub struct List<State> {
@@ -69,6 +68,16 @@ impl<State: AppState> List<State> {
 }
 
 impl<State: AppState> Widget<State> for List<State> {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool {
+        for child in &mut self.children {
+            if child.event(event, ctx, state) {
+                return true;
+            }
+        }
+
+        false
+    }
+
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
         if let Some(builder) = &self.builder {
             self.children.clear();
@@ -105,57 +114,5 @@ impl<State: AppState> Widget<State> for List<State> {
         for child in &self.children {
             child.paint(theme, canvas, rect, state)
         }
-    }
-
-    fn mouse_down(
-        &mut self,
-        event: &MouseEvent,
-        properties: &Properties,
-        app: &mut App<State>,
-        state: &mut State,
-    ) {
-        for child in &mut self.children {
-            child.mouse_down(event, properties, app, state)
-        }
-    }
-
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<State>, state: &mut State) {
-        for child in &mut self.children {
-            child.mouse_up(event, app, state)
-        }
-    }
-
-    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {
-        for child in &mut self.children {
-            child.mouse_dragged(event, properties, state)
-        }
-    }
-
-    fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {
-        for child in &mut self.children {
-            child.mouse_moved(event, state)
-        }
-    }
-
-    fn mouse_entered(&mut self, event: &MouseEvent, state: &mut State) {
-        for child in &mut self.children {
-            child.mouse_entered(event, state)
-        }
-    }
-
-    fn mouse_left(&mut self, event: &MouseEvent, state: &mut State) {
-        for child in &mut self.children {
-            child.mouse_left(event, state)
-        }
-    }
-
-    fn keyboard_event(&mut self, event: &winit::event::KeyboardInput, state: &mut State) -> bool {
-        for child in &mut self.children {
-            if child.keyboard_event(event, state) {
-                return true;
-            }
-        }
-
-        false
     }
 }

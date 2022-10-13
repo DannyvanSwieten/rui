@@ -203,9 +203,10 @@ impl<State: AppState + 'static> App<State> {
                             position.x - last_mouse_position.x,
                             position.y - last_mouse_position.y,
                         );
-                        window_registry.mouse_dragged(&mut s, &window_id, &position, &delta)
+                        window_registry
+                            .mouse_dragged(&mut self, &mut s, &window_id, &position, &delta)
                     } else {
-                        window_registry.mouse_moved(&mut s, &window_id, &position)
+                        window_registry.mouse_moved(&mut self, &mut s, &window_id, &position)
                     }
 
                     if !last_file_drop.is_empty() {
@@ -225,12 +226,12 @@ impl<State: AppState + 'static> App<State> {
                 Event::WindowEvent {
                     window_id,
                     event: WindowEvent::ReceivedCharacter(character),
-                } => window_registry.character_received(&window_id, character, &mut s),
+                } => window_registry.character_received(&window_id, &mut self, character, &mut s),
 
                 Event::WindowEvent {
                     window_id,
                     event: WindowEvent::KeyboardInput { input, .. },
-                } => window_registry.keyboard_event(&window_id, &input, &mut s),
+                } => window_registry.keyboard_event(&window_id, &mut self, &input, &mut s),
 
                 Event::WindowEvent {
                     event: WindowEvent::MouseInput { state, .. },

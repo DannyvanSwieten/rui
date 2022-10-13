@@ -11,15 +11,15 @@ pub mod style;
 pub mod text_editor;
 
 mod child_slot;
+mod event;
 
 use crate::app::{App, AppState};
 use crate::canvas::{Canvas2D, Point, Size};
 use crate::constraints::BoxConstraints;
-use crate::window::MouseEvent;
 pub use child_slot::ChildSlot;
+pub use event::{Event, KeyEvent, MouseEvent};
 use popup::PopupRequest;
 use style::Theme;
-use winit::event::KeyboardInput;
 
 pub fn map_range(x: f32, a: f32, b: f32, c: f32, d: f32) -> f32 {
     let slope = (d - c) / (b - a);
@@ -46,36 +46,31 @@ pub trait AppAction<State> {
     fn redo(&self, _state: &mut State);
 }
 
-pub struct Properties {
-    pub position: Point,
-    pub size: Size,
-}
-
 #[allow(unused_variables)]
 pub trait Widget<State: AppState> {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool;
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size;
     fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, state: &State);
     fn flex(&self) -> f32 {
         0.0
     }
-    fn mouse_down(
-        &mut self,
-        event: &MouseEvent,
-        properties: &Properties,
-        app: &mut App<State>,
-        state: &mut State,
-    ) {
-    }
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<State>, state: &mut State);
-    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State);
-    fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State);
-    fn mouse_entered(&mut self, event: &MouseEvent, state: &mut State);
-    fn mouse_left(&mut self, event: &MouseEvent, state: &mut State);
+}
 
-    fn keyboard_event(&mut self, event: &KeyboardInput, state: &mut State) -> bool {
-        false
+pub struct EventCtx<'a, State: AppState> {
+    app: &'a mut App<State>,
+    size: Size,
+}
+
+impl<'a, State: AppState> EventCtx<'a, State> {
+    pub(crate) fn new(app: &'a mut App<State>, size: Size) -> Self {
+        Self { app, size }
     }
-    fn character_received(&mut self, character: char, state: &mut State) -> bool {
-        false
+
+    pub fn app(&mut self) -> &mut App<State> {
+        self.app
+    }
+
+    pub fn size(&self) -> &Size {
+        &self.size
     }
 }

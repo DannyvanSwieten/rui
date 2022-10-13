@@ -4,8 +4,7 @@ use crate::{
         textlayout::{self, FontCollection, ParagraphBuilder, ParagraphStyle, TextStyle},
         Canvas2D, Color, Color4f, Paint, Point, Rect, Size,
     },
-    widget::{style::Theme, Widget},
-    window::MouseEvent,
+    widget::{style::Theme, Event, KeyEvent, Widget},
 };
 use skia_safe::FontMgr;
 use std::ops::Range;
@@ -35,6 +34,43 @@ impl TextBox {
 }
 
 impl<State: AppState> Widget<State> for TextBox {
+    fn event(
+        &mut self,
+        event: &super::Event,
+        ctx: &mut super::EventCtx<State>,
+        state: &mut State,
+    ) -> bool {
+        match event {
+            Event::Key(KeyEvent::Input(event)) => {
+                if let Some(keycode) = event.virtual_keycode {
+                    if event.state == ElementState::Pressed {
+                        match keycode {
+                            VirtualKeyCode::Left => self.state.caret_position -= 1,
+                            VirtualKeyCode::Right => self.state.caret_position += 1,
+                            VirtualKeyCode::Back => {
+                                if self.state.caret_position > 0 {
+                                    self.state.text.remove(self.state.caret_position - 1);
+                                    self.state.caret_position -= 1;
+                                }
+                            }
+                            _ => (),
+                        }
+                    }
+                }
+
+                true
+            }
+            Event::Key(KeyEvent::Char(char)) => {
+                if !char.is_ascii_control() {
+                    self.state.text.push(*char);
+                    self.state.caret_position += 1;
+                }
+
+                true
+            }
+            _ => false,
+        }
+    }
     fn layout(&mut self, constraints: &crate::constraints::BoxConstraints, state: &State) -> Size {
         let mut font_collection = FontCollection::new();
         font_collection.set_default_font_manager(FontMgr::new(), None);
@@ -91,67 +127,7 @@ impl<State: AppState> Widget<State> for TextBox {
         canvas.draw_paragraph(&Point::new(2.0, 0.0), &paragraph)
     }
 
-    fn mouse_up(
-        &mut self,
-        event: &MouseEvent,
-        app: &mut crate::app::App<State>,
-        state: &mut State,
-    ) {
-    }
-
-    fn mouse_dragged(
-        &mut self,
-        event: &MouseEvent,
-        properties: &crate::widget::Properties,
-        state: &mut State,
-    ) {
-    }
-
-    fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {}
-
-    fn mouse_entered(&mut self, event: &MouseEvent, state: &mut State) {}
-
-    fn mouse_left(&mut self, event: &MouseEvent, state: &mut State) {}
-
-    fn keyboard_event(&mut self, event: &winit::event::KeyboardInput, state: &mut State) -> bool {
-        if let Some(keycode) = event.virtual_keycode {
-            if event.state == ElementState::Pressed {
-                match keycode {
-                    VirtualKeyCode::Left => self.state.caret_position -= 1,
-                    VirtualKeyCode::Right => self.state.caret_position += 1,
-                    VirtualKeyCode::Back => {
-                        if self.state.caret_position > 0 {
-                            self.state.text.remove(self.state.caret_position - 1);
-                            self.state.caret_position -= 1;
-                        }
-                    }
-                    _ => (),
-                }
-            }
-        }
-
-        true
-    }
-
     fn flex(&self) -> f32 {
         0.0
-    }
-
-    fn mouse_down(
-        &mut self,
-        event: &MouseEvent,
-        _: &crate::widget::Properties,
-        _: &mut crate::app::App<State>,
-        state: &mut State,
-    ) {
-    }
-
-    fn character_received(&mut self, character: char, state: &mut State) -> bool {
-        if !character.is_ascii_control() {
-            self.state.text.push(character);
-            self.state.caret_position += 1;
-        }
-
-        true
     }
 }
