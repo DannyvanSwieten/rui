@@ -19,7 +19,7 @@ fn main() {
     let delegate = UIAppDelegate::new().on_start(|app, _state| {
         app.ui_window_request(WindowRequest::new("Basic Example", 600, 400, |_state| {
             Box::new(
-                Container::new(TextButton::new("Button", 24f32).style(ButtonStyle::Outline))
+                Container::new(TextButton::new("Button", 24.0).style(ButtonStyle::Outline))
                     .with_padding(50f32),
             )
         }));

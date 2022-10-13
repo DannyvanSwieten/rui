@@ -6,24 +6,24 @@ use crate::{
 };
 
 pub struct PopupMenu {
-    id: usize,
-    name: String,
+    _id: usize,
+    _name: String,
     items: Vec<PopupMenu>,
 }
 
 struct PopupMenuWidget {
-    active: bool,
-    children: Vec<PopupMenuWidget>,
+    _active: bool,
+    _children: Vec<PopupMenuWidget>,
 }
 
-impl PopupMenuWidget {
-    fn new(_request: PopupMenu) -> Self {
-        PopupMenuWidget {
-            active: true,
-            children: Vec::new(),
-        }
-    }
-}
+// impl PopupMenuWidget {
+//     pub fn new(_request: PopupMenu) -> Self {
+//         PopupMenuWidget {
+//             _active: true,
+//             _children: Vec::new(),
+//         }
+//     }
+// }
 
 impl<State: AppState> Widget<State> for PopupMenuWidget {
     fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool {
@@ -34,11 +34,11 @@ impl<State: AppState> Widget<State> for PopupMenuWidget {
         false
     }
 
-    fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
+    fn layout(&mut self, _: &BoxConstraints, _: &State) -> Size {
         todo!()
     }
 
-    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, size: &Size, state: &State) {
+    fn paint(&self, _: &Theme, _: &mut dyn Canvas2D, _: &Size, _: &State) {
         todo!()
     }
 }
@@ -46,8 +46,8 @@ impl<State: AppState> Widget<State> for PopupMenuWidget {
 impl PopupMenu {
     pub fn new(id: usize, name: &str) -> Self {
         PopupMenu {
-            id,
-            name: name.to_string(),
+            _id: id,
+            _name: name.to_string(),
             items: Vec::new(),
         }
     }
@@ -62,13 +62,13 @@ impl PopupMenu {
         self
     }
 
-    fn has_sub_menu_items(&self) -> bool {
+    pub fn has_sub_menu_items(&self) -> bool {
         !self.items.is_empty()
     }
 }
 
 pub struct PopupRequest<State> {
-    menu: PopupMenu,
+    _menu: PopupMenu,
     pub handler: Box<dyn FnMut(usize, usize, &mut State) -> Action<State>>,
 }
 
@@ -78,7 +78,7 @@ impl<State: AppState + 'static> PopupRequest<State> {
         F: FnMut(usize, usize, &mut State) -> Action<State> + 'static,
     {
         PopupRequest {
-            menu,
+            _menu: menu,
             handler: Box::new(handler),
         }
     }

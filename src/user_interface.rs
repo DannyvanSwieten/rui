@@ -9,19 +9,19 @@ use std::path::Path;
 use winit::{event::KeyboardInput, window::WindowId};
 
 pub struct WindowContext {
-    origin: Point,
-    size: Size,
-    id: WindowId,
+    _origin: Point,
+    _size: Size,
+    _id: WindowId,
 }
 
 pub struct DragContext<State> {
-    dragged_widgets: Vec<Box<dyn Widget<State>>>,
+    _dragged_widgets: Vec<Box<dyn Widget<State>>>,
 }
 
 pub struct UserInterface<State: AppState> {
     pub root: ChildSlot<State>,
     pub style_ctx: StyleContext,
-    actions: Vec<Action<State>>,
+    _actions: Vec<Action<State>>,
     theme: String,
 }
 
@@ -30,7 +30,7 @@ impl<State: AppState + 'static> UserInterface<State> {
         UserInterface {
             root: ChildSlot::new_with_box(root),
             style_ctx: StyleContext::new(),
-            actions: Vec::new(),
+            _actions: Vec::new(),
             theme: theme.to_string(),
         }
     }
