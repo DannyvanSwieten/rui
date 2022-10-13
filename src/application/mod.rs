@@ -7,36 +7,12 @@ pub use application_model::ApplicationModel;
 pub use ui_application_delegate::UIApplicationDelegate;
 
 use crate::{widget::Widget, window::WindowRegistry};
-use std::collections::VecDeque;
-use vk_utils::vulkan::Vulkan;
-
-use std::ffi::{CStr, CString};
+use std::{collections::VecDeque, rc::Rc};
 
 use winit::{
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
 };
-
-use ash::extensions::{ext::DebugUtils, khr::Surface};
-
-#[cfg(target_os = "macos")]
-use ash::extensions::mvk::MacOSSurface;
-
-#[cfg(target_os = "macos")]
-use ash::vk::ExtMetalSurfaceFn;
-
-#[cfg(target_os = "macos")]
-pub fn surface_extension_name() -> &'static CStr {
-    ExtMetalSurfaceFn::name()
-}
-
-#[cfg(target_os = "windows")]
-use ash::extensions::khr::Win32Surface;
-
-#[cfg(target_os = "windows")]
-pub fn surface_extension_name() -> &'static CStr {
-    Win32Surface::name()
-}
 
 pub struct WindowRequest<Model: ApplicationModel> {
     pub builder: Box<dyn Fn(&Model) -> Box<dyn Widget<Model>>>,
@@ -45,33 +21,88 @@ pub struct WindowRequest<Model: ApplicationModel> {
     pub height: u32,
 }
 
+impl<Model: ApplicationModel> WindowRequest<Model> {
+    pub fn new(
+        title: &str,
+        width: u32,
+        height: u32,
+        builder: impl Fn(&Model) -> Box<dyn Widget<Model>> + 'static,
+    ) -> Self {
+        Self {
+            title: Some(title.to_string()),
+            width,
+            height,
+            builder: Box::new(builder),
+        }
+    }
+}
+
+pub struct GpuApi {
+    pub instance: wgpu::Instance,
+    pub adapter: wgpu::Adapter,
+    pub device: Rc<wgpu::Device>,
+    pub queue: Rc<wgpu::Queue>,
+}
+
+impl GpuApi {
+    pub async fn new() -> Self {
+        let instance = wgpu::Instance::new(wgpu::Backends::METAL | wgpu::Backends::DX12);
+        let adapter = instance
+            .request_adapter(&wgpu::RequestAdapterOptions {
+                power_preference: wgpu::PowerPreference::default(),
+                compatible_surface: None,
+                force_fallback_adapter: false,
+            })
+            .await
+            .unwrap();
+
+        let (device, queue) = adapter
+            .request_device(
+                &wgpu::DeviceDescriptor {
+                    features: wgpu::Features::empty(),
+                    // WebGL doesn't support all of wgpu's features, so if
+                    // we're building for the web we'll have to disable some.
+                    limits: if cfg!(target_arch = "wasm32") {
+                        wgpu::Limits::downlevel_webgl2_defaults()
+                    } else {
+                        wgpu::Limits::default()
+                    },
+                    label: None,
+                },
+                None, // Trace path
+            )
+            .await
+            .unwrap();
+
+        Self {
+            instance,
+            adapter,
+            device: Rc::new(device),
+            queue: Rc::new(queue),
+        }
+    }
+}
+
 pub struct Application<Model: ApplicationModel> {
-    vulkan: Vulkan,
+    gpu_api: GpuApi,
     pending_messages: VecDeque<Model::MessageType>,
     pending_window_requests: VecDeque<WindowRequest<Model>>,
     _state: std::marker::PhantomData<Model>,
 }
 
 impl<Model: ApplicationModel + 'static> Application<Model> {
-    pub fn new(name: &str) -> Self {
-        let layers = [CString::new("VK_LAYER_KHRONOS_validation").unwrap()];
-        let instance_extensions = [
-            Surface::name(),
-            surface_extension_name(),
-            DebugUtils::name(),
-        ];
-        let vulkan = Vulkan::new(name, &layers, &instance_extensions);
-
+    pub async fn new(name: &str) -> Self {
+        let gpu_api = GpuApi::new().await;
         Self {
-            vulkan,
             pending_messages: VecDeque::new(),
             pending_window_requests: VecDeque::new(),
             _state: std::marker::PhantomData::<Model>::default(),
+            gpu_api,
         }
     }
 
-    pub fn vulkan(&self) -> &Vulkan {
-        &self.vulkan
+    pub fn gpu_api(&self) -> &GpuApi {
+        &self.gpu_api
     }
 
     pub fn send_message(&mut self, msg: Model::MessageType) {

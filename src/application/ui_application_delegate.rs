@@ -4,17 +4,12 @@ use crate::{
     window::WindowRegistry,
 };
 use std::rc::Rc;
-use vk_utils::device_context::DeviceContext;
 use winit::event_loop::EventLoopWindowTarget;
 
 pub struct UIApplicationDelegate<Model: ApplicationModel> {
     on_start: Option<Box<dyn FnMut(&mut Application<Model>, &mut Model)>>,
     on_update: Option<Box<dyn FnMut(&Application<Model>, &mut Model)>>,
-    on_device_created: Option<Box<dyn FnMut(&vk_utils::gpu::Gpu, Rc<DeviceContext>, &mut Model)>>,
-    device_builder:
-        Option<Box<dyn FnMut(&vk_utils::gpu::Gpu, Vec<&'static std::ffi::CStr>) -> DeviceContext>>,
     _state: std::marker::PhantomData<Model>,
-    device: Option<Rc<DeviceContext>>,
 }
 
 impl<Model: ApplicationModel> UIApplicationDelegate<Model> {
@@ -22,10 +17,7 @@ impl<Model: ApplicationModel> UIApplicationDelegate<Model> {
         Self {
             on_start: None,
             on_update: None,
-            on_device_created: None,
-            device_builder: None,
             _state: std::marker::PhantomData::default(),
-            device: None,
         }
     }
 
@@ -44,22 +36,6 @@ impl<Model: ApplicationModel> UIApplicationDelegate<Model> {
         self.on_update = Some(Box::new(f));
         self
     }
-
-    pub fn on_device_created<F>(mut self, f: F) -> Self
-    where
-        F: FnMut(&vk_utils::gpu::Gpu, Rc<DeviceContext>, &mut Model) + 'static,
-    {
-        self.on_device_created = Some(Box::new(f));
-        self
-    }
-
-    pub fn with_device_builder<F>(mut self, f: F) -> Self
-    where
-        F: FnMut(&vk_utils::gpu::Gpu, Vec<&'static std::ffi::CStr>) -> DeviceContext + 'static,
-    {
-        self.device_builder = Some(Box::new(f));
-        self
-    }
 }
 
 impl<Model: ApplicationModel> ApplicationDelegate<Model> for UIApplicationDelegate<Model> {
@@ -70,19 +46,7 @@ impl<Model: ApplicationModel> ApplicationDelegate<Model> for UIApplicationDelega
         _: &mut WindowRegistry<Model>,
         _: &EventLoopWindowTarget<()>,
     ) {
-        let gpu = &app
-            .vulkan()
-            .hardware_devices_with_queue_support(ash::vk::QueueFlags::GRAPHICS)[0];
-        let device_extensions = vec![ash::extensions::khr::Swapchain::name()];
-        let device = {
-            if let Some(cb) = self.device_builder.as_mut() {
-                Rc::new(cb(gpu, device_extensions))
-            } else {
-                Rc::new(gpu.device_context(&device_extensions, |builder| builder))
-            }
-        };
-
-        self.device = Some(device);
+        // self.device = Some(device);
         if let Some(cb) = self.on_start.as_mut() {
             cb(app, state)
         }
@@ -117,8 +81,11 @@ impl<Model: ApplicationModel> ApplicationDelegate<Model> for UIApplicationDelega
             )
             .expect("Window creation failed");
 
-        let mut window_delegate =
-            UIGpuDrawingWindowDelegate::new(self.device.as_ref().unwrap().clone(), request.builder);
+        let mut window_delegate = UIGpuDrawingWindowDelegate::new(
+            app.gpu_api().device.clone(),
+            app.gpu_api().queue.clone(),
+            request.builder,
+        );
         window_delegate.resized(
             &window,
             app,

@@ -1,72 +1,39 @@
+use wgpu::{Device, Queue};
+
 use crate::application::{Application, ApplicationModel};
-use crate::canvas::{Canvas2D, Point, SkiaGpuCanvas2D};
-use crate::image_renderer::ImageRenderer;
+use crate::canvas::{skia_cpu_canvas::SkiaCanvas, Canvas2D, Point};
 use crate::user_interface::UserInterface;
 use crate::widget::Widget;
 use crate::window::{MouseEvent, WindowDelegate};
 
-use ash::vk::QueueFlags;
-use vk_utils::command_buffer::CommandBuffer;
-use vk_utils::device_context::DeviceContext;
-use vk_utils::queue::CommandQueue;
-use vk_utils::renderpass::RenderPass;
-use vk_utils::swapchain::Swapchain;
-use vk_utils::wait_handle::WaitHandle;
-
-use std::{path::Path, rc::Rc};
+use std::path::Path;
+use std::rc::Rc;
 
 struct UI<Model: ApplicationModel> {
-    canvas: SkiaGpuCanvas2D,
-    swapchain: Swapchain,
+    canvas: SkiaCanvas,
     user_interface: UserInterface<Model>,
-    image_renderer: ImageRenderer,
 }
 
 pub struct UIGpuDrawingWindowDelegate<Model: ApplicationModel> {
-    device: Rc<DeviceContext>,
-    queue: Rc<CommandQueue>,
-    renderpass: Option<RenderPass>,
+    surface: Option<wgpu::Surface>,
+    device: Rc<Device>,
+    queue: Rc<Queue>,
     ui: Option<UI<Model>>,
     builder: Box<dyn Fn(&Model) -> Box<dyn Widget<Model>>>,
-    fences: Vec<Vec<Option<WaitHandle>>>,
-    sub_optimal_swapchain: bool,
 }
 
 impl<Model: ApplicationModel + 'static> UIGpuDrawingWindowDelegate<Model> {
-    pub fn new<F>(device: Rc<DeviceContext>, builder: F) -> Self
+    pub fn new<F>(device: Rc<Device>, queue: Rc<Queue>, builder: F) -> Self
     where
         F: Fn(&Model) -> Box<dyn Widget<Model>> + 'static,
     {
-        let queue = Rc::new(CommandQueue::new(device.clone(), QueueFlags::GRAPHICS));
         Self {
             device,
             queue,
-            renderpass: None,
+            surface: None,
             ui: None,
             builder: Box::new(builder),
-            fences: vec![Vec::new(), Vec::new(), Vec::new()],
-            sub_optimal_swapchain: false,
         }
-    }
-
-    fn rebuild_swapchain(&mut self, _: &Model) {
-        self.device.wait();
-        let new_swapchain = {
-            if let Some(ui) = &self.ui {
-                Swapchain::new(
-                    self.device.clone(),
-                    *ui.swapchain.surface(),
-                    Some(&ui.swapchain),
-                    self.queue.clone(),
-                    ui.swapchain.logical_width(),
-                    ui.swapchain.logical_height(),
-                )
-            } else {
-                panic!()
-            }
-        };
-
-        self.ui.as_mut().unwrap().swapchain = new_swapchain;
     }
 }
 
@@ -109,65 +76,42 @@ impl<Model: ApplicationModel + 'static> WindowDelegate<Model>
     fn resized(
         &mut self,
         window: &winit::window::Window,
-        _app: &Application<Model>,
+        app: &Application<Model>,
         state: &mut Model,
         width: u32,
         height: u32,
     ) {
-        self.device.wait();
-        let (surface, old_swapchain) = if let Some(ui) = &self.ui {
-            (*ui.swapchain.surface(), Some(&ui.swapchain))
-        } else {
-            let surface = unsafe {
-                ash_window::create_surface(
-                    self.device.gpu().vulkan().library(),
-                    self.device.gpu().vulkan().vk_instance(),
-                    &window,
-                    None,
-                )
-                .expect("Surface creation failed")
+        if let Some(surface) = &self.surface {
+            let config = wgpu::SurfaceConfiguration {
+                usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::COPY_DST,
+                alpha_mode: wgpu::CompositeAlphaMode::Auto,
+                format: surface.get_supported_formats(&app.gpu_api().adapter)[0],
+                width: width,
+                height: height,
+                present_mode: wgpu::PresentMode::Fifo,
             };
-            (surface, None)
-        };
+            surface.configure(&app.gpu_api().device, &config);
+        } else {
+            let surface = unsafe { app.gpu_api().instance.create_surface(window) };
+            let config = wgpu::SurfaceConfiguration {
+                usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::COPY_DST,
+                alpha_mode: wgpu::CompositeAlphaMode::Auto,
+                format: surface.get_supported_formats(&app.gpu_api().adapter)[0],
+                width: width,
+                height: height,
+                present_mode: wgpu::PresentMode::Fifo,
+            };
+            surface.configure(&app.gpu_api().device, &config);
+            self.surface = Some(surface);
+        }
 
-        let swapchain = Swapchain::new(
-            self.device.clone(),
-            surface,
-            old_swapchain,
-            self.queue.clone(),
-            width,
-            height,
-        );
-        self.renderpass = Some(RenderPass::from_swapchain(self.device.clone(), &swapchain));
         let mut user_interface = UserInterface::new((self.builder)(state), "light");
-        let image_renderer = ImageRenderer::new(
-            &self.device,
-            swapchain.render_pass(),
-            swapchain.image_count(),
-            swapchain.physical_width(),
-            swapchain.physical_height(),
-        );
-        let canvas = SkiaGpuCanvas2D::new(
-            &self.device,
-            &self.queue,
-            swapchain.image_count(),
-            swapchain.physical_width(),
-            swapchain.physical_height(),
-        );
-
-        user_interface.resize(
-            state,
-            swapchain.physical_width(),
-            swapchain.physical_height(),
-        );
-
+        user_interface.resize(state, width, height);
         user_interface.resized(state);
 
         self.ui = Some(UI {
-            canvas,
-            swapchain,
+            canvas: SkiaCanvas::new(width as _, height as _),
             user_interface,
-            image_renderer,
         });
     }
 
@@ -188,66 +132,135 @@ impl<Model: ApplicationModel + 'static> WindowDelegate<Model>
     fn draw(&mut self, _: &Application<Model>, state: &Model) {
         // draw user interface
 
-        if self.ui.is_none() {
-            return;
-        }
-
-        if self.sub_optimal_swapchain {
-            self.rebuild_swapchain(state)
-        }
-
-        let (mut image, view, (sub_optimal, index, framebuffer, semaphore)) = {
-            if let Some(ui) = self.ui.as_mut() {
-                ui.user_interface.paint(state, &mut ui.canvas);
-                let (image, image_view) = ui.canvas.flush();
-                (
-                    image,
-                    image_view,
-                    ui.swapchain
-                        .next_frame_buffer()
-                        .expect("Acquire next image failed"),
-                )
-            } else {
-                return;
-            }
+        let pixels = if let Some(ui) = &mut self.ui {
+            ui.user_interface.paint(state, &mut ui.canvas);
+            ui.canvas.flush();
+            ui.canvas.pixels()
+        } else {
+            None
         };
 
-        self.fences[index as usize].clear();
+        if let Some(surface) = &self.surface {
+            let output = surface
+                .get_current_texture()
+                .expect("Get surface image failed");
+            let view = output
+                .texture
+                .create_view(&wgpu::TextureViewDescriptor::default());
 
-        let mut command_buffer = CommandBuffer::new(self.device.clone(), self.queue.clone());
-        command_buffer.begin();
+            let mut encoder = self
+                .device
+                .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                    label: Some("Render Encoder"),
+                });
 
-        self.sub_optimal_swapchain = sub_optimal;
-        self.fences[index as usize].clear();
-        if let Some(ui) = self.ui.as_mut() {
-            command_buffer.image_resource_transition(
-                &mut image,
-                ash::vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL,
+            let size = self.ui.as_ref().unwrap().canvas.size;
+            let stride = size.width * 4;
+            let texture_size = wgpu::Extent3d {
+                width: size.width as _,
+                height: size.height as _,
+                depth_or_array_layers: 1,
+            };
+
+            self.queue.write_texture(
+                // Tells wgpu where to copy the pixel data
+                wgpu::ImageCopyTexture {
+                    texture: &output.texture,
+                    mip_level: 0,
+                    origin: wgpu::Origin3d::ZERO,
+                    aspect: wgpu::TextureAspect::All,
+                },
+                // The actual pixel data
+                &pixels.unwrap(),
+                // The layout of the texture
+                wgpu::ImageDataLayout {
+                    offset: 0,
+                    bytes_per_row: std::num::NonZeroU32::new(stride as _),
+                    rows_per_image: std::num::NonZeroU32::new(size.height as _),
+                },
+                texture_size,
             );
 
-            if let Some(renderpass) = &self.renderpass {
-                command_buffer.begin_render_pass(
-                    renderpass,
-                    &framebuffer,
-                    ui.swapchain.physical_width(),
-                    ui.swapchain.physical_height(),
-                );
-
-                ui.image_renderer
-                    .render(&mut command_buffer, &view, index as usize);
-
-                command_buffer.end_render_pass();
+            {
+                let _render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                    label: Some("Render Pass"),
+                    color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                        view: &view,
+                        resolve_target: None,
+                        ops: wgpu::Operations {
+                            load: wgpu::LoadOp::Load,
+                            store: true,
+                        },
+                    })],
+                    depth_stencil_attachment: None,
+                });
             }
 
-            command_buffer.image_resource_transition(
-                &mut image,
-                ash::vk::ImageLayout::COLOR_ATTACHMENT_OPTIMAL,
-            );
-
-            self.fences[index as usize].push(Some(command_buffer.submit()));
-
-            ui.swapchain.swap(&semaphore, index);
+            // submit will accept anything that implements IntoIter
+            self.queue.submit(std::iter::once(encoder.finish()));
+            output.present();
         }
+
+        // if self.ui.is_none() {
+        //     return;
+        // }
+
+        // if self.sub_optimal_swapchain {
+        //     self.rebuild_swapchain(state)
+        // }
+
+        // let (mut image, view, (sub_optimal, index, framebuffer, semaphore)) = {
+        //     if let Some(ui) = self.ui.as_mut() {
+        //         ui.user_interface.paint(state, &mut ui.canvas);
+        //         let (image, image_view) = ui.canvas.flush();
+        //         (
+        //             image,
+        //             image_view,
+        //             ui.swapchain
+        //                 .next_frame_buffer()
+        //                 .expect("Acquire next image failed"),
+        //         )
+        //     } else {
+        //         return;
+        //     }
+        // };
+
+        // self.fences[index as usize].clear();
+
+        // let mut command_buffer = CommandBuffer::new(self.device.clone(), self.queue.clone());
+        // command_buffer.begin();
+
+        // self.sub_optimal_swapchain = sub_optimal;
+        // self.fences[index as usize].clear();
+        // if let Some(ui) = self.ui.as_mut() {
+        //     command_buffer.image_resource_transition(
+        //         &mut image,
+        //         ash::vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL,
+        //     );
+
+        //     if let Some(renderpass) = &self.renderpass {
+        //         command_buffer.begin_render_pass(
+        //             renderpass,
+        //             &framebuffer,
+        //             ui.swapchain.physical_width(),
+        //             ui.swapchain.physical_height(),
+        //         );
+
+        //         ui.image_renderer
+        //             .render(&mut command_buffer, &view, index as usize);
+
+        //         command_buffer.end_render_pass();
+        //     }
+
+        //     command_buffer.image_resource_transition(
+        //         &mut image,
+        //         ash::vk::ImageLayout::COLOR_ATTACHMENT_OPTIMAL,
+        //     );
+
+        //     self.fences[index as usize].push(Some(command_buffer.submit()));
+
+        //     ui.swapchain.swap(&semaphore, index);
+        // }
     }
 
     fn close_button_pressed(&mut self, _state: &mut Model) -> bool {
