@@ -4,8 +4,7 @@ use crate::{
         font::Edging, Canvas2D, Color4f, Font, FontStyle, Paint, Rect, Size, TextBlob, Typeface,
     },
     constraints::BoxConstraints,
-    widget::{style::Theme, Properties, Widget},
-    window::MouseEvent,
+    widget::{style::Theme, Event, EventCtx, MouseEvent, Widget},
 };
 
 enum ButtonState {
@@ -63,6 +62,24 @@ impl<State: AppState> TextButton<State> {
 }
 
 impl<State: AppState> Widget<State> for TextButton<State> {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool {
+        match event {
+            Event::Mouse(MouseEvent::MouseEnter(_)) => self.state = ButtonState::Hover,
+            Event::Mouse(MouseEvent::MouseLeave(_)) => self.state = ButtonState::Inactive,
+            Event::Mouse(MouseEvent::MouseDown(_)) => self.state = ButtonState::Active,
+            Event::Mouse(MouseEvent::MouseUp(_)) => {
+                if let Some(handler) = &self.on_click {
+                    handler(ctx.app(), state)
+                }
+
+                self.state = ButtonState::Inactive
+            }
+            _ => (),
+        }
+
+        false
+    }
+
     fn layout(&mut self, constraints: &BoxConstraints, _: &State) -> Size {
         let blob = TextBlob::from_str(&self.text, &self.font);
         let size = blob.unwrap().bounds().size();
@@ -166,34 +183,5 @@ impl<State: AppState> Widget<State> for TextButton<State> {
                 canvas.draw_string(&Rect::from_size(*size), &self.text, &self.font, &text_paint);
             }
         }
-    }
-
-    fn mouse_down(
-        &mut self,
-        event: &MouseEvent,
-        properties: &Properties,
-        _: &mut App<State>,
-        state: &mut State,
-    ) {
-        self.state = ButtonState::Active
-    }
-
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<State>, state: &mut State) {
-        if let Some(handler) = &self.on_click {
-            handler(app, state)
-        }
-
-        self.state = ButtonState::Hover
-    }
-
-    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {}
-
-    fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {}
-
-    fn mouse_entered(&mut self, event: &MouseEvent, state: &mut State) {
-        self.state = ButtonState::Hover
-    }
-    fn mouse_left(&mut self, event: &MouseEvent, state: &mut State) {
-        self.state = ButtonState::Inactive
     }
 }

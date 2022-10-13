@@ -7,6 +7,7 @@ pub use app_state::AppState;
 pub use ui_app_delegate::UIAppDelegate;
 
 use crate::{widget::Widget, window::WindowRegistry};
+use pollster::block_on;
 use std::{collections::VecDeque, rc::Rc};
 
 use winit::{
@@ -91,8 +92,9 @@ pub struct App<State: AppState> {
 }
 
 impl<State: AppState + 'static> App<State> {
-    pub async fn new(name: &str) -> Self {
-        let gpu_api = GpuApi::new().await;
+    pub fn new() -> Self {
+        let gpu_api = block_on(GpuApi::new());
+
         Self {
             pending_messages: VecDeque::new(),
             pending_window_requests: VecDeque::new(),
@@ -203,9 +205,10 @@ impl<State: AppState + 'static> App<State> {
                             position.x - last_mouse_position.x,
                             position.y - last_mouse_position.y,
                         );
-                        window_registry.mouse_dragged(&mut s, &window_id, &position, &delta)
+                        window_registry
+                            .mouse_dragged(&mut self, &mut s, &window_id, &position, &delta)
                     } else {
-                        window_registry.mouse_moved(&mut s, &window_id, &position)
+                        window_registry.mouse_moved(&mut self, &mut s, &window_id, &position)
                     }
 
                     if !last_file_drop.is_empty() {
@@ -225,12 +228,12 @@ impl<State: AppState + 'static> App<State> {
                 Event::WindowEvent {
                     window_id,
                     event: WindowEvent::ReceivedCharacter(character),
-                } => window_registry.character_received(&window_id, character, &mut s),
+                } => window_registry.character_received(&window_id, &mut self, character, &mut s),
 
                 Event::WindowEvent {
                     window_id,
                     event: WindowEvent::KeyboardInput { input, .. },
-                } => window_registry.keyboard_event(&window_id, &input, &mut s),
+                } => window_registry.keyboard_event(&window_id, &mut self, &input, &mut s),
 
                 Event::WindowEvent {
                     event: WindowEvent::MouseInput { state, .. },
@@ -267,5 +270,11 @@ impl<State: AppState + 'static> App<State> {
                 d.app_will_quit(&mut self, event_loop)
             }
         });
+    }
+}
+
+impl<State: AppState + 'static> Default for App<State> {
+    fn default() -> Self {
+        Self::new()
     }
 }

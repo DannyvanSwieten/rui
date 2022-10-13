@@ -95,3 +95,9 @@ impl<State: AppState> AppDelegate<State> for UIAppDelegate<State> {
         window_registry.register_with_delegate(window, Box::new(window_delegate));
     }
 }
+
+impl<State: AppState> Default for UIAppDelegate<State> {
+    fn default() -> Self {
+        Self::new()
+    }
+}

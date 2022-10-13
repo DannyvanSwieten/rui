@@ -107,21 +107,29 @@ impl<State: AppState + 'static> UiWindowDelegate<State> {
     }
 }
 
-impl<State: AppState + 'static> WindowDelegate<State> for UiWindowDelegate<State> {
-    fn mouse_moved(&mut self, state: &mut State, x: f32, y: f32) {
+impl<State: AppState + 'static> WindowDelegate<State> for UIGpuDrawingWindowDelegate<State> {
+    fn mouse_moved(&mut self, app: &mut App<State>, state: &mut State, x: f32, y: f32) {
         let p = Point::from((x, y));
         if let Some(ui) = self.ui.as_mut() {
             ui.user_interface
-                .mouse_moved(state, &MouseEvent::new(0, &p, &p));
+                .mouse_moved(app, state, &MouseEvent::new(0, &p, &p));
         }
     }
 
-    fn mouse_dragged(&mut self, state: &mut State, x: f32, y: f32, dx: f32, dy: f32) {
+    fn mouse_dragged(
+        &mut self,
+        app: &mut App<State>,
+        state: &mut State,
+        x: f32,
+        y: f32,
+        dx: f32,
+        dy: f32,
+    ) {
         let p = Point::from((x, y));
         let d = Point::from((dx, dy));
         if let Some(ui) = self.ui.as_mut() {
             ui.user_interface
-                .mouse_drag(state, &MouseEvent::new_with_delta(0, &p, &p, &d));
+                .mouse_drag(app, state, &MouseEvent::new_with_delta(0, &p, &p, &d));
         }
     }
 
@@ -206,14 +214,19 @@ impl<State: AppState + 'static> WindowDelegate<State> for UiWindowDelegate<State
         true
     }
 
-    fn keyboard_event(&mut self, state: &mut State, event: &winit::event::KeyboardInput) {
+    fn keyboard_event(
+        &mut self,
+        app: &mut App<State>,
+        state: &mut State,
+        event: &winit::event::KeyboardInput,
+    ) {
         if let Some(ui) = self.ui.as_mut() {
-            ui.user_interface.keyboard_event(state, event)
+            ui.user_interface.keyboard_event(app, state, event)
         }
     }
-    fn character_received(&mut self, state: &mut State, character: char) {
+    fn character_received(&mut self, app: &mut App<State>, state: &mut State, character: char) {
         if let Some(ui) = self.ui.as_mut() {
-            ui.user_interface.character_received(state, character)
+            ui.user_interface.character_received(app, state, character)
         }
     }
 

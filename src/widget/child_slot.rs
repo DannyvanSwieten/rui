@@ -1,11 +1,9 @@
 use crate::{
-    app::{App, AppState},
+    app::AppState,
     canvas::{Canvas2D, Point, Size},
     constraints::BoxConstraints,
-    widget::{Properties, Theme, Widget},
-    window::MouseEvent,
+    widget::{Event, EventCtx, MouseEvent, Theme, Widget},
 };
-use winit::event::KeyboardInput;
 
 pub struct ChildSlot<State> {
     position: Point,
@@ -55,9 +53,79 @@ impl<State: AppState> ChildSlot<State> {
 
         x && y
     }
+
+    fn propagate_mouse_event(
+        &mut self,
+        event: &MouseEvent,
+        ctx: &mut EventCtx<State>,
+        state: &mut State,
+    ) -> bool {
+        if self.hit_test(event.local_position()) {
+            let inner_event = event.to_local(self.position());
+            let mut inner_ctx = EventCtx {
+                app: ctx.app(),
+                size: self.size,
+            };
+
+            if !self.has_mouse {
+                if let MouseEvent::MouseMove(event) = inner_event {
+                    self.has_mouse = true;
+                    self.widget.event(
+                        &Event::Mouse(MouseEvent::MouseEnter(event)),
+                        &mut inner_ctx,
+                        state,
+                    );
+                }
+            }
+
+            self.widget
+                .event(&Event::Mouse(inner_event), &mut inner_ctx, state)
+        } else if self.has_mouse {
+            match event {
+                MouseEvent::MouseMove(event) => {
+                    self.has_mouse = false;
+                    let mut inner_ctx = EventCtx {
+                        app: ctx.app(),
+                        size: self.size,
+                    };
+
+                    self.widget.event(
+                        &Event::Mouse(MouseEvent::MouseLeave(event.to_local(self.position()))),
+                        &mut inner_ctx,
+                        state,
+                    )
+                }
+                MouseEvent::MouseUp(event) => {
+                    self.has_mouse = false; // Is this redundant? Don't we come across MouseMove first?
+
+                    let inner_event = event.to_local(self.position());
+                    let mut inner_ctx = EventCtx {
+                        app: ctx.app(),
+                        size: self.size,
+                    };
+
+                    self.widget.event(
+                        &Event::Mouse(MouseEvent::MouseLeave(inner_event)),
+                        &mut inner_ctx,
+                        state,
+                    )
+                }
+                _ => false,
+            }
+        } else {
+            false
+        }
+    }
 }
 
 impl<State: AppState> Widget<State> for ChildSlot<State> {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool {
+        match event {
+            Event::Mouse(event) => self.propagate_mouse_event(event, ctx, state),
+            Event::Key(_) => self.widget.event(event, ctx, state),
+        }
+    }
+
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
         self.widget.layout(constraints, state)
     }
@@ -71,83 +139,5 @@ impl<State: AppState> Widget<State> for ChildSlot<State> {
 
     fn flex(&self) -> f32 {
         self.widget.flex()
-    }
-
-    fn mouse_down(
-        &mut self,
-        event: &MouseEvent,
-        _: &Properties,
-        app: &mut App<State>,
-        state: &mut State,
-    ) {
-        if self.hit_test(event.local_position()) {
-            let properties = Properties {
-                position: *self.position(),
-                size: *self.size(),
-            };
-            let new_event = event.to_local(self.position());
-            self.widget.mouse_down(&new_event, &properties, app, state);
-        }
-    }
-
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<State>, state: &mut State) {
-        if self.hit_test(event.local_position()) {
-            let new_event = event.to_local(self.position());
-            self.widget.mouse_up(&new_event, app, state);
-        } else if self.has_mouse {
-            self.has_mouse = false;
-            let new_event = event.to_local(self.position());
-            self.widget.mouse_left(&new_event, state);
-        }
-    }
-
-    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {
-        if self.hit_test(event.local_position()) {
-            let new_event = event.to_local(self.position());
-            self.widget.mouse_dragged(&new_event, properties, state);
-        }
-    }
-
-    fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {
-        if self.hit_test(event.local_position()) {
-            let new_event = event.to_local(self.position());
-
-            if !self.has_mouse {
-                self.has_mouse = true;
-                self.mouse_entered(event, state);
-            }
-
-            self.widget.mouse_moved(&new_event, state);
-        } else {
-            let new_event = event.to_local(self.position());
-            if self.has_mouse {
-                self.has_mouse = false;
-                self.widget.mouse_left(event, state);
-            }
-
-            self.widget.mouse_moved(&new_event, state);
-        }
-    }
-
-    fn mouse_entered(&mut self, event: &MouseEvent, state: &mut State) {
-        if self.hit_test(event.local_position()) {
-            let new_event = event.to_local(self.position());
-            self.widget.mouse_entered(&new_event, state)
-        }
-    }
-
-    fn mouse_left(&mut self, event: &MouseEvent, state: &mut State) {
-        if self.hit_test(event.local_position()) {
-            let new_event = event.to_local(self.position());
-            self.widget.mouse_left(&new_event, state)
-        }
-    }
-
-    fn keyboard_event(&mut self, event: &KeyboardInput, state: &mut State) -> bool {
-        self.widget.keyboard_event(event, state)
-    }
-
-    fn character_received(&mut self, character: char, state: &mut State) -> bool {
-        self.widget.character_received(character, state)
     }
 }

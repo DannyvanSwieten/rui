@@ -68,20 +68,27 @@ impl<State: AppState> WindowRegistry<State> {
         }
     }
 
-    pub(crate) fn character_received(&mut self, id: &WindowId, character: char, state: &mut State) {
+    pub(crate) fn character_received(
+        &mut self,
+        id: &WindowId,
+        app: &mut App<State>,
+        character: char,
+        state: &mut State,
+    ) {
         if let Some(entry) = self.entries.get_mut(id) {
-            entry.delegate.character_received(state, character)
+            entry.delegate.character_received(app, state, character)
         }
     }
 
     pub(crate) fn keyboard_event(
         &mut self,
         id: &WindowId,
+        app: &mut App<State>,
         event: &winit::event::KeyboardInput,
         state: &mut State,
     ) {
         if let Some(entry) = self.entries.get_mut(id) {
-            entry.delegate.keyboard_event(state, event)
+            entry.delegate.keyboard_event(app, state, event)
         }
     }
 
@@ -95,6 +102,7 @@ impl<State: AppState> WindowRegistry<State> {
 
     pub(crate) fn mouse_moved(
         &mut self,
+        app: &mut App<State>,
         state: &mut State,
         id: &WindowId,
         position: &winit::dpi::PhysicalPosition<f64>,
@@ -102,12 +110,13 @@ impl<State: AppState> WindowRegistry<State> {
         if let Some(entry) = self.entries.get_mut(id) {
             entry
                 .delegate
-                .mouse_moved(state, position.x as f32, position.y as f32);
+                .mouse_moved(app, state, position.x as f32, position.y as f32);
         }
     }
 
     pub(crate) fn mouse_dragged(
         &mut self,
+        app: &mut App<State>,
         state: &mut State,
         id: &winit::window::WindowId,
         position: &winit::dpi::PhysicalPosition<f64>,
@@ -115,6 +124,7 @@ impl<State: AppState> WindowRegistry<State> {
     ) {
         if let Some(entry) = self.entries.get_mut(id) {
             entry.delegate.mouse_dragged(
+                app,
                 state,
                 position.x as f32,
                 position.y as f32,

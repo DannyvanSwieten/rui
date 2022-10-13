@@ -24,9 +24,10 @@ pub struct TextButtonStyle {
 
 impl TextButtonStyle {
     pub fn new() -> Self {
-        let mut style = Self::default();
-        style.rounding = 4f32;
-        style
+        Self {
+            rounding: 4.0,
+            ..Default::default()
+        }
     }
 }
 #[derive(Default)]
@@ -78,6 +79,7 @@ impl Theme {
     }
 }
 
+#[derive(Default)]
 pub struct StyleContext {
     themes: HashMap<String, Theme>,
 }
