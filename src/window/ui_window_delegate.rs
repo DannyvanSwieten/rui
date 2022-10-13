@@ -75,7 +75,7 @@ impl<State: AppState + 'static> UiWindowDelegate<State> {
                     aspect: wgpu::TextureAspect::All,
                 },
                 // The actual pixel data
-                &pixels.unwrap(),
+                pixels.unwrap(),
                 // The layout of the texture
                 wgpu::ImageDataLayout {
                     offset: 0,
