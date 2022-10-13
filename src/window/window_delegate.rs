@@ -22,7 +22,7 @@ pub trait WindowDelegate<State: AppState> {
         let _ = y;
     }
 
-    fn mouse_moved(&mut self, state: &mut State, x: f32, y: f32) {
+    fn mouse_moved(&mut self, app: &mut App<State>, state: &mut State, x: f32, y: f32) {
         let _ = state;
         let _ = x;
         let _ = y;

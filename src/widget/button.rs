@@ -185,6 +185,4 @@ impl<State: AppState> Widget<State> for TextButton<State> {
     }
 
     fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {}
-
-    fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {}
 }

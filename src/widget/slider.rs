@@ -143,8 +143,6 @@ impl<State: AppState> Widget<State> for Slider<State> {
             (l)(self.current_value, state);
         }
     }
-
-    fn mouse_moved(&mut self, _: &MouseEvent, _: &mut State) {}
 }
 
 pub struct Switch<State> {
@@ -236,6 +234,4 @@ impl<State: AppState> Widget<State> for Switch<State> {
     }
 
     fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {}
-
-    fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {}
 }

@@ -108,10 +108,6 @@ impl<State: AppState> Widget<State> for Container<State> {
         self.child.mouse_dragged(event, properties, state)
     }
 
-    fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {
-        self.child.mouse_moved(event, state)
-    }
-
     fn keyboard_event(&mut self, event: &KeyboardInput, state: &mut State) -> bool {
         self.child.keyboard_event(event, state)
     }

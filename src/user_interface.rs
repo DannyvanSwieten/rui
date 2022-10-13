@@ -69,8 +69,9 @@ impl<State: AppState + 'static> UserInterface<State> {
         self.root.mouse_dragged(event, &properties, state);
     }
 
-    pub fn mouse_moved(&mut self, state: &mut State, event: &MouseEvent) {
-        self.root.mouse_moved(event, state);
+    pub fn mouse_moved(&mut self, app: &mut App<State>, state: &mut State, event: &MouseEvent) {
+        let mut ctx = EventCtx::new(app, *self.root.size());
+        self.root.event(&Event::MouseMove(*event), &mut ctx, state)
     }
 
     pub fn mouse_leave(&mut self, state: &mut State, event: &MouseEvent) {}

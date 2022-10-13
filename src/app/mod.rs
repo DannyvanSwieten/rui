@@ -205,7 +205,7 @@ impl<State: AppState + 'static> App<State> {
                         );
                         window_registry.mouse_dragged(&mut s, &window_id, &position, &delta)
                     } else {
-                        window_registry.mouse_moved(&mut s, &window_id, &position)
+                        window_registry.mouse_moved(&mut self, &mut s, &window_id, &position)
                     }
 
                     if !last_file_drop.is_empty() {

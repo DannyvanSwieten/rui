@@ -66,11 +66,32 @@ impl<State: AppState> Widget<State> for ChildSlot<State> {
                 size: self.size,
             };
 
+            if !self.has_mouse {
+                if let Event::MouseMove(event) = inner_event {
+                    self.has_mouse = true;
+                    self.widget
+                        .event(&Event::MouseEnter(event), &mut inner_ctx, state);
+                }
+            }
+
             self.widget.event(&inner_event, &mut inner_ctx, state);
         } else if self.has_mouse {
             match event {
-                Event::MouseUp(event) => {
+                Event::MouseMove(event) => {
                     self.has_mouse = false;
+                    let mut inner_ctx = EventCtx {
+                        app: ctx.app(),
+                        size: self.size,
+                    };
+
+                    self.widget.event(
+                        &Event::MouseLeave(event.to_local(self.position())),
+                        &mut inner_ctx,
+                        state,
+                    );
+                }
+                Event::MouseUp(event) => {
+                    self.has_mouse = false; // Is this redundant? Don't we come across MouseMove first?
 
                     let inner_event = event.to_local(self.position());
                     let mut inner_ctx = EventCtx {
@@ -81,7 +102,6 @@ impl<State: AppState> Widget<State> for ChildSlot<State> {
                     self.widget
                         .event(&Event::MouseLeave(inner_event), &mut inner_ctx, state);
                 }
-                Event::MouseDown(_) => (),
                 _ => (),
             }
         }
@@ -107,27 +127,6 @@ impl<State: AppState> Widget<State> for ChildSlot<State> {
             let new_event = event.to_local(self.position());
             self.widget.mouse_dragged(&new_event, properties, state);
         }
-    }
-
-    fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {
-        // if self.hit_test(event.local_position()) {
-        //     let new_event = event.to_local(self.position());
-
-        //     if !self.has_mouse {
-        //         self.has_mouse = true;
-        //         self.mouse_entered(event, state);
-        //     }
-
-        //     self.widget.mouse_moved(&new_event, state);
-        // } else {
-        //     let new_event = event.to_local(self.position());
-        //     if self.has_mouse {
-        //         self.has_mouse = false;
-        //         self.widget.mouse_left(event, state);
-        //     }
-
-        //     self.widget.mouse_moved(&new_event, state);
-        // }
     }
 
     fn keyboard_event(&mut self, event: &KeyboardInput, state: &mut State) -> bool {

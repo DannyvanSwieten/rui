@@ -112,12 +112,6 @@ impl<State: AppState> Widget<State> for Row<State> {
         }
     }
 
-    fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {
-        for child in &mut self.children {
-            child.mouse_moved(event, state)
-        }
-    }
-
     fn flex(&self) -> f32 {
         0.0
     }
@@ -250,12 +244,6 @@ impl<State: AppState> Widget<State> for Column<State> {
         }
     }
 
-    fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {
-        for child in &mut self.children {
-            child.mouse_moved(event, state)
-        }
-    }
-
     fn flex(&self) -> f32 {
         0.0
     }
@@ -348,10 +336,6 @@ impl<State: AppState> Widget<State> for Expanded<State> {
 
     fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {
         self.child.mouse_dragged(event, properties, state)
-    }
-
-    fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {
-        self.child.mouse_moved(event, state)
     }
 
     fn keyboard_event(&mut self, event: &winit::event::KeyboardInput, state: &mut State) -> bool {

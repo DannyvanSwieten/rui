@@ -38,11 +38,11 @@ impl<State: AppState + 'static> UIGpuDrawingWindowDelegate<State> {
 }
 
 impl<State: AppState + 'static> WindowDelegate<State> for UIGpuDrawingWindowDelegate<State> {
-    fn mouse_moved(&mut self, state: &mut State, x: f32, y: f32) {
+    fn mouse_moved(&mut self, app: &mut App<State>, state: &mut State, x: f32, y: f32) {
         let p = Point::from((x, y));
         if let Some(ui) = self.ui.as_mut() {
             ui.user_interface
-                .mouse_moved(state, &MouseEvent::new(0, &p, &p));
+                .mouse_moved(app, state, &MouseEvent::new(0, &p, &p));
         }
     }
 
