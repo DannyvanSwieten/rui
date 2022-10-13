@@ -1,9 +1,9 @@
 mod app_delegate;
-mod app_model;
+mod app_state;
 mod ui_app_delegate;
 
 pub use app_delegate::AppDelegate;
-pub use app_model::AppState;
+pub use app_state::AppState;
 pub use ui_app_delegate::UIAppDelegate;
 
 use crate::{widget::Widget, window::WindowRegistry};
@@ -14,19 +14,19 @@ use winit::{
     event_loop::{ControlFlow, EventLoop},
 };
 
-pub struct WindowRequest<Model: AppState> {
-    pub builder: Box<dyn Fn(&Model) -> Box<dyn Widget<Model>>>,
+pub struct WindowRequest<State: AppState> {
+    pub builder: Box<dyn Fn(&State) -> Box<dyn Widget<State>>>,
     pub title: Option<String>,
     pub width: u32,
     pub height: u32,
 }
 
-impl<Model: AppState> WindowRequest<Model> {
+impl<State: AppState> WindowRequest<State> {
     pub fn new(
         title: &str,
         width: u32,
         height: u32,
-        builder: impl Fn(&Model) -> Box<dyn Widget<Model>> + 'static,
+        builder: impl Fn(&State) -> Box<dyn Widget<State>> + 'static,
     ) -> Self {
         Self {
             title: Some(title.to_string()),
@@ -83,20 +83,20 @@ impl GpuApi {
     }
 }
 
-pub struct App<Model: AppState> {
+pub struct App<State: AppState> {
     gpu_api: GpuApi,
-    pending_messages: VecDeque<Model::MessageType>,
-    pending_window_requests: VecDeque<WindowRequest<Model>>,
-    _state: std::marker::PhantomData<Model>,
+    pending_messages: VecDeque<State::MessageType>,
+    pending_window_requests: VecDeque<WindowRequest<State>>,
+    _state: std::marker::PhantomData<State>,
 }
 
-impl<Model: AppState + 'static> App<Model> {
+impl<State: AppState + 'static> App<State> {
     pub async fn new(name: &str) -> Self {
         let gpu_api = GpuApi::new().await;
         Self {
             pending_messages: VecDeque::new(),
             pending_window_requests: VecDeque::new(),
-            _state: std::marker::PhantomData::<Model>::default(),
+            _state: std::marker::PhantomData::<State>::default(),
             gpu_api,
         }
     }
@@ -105,21 +105,21 @@ impl<Model: AppState + 'static> App<Model> {
         &self.gpu_api
     }
 
-    pub fn send_message(&mut self, msg: Model::MessageType) {
+    pub fn send_message(&mut self, msg: State::MessageType) {
         self.pending_messages.push_back(msg)
     }
 
-    fn pop_message(&mut self) -> Option<Model::MessageType> {
+    fn pop_message(&mut self) -> Option<State::MessageType> {
         self.pending_messages.pop_front()
     }
 
-    pub fn ui_window_request(&mut self, request: WindowRequest<Model>) {
+    pub fn ui_window_request(&mut self, request: WindowRequest<State>) {
         self.pending_window_requests.push_back(request)
     }
 
-    pub fn run<Delegate>(mut self, delegate: Delegate, state: Model)
+    pub fn run<Delegate>(mut self, delegate: Delegate, state: State)
     where
-        Delegate: AppDelegate<Model> + 'static,
+        Delegate: AppDelegate<State> + 'static,
     {
         let mut s = state;
         let event_loop = EventLoop::new();

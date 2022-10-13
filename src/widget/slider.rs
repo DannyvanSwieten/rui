@@ -10,18 +10,18 @@ enum SliderState {
     Inactive,
 }
 
-pub struct Slider<Model> {
+pub struct Slider<State> {
     min: f32,
     max: f32,
     discrete: bool,
     current_normalized: f32,
     current_value: f32,
     last_position: f32,
-    value_changed: Option<Box<dyn FnMut(f32, &mut Model)>>,
+    value_changed: Option<Box<dyn FnMut(f32, &mut State)>>,
     state: SliderState,
 }
 
-impl<Model: AppState + 'static> Slider<Model> {
+impl<State: AppState + 'static> Slider<State> {
     pub fn new() -> Self {
         Slider::new_with_min_max_and_value(0., 1., 0., false)
     }
@@ -41,7 +41,7 @@ impl<Model: AppState + 'static> Slider<Model> {
 
     pub fn with_handler<F>(mut self, handler: F) -> Self
     where
-        F: FnMut(f32, &mut Model) + 'static,
+        F: FnMut(f32, &mut State) + 'static,
     {
         self.value_changed = Some(Box::new(handler));
         self
@@ -53,8 +53,8 @@ impl<Model: AppState + 'static> Slider<Model> {
     }
 }
 
-impl<Model: AppState> Widget<Model> for Slider<Model> {
-    fn layout(&mut self, constraints: &BoxConstraints, model: &Model) -> Size {
+impl<State: AppState> Widget<State> for Slider<State> {
+    fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
         // Boldly unwrapping here. If you have not given constraints to a slider then we don't know how big it should be.
         Size::new(
             constraints.max_width().unwrap(),
@@ -62,7 +62,7 @@ impl<Model: AppState> Widget<Model> for Slider<Model> {
         )
     }
 
-    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, _: &Model) {
+    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, _: &State) {
         let mut fill_paint = Paint::default();
         fill_paint.set_anti_alias(true);
 
@@ -105,15 +105,15 @@ impl<Model: AppState> Widget<Model> for Slider<Model> {
             );
         }
 
-        // self.thumb.paint(theme, canvas, &rect.size(), model)
+        // self.thumb.paint(theme, canvas, &rect.size(), state)
     }
 
     fn mouse_down(
         &mut self,
         event: &MouseEvent,
         properties: &Properties,
-        _: &mut App<Model>,
-        model: &mut Model,
+        _: &mut App<State>,
+        state: &mut State,
     ) {
         self.last_position = event.local_position().x;
         self.current_normalized = (1. / properties.size.width) * self.last_position;
@@ -123,15 +123,15 @@ impl<Model: AppState> Widget<Model> for Slider<Model> {
             self.current_value = self.current_value.round();
         }
         if let Some(l) = &mut self.value_changed {
-            (l)(self.current_value, model);
+            (l)(self.current_value, state);
         }
     }
 
-    fn mouse_up(&mut self, _: &MouseEvent, _: &mut App<Model>, _: &mut Model) {
+    fn mouse_up(&mut self, _: &MouseEvent, _: &mut App<State>, _: &mut State) {
         self.state = SliderState::Inactive
     }
 
-    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, model: &mut Model) {
+    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {
         self.last_position = event.local_position().x;
         self.current_normalized =
             (1. / properties.size.width) * self.last_position.min(properties.size.width).max(0.);
@@ -142,28 +142,28 @@ impl<Model: AppState> Widget<Model> for Slider<Model> {
             self.current_value = self.current_value.round();
         }
         if let Some(l) = &mut self.value_changed {
-            (l)(self.current_value, model);
+            (l)(self.current_value, state);
         }
     }
 
-    fn mouse_moved(&mut self, _: &MouseEvent, _: &mut Model) {}
+    fn mouse_moved(&mut self, _: &MouseEvent, _: &mut State) {}
 
-    fn mouse_entered(&mut self, _: &MouseEvent, _: &mut Model) {
+    fn mouse_entered(&mut self, _: &MouseEvent, _: &mut State) {
         self.state = SliderState::Active
     }
 
-    fn mouse_left(&mut self, _: &MouseEvent, _: &mut Model) {
+    fn mouse_left(&mut self, _: &MouseEvent, _: &mut State) {
         self.state = SliderState::Inactive
     }
 }
 
-pub struct Switch<Model> {
-    value_changed: Option<Box<dyn FnMut(bool, &mut Model)>>,
+pub struct Switch<State> {
+    value_changed: Option<Box<dyn FnMut(bool, &mut State)>>,
     active: bool,
     state: SliderState,
 }
 
-impl<Model: AppState + 'static> Switch<Model> {
+impl<State: AppState + 'static> Switch<State> {
     pub fn new() -> Self {
         Self {
             value_changed: None,
@@ -173,8 +173,8 @@ impl<Model: AppState + 'static> Switch<Model> {
     }
 }
 
-impl<Model: AppState> Widget<Model> for Switch<Model> {
-    fn layout(&mut self, constraints: &BoxConstraints, model: &Model) -> Size {
+impl<State: AppState> Widget<State> for Switch<State> {
+    fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
         // Boldly unwrapping here. If you have not given constraints to a switch then we don't know how big it should be.
         Size::new(
             constraints.max_width().unwrap(),
@@ -182,7 +182,7 @@ impl<Model: AppState> Widget<Model> for Switch<Model> {
         )
     }
 
-    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, model: &Model) {
+    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, state: &State) {
         let mut fill_paint = Paint::default();
         fill_paint.set_anti_alias(true);
 
@@ -234,28 +234,28 @@ impl<Model: AppState> Widget<Model> for Switch<Model> {
         &mut self,
         _: &MouseEvent,
         _: &Properties,
-        _: &mut App<Model>,
-        model: &mut Model,
+        _: &mut App<State>,
+        state: &mut State,
     ) {
         self.active = !self.active;
         if let Some(l) = &mut self.value_changed {
-            (l)(self.active, model);
+            (l)(self.active, state);
         }
     }
 
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<Model>, model: &mut Model) {
+    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<State>, state: &mut State) {
         self.state = SliderState::Inactive
     }
 
-    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, model: &mut Model) {}
+    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {}
 
-    fn mouse_moved(&mut self, event: &MouseEvent, model: &mut Model) {}
+    fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {}
 
-    fn mouse_entered(&mut self, event: &MouseEvent, model: &mut Model) {
+    fn mouse_entered(&mut self, event: &MouseEvent, state: &mut State) {
         self.state = SliderState::Active
     }
 
-    fn mouse_left(&mut self, event: &MouseEvent, model: &mut Model) {
+    fn mouse_left(&mut self, event: &MouseEvent, state: &mut State) {
         self.state = SliderState::Inactive
     }
 }

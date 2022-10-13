@@ -26,32 +26,32 @@ impl PopupMenuWidget {
     }
 }
 
-impl<Model: AppState> Widget<Model> for PopupMenuWidget {
-    fn layout(&mut self, constraints: &BoxConstraints, model: &Model) -> Size {
+impl<State: AppState> Widget<State> for PopupMenuWidget {
+    fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
         todo!()
     }
 
-    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, size: &Size, model: &Model) {
+    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, size: &Size, state: &State) {
         todo!()
     }
 
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<Model>, model: &mut Model) {
+    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<State>, state: &mut State) {
         todo!()
     }
 
-    fn mouse_dragged(&mut self, event: &MouseEvent, properies: &Properties, model: &mut Model) {
+    fn mouse_dragged(&mut self, event: &MouseEvent, properies: &Properties, state: &mut State) {
         todo!()
     }
 
-    fn mouse_moved(&mut self, event: &MouseEvent, model: &mut Model) {
+    fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {
         todo!()
     }
 
-    fn mouse_entered(&mut self, event: &MouseEvent, model: &mut Model) {
+    fn mouse_entered(&mut self, event: &MouseEvent, state: &mut State) {
         todo!()
     }
 
-    fn mouse_left(&mut self, event: &MouseEvent, model: &mut Model) {
+    fn mouse_left(&mut self, event: &MouseEvent, state: &mut State) {
         todo!()
     }
 }
@@ -80,15 +80,15 @@ impl PopupMenu {
     }
 }
 
-pub struct PopupRequest<Model> {
+pub struct PopupRequest<State> {
     menu: PopupMenu,
-    pub handler: Box<dyn FnMut(usize, usize, &mut Model) -> Action<Model>>,
+    pub handler: Box<dyn FnMut(usize, usize, &mut State) -> Action<State>>,
 }
 
-impl<Model: AppState + 'static> PopupRequest<Model> {
+impl<State: AppState + 'static> PopupRequest<State> {
     pub fn new<F>(menu: PopupMenu, handler: F) -> Self
     where
-        F: FnMut(usize, usize, &mut Model) -> Action<Model> + 'static,
+        F: FnMut(usize, usize, &mut State) -> Action<State> + 'static,
     {
         PopupRequest {
             menu,
@@ -96,7 +96,7 @@ impl<Model: AppState + 'static> PopupRequest<Model> {
         }
     }
 
-    // pub fn build(&self) -> Box<dyn Widget<Model>> {
+    // pub fn build(&self) -> Box<dyn Widget<State>> {
     //     let mut b = Node::new("menu").widget(VStack::new()).spacing(1.);
 
     //     for item in self.menu.items.iter() {

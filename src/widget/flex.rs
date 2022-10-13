@@ -6,12 +6,12 @@ use crate::{
     window::MouseEvent,
 };
 
-pub struct Row<Model> {
-    children: Vec<ChildSlot<Model>>,
+pub struct Row<State> {
+    children: Vec<ChildSlot<State>>,
     spacing: f32,
 }
 
-impl<Model: AppState> Row<Model> {
+impl<State: AppState> Row<State> {
     pub fn new() -> Self {
         Self {
             children: Vec::new(),
@@ -21,7 +21,7 @@ impl<Model: AppState> Row<Model> {
 
     pub fn push<W>(mut self, child: W) -> Self
     where
-        W: Widget<Model> + 'static,
+        W: Widget<State> + 'static,
     {
         self.children.push(ChildSlot::new(child));
         self
@@ -33,8 +33,8 @@ impl<Model: AppState> Row<Model> {
     }
 }
 
-impl<Model: AppState> Widget<Model> for Row<Model> {
-    fn layout(&mut self, constraints: &BoxConstraints, model: &Model) -> Size {
+impl<State: AppState> Widget<State> for Row<State> {
+    fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
         // This is not a scrollable view. It needs constraints
         assert!(constraints.max_width().is_some() && constraints.max_height().is_some());
         // Start without child constraints
@@ -44,7 +44,7 @@ impl<Model: AppState> Widget<Model> for Row<Model> {
             .iter_mut()
             .flat_map(|child| {
                 if child.flex() == 0.0 {
-                    let child_size = child.layout(&child_constraints, model);
+                    let child_size = child.layout(&child_constraints, state);
                     child.set_size(&child_size);
                     Some(child_size)
                 } else {
@@ -76,7 +76,7 @@ impl<Model: AppState> Widget<Model> for Row<Model> {
                     let child_constraints = BoxConstraints::new()
                         .with_max_width(flex_factor * child.flex())
                         .with_max_height(constraints.max_height().unwrap());
-                    let child_size = child.layout(&child_constraints, model);
+                    let child_size = child.layout(&child_constraints, state);
                     child.set_size(&child_size);
                 }
             }
@@ -94,9 +94,9 @@ impl<Model: AppState> Widget<Model> for Row<Model> {
         )
     }
 
-    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, model: &Model) {
+    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, state: &State) {
         for child in &self.children {
-            child.paint(theme, canvas, rect, model)
+            child.paint(theme, canvas, rect, state)
         }
     }
 
@@ -104,41 +104,41 @@ impl<Model: AppState> Widget<Model> for Row<Model> {
         &mut self,
         event: &MouseEvent,
         properties: &Properties,
-        app: &mut App<Model>,
-        model: &mut Model,
+        app: &mut App<State>,
+        state: &mut State,
     ) {
         for child in &mut self.children {
-            child.mouse_down(event, properties, app, model)
+            child.mouse_down(event, properties, app, state)
         }
     }
 
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<Model>, model: &mut Model) {
+    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<State>, state: &mut State) {
         for child in &mut self.children {
-            child.mouse_up(event, app, model)
+            child.mouse_up(event, app, state)
         }
     }
 
-    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, model: &mut Model) {
+    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {
         for child in &mut self.children {
-            child.mouse_dragged(event, properties, model)
+            child.mouse_dragged(event, properties, state)
         }
     }
 
-    fn mouse_moved(&mut self, event: &MouseEvent, model: &mut Model) {
+    fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {
         for child in &mut self.children {
-            child.mouse_moved(event, model)
+            child.mouse_moved(event, state)
         }
     }
 
-    fn mouse_entered(&mut self, event: &MouseEvent, model: &mut Model) {
+    fn mouse_entered(&mut self, event: &MouseEvent, state: &mut State) {
         for child in &mut self.children {
-            child.mouse_entered(event, model)
+            child.mouse_entered(event, state)
         }
     }
 
-    fn mouse_left(&mut self, event: &MouseEvent, model: &mut Model) {
+    fn mouse_left(&mut self, event: &MouseEvent, state: &mut State) {
         for child in &mut self.children {
-            child.mouse_left(event, model)
+            child.mouse_left(event, state)
         }
     }
 
@@ -146,9 +146,9 @@ impl<Model: AppState> Widget<Model> for Row<Model> {
         0.0
     }
 
-    fn keyboard_event(&mut self, event: &winit::event::KeyboardInput, model: &mut Model) -> bool {
+    fn keyboard_event(&mut self, event: &winit::event::KeyboardInput, state: &mut State) -> bool {
         for child in &mut self.children {
-            if child.keyboard_event(event, model) {
+            if child.keyboard_event(event, state) {
                 return true;
             }
         }
@@ -156,9 +156,9 @@ impl<Model: AppState> Widget<Model> for Row<Model> {
         false
     }
 
-    fn character_received(&mut self, character: char, model: &mut Model) -> bool {
+    fn character_received(&mut self, character: char, state: &mut State) -> bool {
         for child in &mut self.children {
-            if child.character_received(character, model) {
+            if child.character_received(character, state) {
                 return true;
             }
         }
@@ -167,12 +167,12 @@ impl<Model: AppState> Widget<Model> for Row<Model> {
     }
 }
 
-pub struct Column<Model> {
-    children: Vec<ChildSlot<Model>>,
+pub struct Column<State> {
+    children: Vec<ChildSlot<State>>,
     spacing: f32,
 }
 
-impl<Model: AppState> Column<Model> {
+impl<State: AppState> Column<State> {
     pub fn new() -> Self {
         Self {
             children: Vec::new(),
@@ -182,7 +182,7 @@ impl<Model: AppState> Column<Model> {
 
     pub fn push<W>(mut self, child: W) -> Self
     where
-        W: Widget<Model> + 'static,
+        W: Widget<State> + 'static,
     {
         self.children.push(ChildSlot::new(child));
         self
@@ -194,8 +194,8 @@ impl<Model: AppState> Column<Model> {
     }
 }
 
-impl<Model: AppState> Widget<Model> for Column<Model> {
-    fn layout(&mut self, constraints: &BoxConstraints, model: &Model) -> Size {
+impl<State: AppState> Widget<State> for Column<State> {
+    fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
         // It needs constraints
         assert!(constraints.max_width().is_some() && constraints.max_height().is_some());
         let total_spacing = (self.children.len() as f32 - 1.0) * self.spacing;
@@ -206,7 +206,7 @@ impl<Model: AppState> Widget<Model> for Column<Model> {
             .iter_mut()
             .flat_map(|child| {
                 if child.flex() == 0.0 {
-                    let child_size = child.layout(&child_constraints, model);
+                    let child_size = child.layout(&child_constraints, state);
                     child.set_size(&child_size);
                     Some(child_size)
                 } else {
@@ -238,7 +238,7 @@ impl<Model: AppState> Widget<Model> for Column<Model> {
                     let child_constraints = BoxConstraints::new()
                         .with_max_height(flex_factor * child.flex())
                         .with_max_width(constraints.max_width().unwrap());
-                    let child_size = child.layout(&child_constraints, model);
+                    let child_size = child.layout(&child_constraints, state);
                     child.set_size(&child_size);
                 }
             }
@@ -256,9 +256,9 @@ impl<Model: AppState> Widget<Model> for Column<Model> {
         )
     }
 
-    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, model: &Model) {
+    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, state: &State) {
         for child in &self.children {
-            child.paint(theme, canvas, rect, model)
+            child.paint(theme, canvas, rect, state)
         }
     }
 
@@ -266,41 +266,41 @@ impl<Model: AppState> Widget<Model> for Column<Model> {
         &mut self,
         event: &MouseEvent,
         properties: &Properties,
-        app: &mut App<Model>,
-        model: &mut Model,
+        app: &mut App<State>,
+        state: &mut State,
     ) {
         for child in &mut self.children {
-            child.mouse_down(event, properties, app, model)
+            child.mouse_down(event, properties, app, state)
         }
     }
 
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<Model>, model: &mut Model) {
+    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<State>, state: &mut State) {
         for child in &mut self.children {
-            child.mouse_up(event, app, model)
+            child.mouse_up(event, app, state)
         }
     }
 
-    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, model: &mut Model) {
+    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {
         for child in &mut self.children {
-            child.mouse_dragged(event, properties, model)
+            child.mouse_dragged(event, properties, state)
         }
     }
 
-    fn mouse_moved(&mut self, event: &MouseEvent, model: &mut Model) {
+    fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {
         for child in &mut self.children {
-            child.mouse_moved(event, model)
+            child.mouse_moved(event, state)
         }
     }
 
-    fn mouse_entered(&mut self, event: &MouseEvent, model: &mut Model) {
+    fn mouse_entered(&mut self, event: &MouseEvent, state: &mut State) {
         for child in &mut self.children {
-            child.mouse_entered(event, model)
+            child.mouse_entered(event, state)
         }
     }
 
-    fn mouse_left(&mut self, event: &MouseEvent, model: &mut Model) {
+    fn mouse_left(&mut self, event: &MouseEvent, state: &mut State) {
         for child in &mut self.children {
-            child.mouse_left(event, model)
+            child.mouse_left(event, state)
         }
     }
 
@@ -308,9 +308,9 @@ impl<Model: AppState> Widget<Model> for Column<Model> {
         0.0
     }
 
-    fn keyboard_event(&mut self, event: &winit::event::KeyboardInput, model: &mut Model) -> bool {
+    fn keyboard_event(&mut self, event: &winit::event::KeyboardInput, state: &mut State) -> bool {
         for child in &mut self.children {
-            if child.keyboard_event(event, model) {
+            if child.keyboard_event(event, state) {
                 return true;
             }
         }
@@ -318,9 +318,9 @@ impl<Model: AppState> Widget<Model> for Column<Model> {
         false
     }
 
-    fn character_received(&mut self, character: char, model: &mut Model) -> bool {
+    fn character_received(&mut self, character: char, state: &mut State) -> bool {
         for child in &mut self.children {
-            if child.character_received(character, model) {
+            if child.character_received(character, state) {
                 return true;
             }
         }
@@ -329,15 +329,15 @@ impl<Model: AppState> Widget<Model> for Column<Model> {
     }
 }
 
-pub struct Expanded<Model> {
-    child: ChildSlot<Model>,
+pub struct Expanded<State> {
+    child: ChildSlot<State>,
     width: Option<f32>,
     height: Option<f32>,
     flex: f32,
 }
 
-impl<Model: AppState> Expanded<Model> {
-    pub fn new(child: impl Widget<Model> + 'static) -> Self {
+impl<State: AppState> Expanded<State> {
+    pub fn new(child: impl Widget<State> + 'static) -> Self {
         Self {
             child: ChildSlot::new(child),
             width: None,
@@ -362,10 +362,10 @@ impl<Model: AppState> Expanded<Model> {
     }
 }
 
-impl<Model: AppState> Widget<Model> for Expanded<Model> {
+impl<State: AppState> Widget<State> for Expanded<State> {
     // If given to a flex container it will expand based on it's flex parameter in the dominant layout direction.
     // If for example you add it to a row it will expand in the horizontal direction. Therefor you should provide a height.
-    fn layout(&mut self, constraints: &BoxConstraints, model: &Model) -> Size {
+    fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
         let size = Size::new(
             self.width
                 .unwrap_or_else(|| constraints.max_width().unwrap()),
@@ -375,15 +375,15 @@ impl<Model: AppState> Widget<Model> for Expanded<Model> {
 
         let child_size = self.child.layout(
             &BoxConstraints::new().with_tight_constraints(size.width, size.height),
-            model,
+            state,
         );
 
         self.child.set_size(&child_size);
         size
     }
 
-    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, model: &Model) {
-        self.child.paint(theme, canvas, rect, model)
+    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, state: &State) {
+        self.child.paint(theme, canvas, rect, state)
     }
 
     fn flex(&self) -> f32 {
@@ -394,33 +394,33 @@ impl<Model: AppState> Widget<Model> for Expanded<Model> {
         &mut self,
         event: &MouseEvent,
         properties: &Properties,
-        app: &mut App<Model>,
-        model: &mut Model,
+        app: &mut App<State>,
+        state: &mut State,
     ) {
-        self.child.mouse_down(event, properties, app, model)
+        self.child.mouse_down(event, properties, app, state)
     }
 
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<Model>, model: &mut Model) {
-        self.child.mouse_up(event, app, model)
+    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<State>, state: &mut State) {
+        self.child.mouse_up(event, app, state)
     }
 
-    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, model: &mut Model) {
-        self.child.mouse_dragged(event, properties, model)
+    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {
+        self.child.mouse_dragged(event, properties, state)
     }
 
-    fn mouse_moved(&mut self, event: &MouseEvent, model: &mut Model) {
-        self.child.mouse_moved(event, model)
+    fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {
+        self.child.mouse_moved(event, state)
     }
 
-    fn mouse_entered(&mut self, _event: &MouseEvent, _model: &mut Model) {}
+    fn mouse_entered(&mut self, _event: &MouseEvent, _state: &mut State) {}
 
-    fn mouse_left(&mut self, _event: &MouseEvent, _model: &mut Model) {}
+    fn mouse_left(&mut self, _event: &MouseEvent, _state: &mut State) {}
 
-    fn keyboard_event(&mut self, event: &winit::event::KeyboardInput, model: &mut Model) -> bool {
-        self.child.keyboard_event(event, model)
+    fn keyboard_event(&mut self, event: &winit::event::KeyboardInput, state: &mut State) -> bool {
+        self.child.keyboard_event(event, state)
     }
 
-    fn character_received(&mut self, character: char, model: &mut Model) -> bool {
-        self.child.character_received(character, model)
+    fn character_received(&mut self, character: char, state: &mut State) -> bool {
+        self.child.character_received(character, state)
     }
 }

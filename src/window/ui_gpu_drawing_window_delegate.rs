@@ -9,23 +9,23 @@ use crate::window::{MouseEvent, WindowDelegate};
 use std::path::Path;
 use std::rc::Rc;
 
-struct UI<Model: AppState> {
+struct UI<State: AppState> {
     canvas: SkiaCanvas,
-    user_interface: UserInterface<Model>,
+    user_interface: UserInterface<State>,
 }
 
-pub struct UIGpuDrawingWindowDelegate<Model: AppState> {
+pub struct UIGpuDrawingWindowDelegate<State: AppState> {
     surface: Option<wgpu::Surface>,
     device: Rc<Device>,
     queue: Rc<Queue>,
-    ui: Option<UI<Model>>,
-    builder: Box<dyn Fn(&Model) -> Box<dyn Widget<Model>>>,
+    ui: Option<UI<State>>,
+    builder: Box<dyn Fn(&State) -> Box<dyn Widget<State>>>,
 }
 
-impl<Model: AppState + 'static> UIGpuDrawingWindowDelegate<Model> {
+impl<State: AppState + 'static> UIGpuDrawingWindowDelegate<State> {
     pub fn new<F>(device: Rc<Device>, queue: Rc<Queue>, builder: F) -> Self
     where
-        F: Fn(&Model) -> Box<dyn Widget<Model>> + 'static,
+        F: Fn(&State) -> Box<dyn Widget<State>> + 'static,
     {
         Self {
             device,
@@ -37,8 +37,8 @@ impl<Model: AppState + 'static> UIGpuDrawingWindowDelegate<Model> {
     }
 }
 
-impl<Model: AppState + 'static> WindowDelegate<Model> for UIGpuDrawingWindowDelegate<Model> {
-    fn mouse_moved(&mut self, state: &mut Model, x: f32, y: f32) {
+impl<State: AppState + 'static> WindowDelegate<State> for UIGpuDrawingWindowDelegate<State> {
+    fn mouse_moved(&mut self, state: &mut State, x: f32, y: f32) {
         let p = Point::from((x, y));
         if let Some(ui) = self.ui.as_mut() {
             ui.user_interface
@@ -46,7 +46,7 @@ impl<Model: AppState + 'static> WindowDelegate<Model> for UIGpuDrawingWindowDele
         }
     }
 
-    fn mouse_dragged(&mut self, state: &mut Model, x: f32, y: f32, dx: f32, dy: f32) {
+    fn mouse_dragged(&mut self, state: &mut State, x: f32, y: f32, dx: f32, dy: f32) {
         let p = Point::from((x, y));
         let d = Point::from((dx, dy));
         if let Some(ui) = self.ui.as_mut() {
@@ -55,7 +55,7 @@ impl<Model: AppState + 'static> WindowDelegate<Model> for UIGpuDrawingWindowDele
         }
     }
 
-    fn mouse_down(&mut self, app: &mut App<Model>, state: &mut Model, x: f32, y: f32) {
+    fn mouse_down(&mut self, app: &mut App<State>, state: &mut State, x: f32, y: f32) {
         let p = Point::from((x, y));
         if let Some(ui) = self.ui.as_mut() {
             ui.user_interface
@@ -63,7 +63,7 @@ impl<Model: AppState + 'static> WindowDelegate<Model> for UIGpuDrawingWindowDele
         }
     }
 
-    fn mouse_up(&mut self, app: &mut App<Model>, state: &mut Model, x: f32, y: f32) {
+    fn mouse_up(&mut self, app: &mut App<State>, state: &mut State, x: f32, y: f32) {
         let p = Point::from((x, y));
         if let Some(ui) = self.ui.as_mut() {
             ui.user_interface
@@ -74,8 +74,8 @@ impl<Model: AppState + 'static> WindowDelegate<Model> for UIGpuDrawingWindowDele
     fn resized(
         &mut self,
         window: &winit::window::Window,
-        app: &App<Model>,
-        state: &mut Model,
+        app: &App<State>,
+        state: &mut State,
         width: u32,
         height: u32,
     ) {
@@ -113,21 +113,21 @@ impl<Model: AppState + 'static> WindowDelegate<Model> for UIGpuDrawingWindowDele
         });
     }
 
-    fn file_dropped(&mut self, state: &mut Model, path: &Path, x: f32, y: f32) {
+    fn file_dropped(&mut self, state: &mut State, path: &Path, x: f32, y: f32) {
         if let Some(ui) = self.ui.as_mut() {
             ui.user_interface
                 .file_dropped(state, path, &Point::new(x, y))
         }
     }
 
-    fn file_hovered(&mut self, state: &mut Model, path: &Path, x: f32, y: f32) {
+    fn file_hovered(&mut self, state: &mut State, path: &Path, x: f32, y: f32) {
         if let Some(ui) = self.ui.as_mut() {
             ui.user_interface
                 .file_hovered(state, path, &Point::new(x, y))
         }
     }
 
-    fn draw(&mut self, _: &App<Model>, state: &Model) {
+    fn draw(&mut self, _: &App<State>, state: &State) {
         // draw user interface
 
         let pixels = if let Some(ui) = &mut self.ui {
@@ -200,20 +200,20 @@ impl<Model: AppState + 'static> WindowDelegate<Model> for UIGpuDrawingWindowDele
         }
     }
 
-    fn close_button_pressed(&mut self, _state: &mut Model) -> bool {
+    fn close_button_pressed(&mut self, _state: &mut State) -> bool {
         true
     }
 
-    fn keyboard_event(&mut self, state: &mut Model, event: &winit::event::KeyboardInput) {
+    fn keyboard_event(&mut self, state: &mut State, event: &winit::event::KeyboardInput) {
         if let Some(ui) = self.ui.as_mut() {
             ui.user_interface.keyboard_event(state, event)
         }
     }
-    fn character_received(&mut self, state: &mut Model, character: char) {
+    fn character_received(&mut self, state: &mut State, character: char) {
         if let Some(ui) = self.ui.as_mut() {
             ui.user_interface.character_received(state, character)
         }
     }
 
-    fn update(&mut self, _state: &mut Model) {}
+    fn update(&mut self, _state: &mut State) {}
 }

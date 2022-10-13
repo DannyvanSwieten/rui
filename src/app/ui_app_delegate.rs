@@ -5,13 +5,13 @@ use crate::{
 };
 use winit::event_loop::EventLoopWindowTarget;
 
-pub struct UIAppDelegate<Model: AppState> {
-    on_start: Option<Box<dyn FnMut(&mut App<Model>, &mut Model)>>,
-    on_update: Option<Box<dyn FnMut(&App<Model>, &mut Model)>>,
-    _state: std::marker::PhantomData<Model>,
+pub struct UIAppDelegate<State: AppState> {
+    on_start: Option<Box<dyn FnMut(&mut App<State>, &mut State)>>,
+    on_update: Option<Box<dyn FnMut(&App<State>, &mut State)>>,
+    _state: std::marker::PhantomData<State>,
 }
 
-impl<Model: AppState> UIAppDelegate<Model> {
+impl<State: AppState> UIAppDelegate<State> {
     pub fn new() -> Self {
         Self {
             on_start: None,
@@ -22,7 +22,7 @@ impl<Model: AppState> UIAppDelegate<Model> {
 
     pub fn on_start<F>(mut self, f: F) -> Self
     where
-        F: FnMut(&mut App<Model>, &mut Model) + 'static,
+        F: FnMut(&mut App<State>, &mut State) + 'static,
     {
         self.on_start = Some(Box::new(f));
         self
@@ -30,19 +30,19 @@ impl<Model: AppState> UIAppDelegate<Model> {
 
     pub fn on_update<F>(mut self, f: F) -> Self
     where
-        F: FnMut(&App<Model>, &mut Model) + 'static,
+        F: FnMut(&App<State>, &mut State) + 'static,
     {
         self.on_update = Some(Box::new(f));
         self
     }
 }
 
-impl<Model: AppState> AppDelegate<Model> for UIAppDelegate<Model> {
+impl<State: AppState> AppDelegate<State> for UIAppDelegate<State> {
     fn app_will_start(
         &mut self,
-        app: &mut App<Model>,
-        state: &mut Model,
-        _: &mut WindowRegistry<Model>,
+        app: &mut App<State>,
+        state: &mut State,
+        _: &mut WindowRegistry<State>,
         _: &EventLoopWindowTarget<()>,
     ) {
         // self.device = Some(device);
@@ -53,9 +53,9 @@ impl<Model: AppState> AppDelegate<Model> for UIAppDelegate<Model> {
 
     fn app_will_update(
         &mut self,
-        app: &App<Model>,
-        state: &mut Model,
-        _: &mut WindowRegistry<Model>,
+        app: &App<State>,
+        state: &mut State,
+        _: &mut WindowRegistry<State>,
         _: &EventLoopWindowTarget<()>,
     ) {
         if let Some(cb) = self.on_update.as_mut() {
@@ -65,11 +65,11 @@ impl<Model: AppState> AppDelegate<Model> for UIAppDelegate<Model> {
 
     fn window_requested(
         &mut self,
-        app: &App<Model>,
-        state: &mut Model,
-        window_registry: &mut WindowRegistry<Model>,
+        app: &App<State>,
+        state: &mut State,
+        window_registry: &mut WindowRegistry<State>,
         target: &EventLoopWindowTarget<()>,
-        request: WindowRequest<Model>,
+        request: WindowRequest<State>,
     ) {
         let window = window_registry
             .create_window(

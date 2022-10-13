@@ -7,13 +7,13 @@ use crate::{
 };
 use winit::event::KeyboardInput;
 
-pub struct Center<Model> {
-    child: ChildSlot<Model>,
+pub struct Center<State> {
+    child: ChildSlot<State>,
     size: Option<Size>,
 }
 
-impl<Model: AppState> Center<Model> {
-    pub fn new<W: Widget<Model> + 'static>(child: W) -> Self {
+impl<State: AppState> Center<State> {
+    pub fn new<W: Widget<State> + 'static>(child: W) -> Self {
         Self {
             child: ChildSlot::new_with_box(Box::new(child)),
             size: None,
@@ -21,10 +21,10 @@ impl<Model: AppState> Center<Model> {
     }
 }
 
-impl<Model: AppState> Widget<Model> for Center<Model> {
+impl<State: AppState> Widget<State> for Center<State> {
     // The layout strategy for a center node: return own size if not None, otherwise as big as possible within given constraints.
     // Then center the child.
-    fn layout(&mut self, constraints: &BoxConstraints, model: &Model) -> Size {
+    fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
         let my_size = if let Some(size) = &self.size {
             *size
         } else {
@@ -39,7 +39,7 @@ impl<Model: AppState> Widget<Model> for Center<Model> {
             &BoxConstraints::new()
                 .with_max_width(my_size.width)
                 .with_max_height(my_size.height),
-            model,
+            state,
         );
 
         self.child.set_size(&child_size);
@@ -51,41 +51,41 @@ impl<Model: AppState> Widget<Model> for Center<Model> {
         my_size
     }
 
-    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, model: &Model) {
-        self.child.paint(theme, canvas, rect, model)
+    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, state: &State) {
+        self.child.paint(theme, canvas, rect, state)
     }
 
     fn mouse_down(
         &mut self,
         event: &MouseEvent,
         properties: &Properties,
-        app: &mut App<Model>,
-        model: &mut Model,
+        app: &mut App<State>,
+        state: &mut State,
     ) {
-        self.child.mouse_down(event, properties, app, model)
+        self.child.mouse_down(event, properties, app, state)
     }
 
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<Model>, model: &mut Model) {
-        self.child.mouse_up(event, app, model)
+    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<State>, state: &mut State) {
+        self.child.mouse_up(event, app, state)
     }
 
-    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, model: &mut Model) {
-        self.child.mouse_dragged(event, properties, model)
+    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {
+        self.child.mouse_dragged(event, properties, state)
     }
 
-    fn mouse_moved(&mut self, event: &MouseEvent, model: &mut Model) {
-        self.child.mouse_moved(event, model)
+    fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {
+        self.child.mouse_moved(event, state)
     }
 
-    fn mouse_entered(&mut self, event: &MouseEvent, model: &mut Model) {
-        self.child.mouse_entered(event, model)
+    fn mouse_entered(&mut self, event: &MouseEvent, state: &mut State) {
+        self.child.mouse_entered(event, state)
     }
 
-    fn mouse_left(&mut self, event: &MouseEvent, model: &mut Model) {
-        self.child.mouse_left(event, model)
+    fn mouse_left(&mut self, event: &MouseEvent, state: &mut State) {
+        self.child.mouse_left(event, state)
     }
 
-    fn keyboard_event(&mut self, event: &KeyboardInput, model: &mut Model) -> bool {
-        self.child.keyboard_event(event, model)
+    fn keyboard_event(&mut self, event: &KeyboardInput, state: &mut State) -> bool {
+        self.child.keyboard_event(event, state)
     }
 }

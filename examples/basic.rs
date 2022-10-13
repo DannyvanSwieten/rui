@@ -4,9 +4,9 @@ use rui::{
     widget::container::Container,
 };
 
-struct Model;
+struct State;
 
-impl AppState for Model {
+impl AppState for State {
     type MessageType = ();
 
     fn handle_message(&mut self, _: Self::MessageType) {}
@@ -21,5 +21,5 @@ fn main() {
         }));
     });
 
-    app.run(delegate, Model);
+    app.run(delegate, State);
 }

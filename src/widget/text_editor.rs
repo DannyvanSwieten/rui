@@ -34,8 +34,8 @@ impl TextBox {
     }
 }
 
-impl<Model: AppState> Widget<Model> for TextBox {
-    fn layout(&mut self, constraints: &crate::constraints::BoxConstraints, model: &Model) -> Size {
+impl<State: AppState> Widget<State> for TextBox {
+    fn layout(&mut self, constraints: &crate::constraints::BoxConstraints, state: &State) -> Size {
         let mut font_collection = FontCollection::new();
         font_collection.set_default_font_manager(FontMgr::new(), None);
         let mut paragraph_builder = ParagraphBuilder::new(&self.style, font_collection);
@@ -49,7 +49,7 @@ impl<Model: AppState> Widget<Model> for TextBox {
         Size::new(constraints.max_width().unwrap(), paragraph.height())
     }
 
-    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, model: &Model) {
+    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, state: &State) {
         let mut font_collection = FontCollection::new();
         font_collection.set_default_font_manager(FontMgr::new(), None);
         let mut paragraph_builder = ParagraphBuilder::new(&self.style, font_collection);
@@ -94,8 +94,8 @@ impl<Model: AppState> Widget<Model> for TextBox {
     fn mouse_up(
         &mut self,
         event: &MouseEvent,
-        app: &mut crate::app::App<Model>,
-        model: &mut Model,
+        app: &mut crate::app::App<State>,
+        state: &mut State,
     ) {
     }
 
@@ -103,17 +103,17 @@ impl<Model: AppState> Widget<Model> for TextBox {
         &mut self,
         event: &MouseEvent,
         properties: &crate::widget::Properties,
-        model: &mut Model,
+        state: &mut State,
     ) {
     }
 
-    fn mouse_moved(&mut self, event: &MouseEvent, model: &mut Model) {}
+    fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {}
 
-    fn mouse_entered(&mut self, event: &MouseEvent, model: &mut Model) {}
+    fn mouse_entered(&mut self, event: &MouseEvent, state: &mut State) {}
 
-    fn mouse_left(&mut self, event: &MouseEvent, model: &mut Model) {}
+    fn mouse_left(&mut self, event: &MouseEvent, state: &mut State) {}
 
-    fn keyboard_event(&mut self, event: &winit::event::KeyboardInput, model: &mut Model) -> bool {
+    fn keyboard_event(&mut self, event: &winit::event::KeyboardInput, state: &mut State) -> bool {
         if let Some(keycode) = event.virtual_keycode {
             if event.state == ElementState::Pressed {
                 match keycode {
@@ -141,12 +141,12 @@ impl<Model: AppState> Widget<Model> for TextBox {
         &mut self,
         event: &MouseEvent,
         _: &crate::widget::Properties,
-        _: &mut crate::app::App<Model>,
-        model: &mut Model,
+        _: &mut crate::app::App<State>,
+        state: &mut State,
     ) {
     }
 
-    fn character_received(&mut self, character: char, model: &mut Model) -> bool {
+    fn character_received(&mut self, character: char, state: &mut State) -> bool {
         if !character.is_ascii_control() {
             self.state.text.push(character);
             self.state.caret_position += 1;

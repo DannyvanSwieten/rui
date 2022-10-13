@@ -26,13 +26,13 @@ pub fn map_range(x: f32, a: f32, b: f32, c: f32, d: f32) -> f32 {
     c + slope * (x - a)
 }
 
-pub enum Action<Model> {
+pub enum Action<State> {
     None,
     Layout {
         nodes: Vec<&'static str>,
     },
     PopupRequest {
-        request: PopupRequest<Model>,
+        request: PopupRequest<State>,
         position: Point,
     },
     TriggerPopupMenu {
@@ -41,9 +41,9 @@ pub enum Action<Model> {
     },
 }
 
-pub trait AppAction<Model> {
-    fn undo(&self, _state: &mut Model);
-    fn redo(&self, _state: &mut Model);
+pub trait AppAction<State> {
+    fn undo(&self, _state: &mut State);
+    fn redo(&self, _state: &mut State);
 }
 
 pub struct Properties {
@@ -52,9 +52,9 @@ pub struct Properties {
 }
 
 #[allow(unused_variables)]
-pub trait Widget<Model: AppState> {
-    fn layout(&mut self, constraints: &BoxConstraints, model: &Model) -> Size;
-    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, model: &Model);
+pub trait Widget<State: AppState> {
+    fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size;
+    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, state: &State);
     fn flex(&self) -> f32 {
         0.0
     }
@@ -62,20 +62,20 @@ pub trait Widget<Model: AppState> {
         &mut self,
         event: &MouseEvent,
         properties: &Properties,
-        app: &mut App<Model>,
-        model: &mut Model,
+        app: &mut App<State>,
+        state: &mut State,
     ) {
     }
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<Model>, model: &mut Model);
-    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, model: &mut Model);
-    fn mouse_moved(&mut self, event: &MouseEvent, model: &mut Model);
-    fn mouse_entered(&mut self, event: &MouseEvent, model: &mut Model);
-    fn mouse_left(&mut self, event: &MouseEvent, model: &mut Model);
+    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<State>, state: &mut State);
+    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State);
+    fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State);
+    fn mouse_entered(&mut self, event: &MouseEvent, state: &mut State);
+    fn mouse_left(&mut self, event: &MouseEvent, state: &mut State);
 
-    fn keyboard_event(&mut self, event: &KeyboardInput, model: &mut Model) -> bool {
+    fn keyboard_event(&mut self, event: &KeyboardInput, state: &mut State) -> bool {
         false
     }
-    fn character_received(&mut self, character: char, model: &mut Model) -> bool {
+    fn character_received(&mut self, character: char, state: &mut State) -> bool {
         false
     }
 }
