@@ -1,5 +1,5 @@
 use crate::{
-    app::{App, AppState},
+    app::AppState,
     canvas::{Canvas2D, Point, Size},
     constraints::BoxConstraints,
     widget::{style::Theme, ChildSlot, Event, EventCtx, Properties, Widget},
@@ -115,18 +115,6 @@ impl<State: AppState> Widget<State> for Row<State> {
     fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {
         for child in &mut self.children {
             child.mouse_moved(event, state)
-        }
-    }
-
-    fn mouse_entered(&mut self, event: &MouseEvent, state: &mut State) {
-        for child in &mut self.children {
-            child.mouse_entered(event, state)
-        }
-    }
-
-    fn mouse_left(&mut self, event: &MouseEvent, state: &mut State) {
-        for child in &mut self.children {
-            child.mouse_left(event, state)
         }
     }
 
@@ -268,18 +256,6 @@ impl<State: AppState> Widget<State> for Column<State> {
         }
     }
 
-    fn mouse_entered(&mut self, event: &MouseEvent, state: &mut State) {
-        for child in &mut self.children {
-            child.mouse_entered(event, state)
-        }
-    }
-
-    fn mouse_left(&mut self, event: &MouseEvent, state: &mut State) {
-        for child in &mut self.children {
-            child.mouse_left(event, state)
-        }
-    }
-
     fn flex(&self) -> f32 {
         0.0
     }
@@ -377,10 +353,6 @@ impl<State: AppState> Widget<State> for Expanded<State> {
     fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {
         self.child.mouse_moved(event, state)
     }
-
-    fn mouse_entered(&mut self, _event: &MouseEvent, _state: &mut State) {}
-
-    fn mouse_left(&mut self, _event: &MouseEvent, _state: &mut State) {}
 
     fn keyboard_event(&mut self, event: &winit::event::KeyboardInput, state: &mut State) -> bool {
         self.child.keyboard_event(event, state)

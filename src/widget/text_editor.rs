@@ -101,10 +101,6 @@ impl<State: AppState> Widget<State> for TextBox {
 
     fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {}
 
-    fn mouse_entered(&mut self, event: &MouseEvent, state: &mut State) {}
-
-    fn mouse_left(&mut self, event: &MouseEvent, state: &mut State) {}
-
     fn keyboard_event(&mut self, event: &winit::event::KeyboardInput, state: &mut State) -> bool {
         if let Some(keycode) = event.virtual_keycode {
             if event.state == ElementState::Pressed {

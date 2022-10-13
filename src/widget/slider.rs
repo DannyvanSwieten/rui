@@ -56,6 +56,8 @@ impl<State: AppState + 'static> Slider<State> {
 impl<State: AppState> Widget<State> for Slider<State> {
     fn event(&mut self, event: &Event, mut ctx: &mut EventCtx<State>, state: &mut State) {
         match event {
+            Event::MouseEnter(_) => self.state = SliderState::Active,
+            Event::MouseLeave(_) => self.state = SliderState::Inactive,
             Event::MouseDown(event) => {
                 self.last_position = event.local_position().x;
                 self.current_normalized = (1. / ctx.size().width) * self.last_position;
@@ -143,14 +145,6 @@ impl<State: AppState> Widget<State> for Slider<State> {
     }
 
     fn mouse_moved(&mut self, _: &MouseEvent, _: &mut State) {}
-
-    fn mouse_entered(&mut self, _: &MouseEvent, _: &mut State) {
-        self.state = SliderState::Active
-    }
-
-    fn mouse_left(&mut self, _: &MouseEvent, _: &mut State) {
-        self.state = SliderState::Inactive
-    }
 }
 
 pub struct Switch<State> {
@@ -172,6 +166,8 @@ impl<State: AppState + 'static> Switch<State> {
 impl<State: AppState> Widget<State> for Switch<State> {
     fn event(&mut self, event: &Event, mut ctx: &mut EventCtx<State>, state: &mut State) {
         match event {
+            Event::MouseEnter(_) => self.state = SliderState::Active,
+            Event::MouseLeave(_) => self.state = SliderState::Inactive,
             Event::MouseDown(_) => {
                 self.active = !self.active;
                 if let Some(l) = &mut self.value_changed {
@@ -242,12 +238,4 @@ impl<State: AppState> Widget<State> for Switch<State> {
     fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {}
 
     fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {}
-
-    fn mouse_entered(&mut self, event: &MouseEvent, state: &mut State) {
-        self.state = SliderState::Active
-    }
-
-    fn mouse_left(&mut self, event: &MouseEvent, state: &mut State) {
-        self.state = SliderState::Inactive
-    }
 }

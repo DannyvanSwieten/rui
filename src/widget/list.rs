@@ -125,18 +125,6 @@ impl<State: AppState> Widget<State> for List<State> {
         }
     }
 
-    fn mouse_entered(&mut self, event: &MouseEvent, state: &mut State) {
-        for child in &mut self.children {
-            child.mouse_entered(event, state)
-        }
-    }
-
-    fn mouse_left(&mut self, event: &MouseEvent, state: &mut State) {
-        for child in &mut self.children {
-            child.mouse_left(event, state)
-        }
-    }
-
     fn keyboard_event(&mut self, event: &winit::event::KeyboardInput, state: &mut State) -> bool {
         for child in &mut self.children {
             if child.keyboard_event(event, state) {

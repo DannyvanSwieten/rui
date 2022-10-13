@@ -67,14 +67,6 @@ impl<State: AppState> Widget<State> for Center<State> {
         self.child.mouse_moved(event, state)
     }
 
-    fn mouse_entered(&mut self, event: &MouseEvent, state: &mut State) {
-        self.child.mouse_entered(event, state)
-    }
-
-    fn mouse_left(&mut self, event: &MouseEvent, state: &mut State) {
-        self.child.mouse_left(event, state)
-    }
-
     fn keyboard_event(&mut self, event: &KeyboardInput, state: &mut State) -> bool {
         self.child.keyboard_event(event, state)
     }

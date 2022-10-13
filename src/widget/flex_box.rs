@@ -37,14 +37,6 @@ impl<State: AppState> Widget<State> for FlexBox<State> {
         todo!()
     }
 
-    fn mouse_entered(&mut self, event: &MouseEvent, state: &mut State) {
-        todo!()
-    }
-
-    fn mouse_left(&mut self, event: &MouseEvent, state: &mut State) {
-        todo!()
-    }
-
     fn keyboard_event(&mut self, event: &KeyboardInput, state: &mut State) -> bool {
         self.child.keyboard_event(event, state)
     }

@@ -69,8 +69,6 @@ pub trait Widget<State: AppState> {
 
     fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State);
     fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State);
-    fn mouse_entered(&mut self, event: &MouseEvent, state: &mut State);
-    fn mouse_left(&mut self, event: &MouseEvent, state: &mut State);
 
     fn keyboard_event(&mut self, event: &KeyboardInput, state: &mut State) -> bool {
         false

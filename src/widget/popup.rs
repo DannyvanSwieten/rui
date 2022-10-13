@@ -1,5 +1,5 @@
 use crate::{
-    app::{App, AppState},
+    app::AppState,
     canvas::{Canvas2D, Size},
     constraints::BoxConstraints,
     widget::{Action, Properties, Theme, Widget},
@@ -40,14 +40,6 @@ impl<State: AppState> Widget<State> for PopupMenuWidget {
     }
 
     fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {
-        todo!()
-    }
-
-    fn mouse_entered(&mut self, event: &MouseEvent, state: &mut State) {
-        todo!()
-    }
-
-    fn mouse_left(&mut self, event: &MouseEvent, state: &mut State) {
         todo!()
     }
 }

@@ -65,6 +65,8 @@ impl<State: AppState> TextButton<State> {
 impl<State: AppState> Widget<State> for TextButton<State> {
     fn event(&mut self, event: &Event, mut ctx: &mut EventCtx<State>, state: &mut State) {
         match event {
+            Event::MouseEnter(_) => self.state = ButtonState::Hover,
+            Event::MouseLeave(_) => self.state = ButtonState::Inactive,
             Event::MouseDown(_) => self.state = ButtonState::Active,
             Event::MouseUp(_) => {
                 if let Some(handler) = &self.on_click {
@@ -185,11 +187,4 @@ impl<State: AppState> Widget<State> for TextButton<State> {
     fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {}
 
     fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {}
-
-    fn mouse_entered(&mut self, event: &MouseEvent, state: &mut State) {
-        self.state = ButtonState::Hover
-    }
-    fn mouse_left(&mut self, event: &MouseEvent, state: &mut State) {
-        self.state = ButtonState::Inactive
-    }
 }
