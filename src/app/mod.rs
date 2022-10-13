@@ -7,6 +7,7 @@ pub use app_state::AppState;
 pub use ui_app_delegate::UIAppDelegate;
 
 use crate::{widget::Widget, window::WindowRegistry};
+use pollster::block_on;
 use std::{collections::VecDeque, rc::Rc};
 
 use winit::{
@@ -91,8 +92,9 @@ pub struct App<State: AppState> {
 }
 
 impl<State: AppState + 'static> App<State> {
-    pub async fn new() -> Self {
-        let gpu_api = GpuApi::new().await;
+    pub fn new() -> Self {
+        let gpu_api = block_on(GpuApi::new());
+
         Self {
             pending_messages: VecDeque::new(),
             pending_window_requests: VecDeque::new(),
@@ -268,5 +270,11 @@ impl<State: AppState + 'static> App<State> {
                 d.app_will_quit(&mut self, event_loop)
             }
         });
+    }
+}
+
+impl<State: AppState + 'static> Default for App<State> {
+    fn default() -> Self {
+        Self::new()
     }
 }
