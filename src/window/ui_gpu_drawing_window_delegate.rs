@@ -46,12 +46,20 @@ impl<State: AppState + 'static> WindowDelegate<State> for UIGpuDrawingWindowDele
         }
     }
 
-    fn mouse_dragged(&mut self, state: &mut State, x: f32, y: f32, dx: f32, dy: f32) {
+    fn mouse_dragged(
+        &mut self,
+        app: &mut App<State>,
+        state: &mut State,
+        x: f32,
+        y: f32,
+        dx: f32,
+        dy: f32,
+    ) {
         let p = Point::from((x, y));
         let d = Point::from((dx, dy));
         if let Some(ui) = self.ui.as_mut() {
             ui.user_interface
-                .mouse_drag(state, &MouseEvent::new_with_delta(0, &p, &p, &d));
+                .mouse_drag(app, state, &MouseEvent::new_with_delta(0, &p, &p, &d));
         }
     }
 

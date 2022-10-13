@@ -71,6 +71,21 @@ impl<State: AppState> Widget<State> for Slider<State> {
                 }
             }
             Event::MouseUp(_) => self.state = SliderState::Inactive,
+
+            Event::MouseDrag(event) => {
+                self.last_position = event.local_position().x;
+                self.current_normalized =
+                    (1. / ctx.size().width) * self.last_position.min(ctx.size().width).max(0.);
+
+                self.current_value = map_range(self.current_normalized, 0., 1., self.min, self.max);
+
+                if self.discrete {
+                    self.current_value = self.current_value.round();
+                }
+                if let Some(l) = &mut self.value_changed {
+                    (l)(self.current_value, state);
+                }
+            }
             _ => (),
         }
     }
@@ -127,21 +142,6 @@ impl<State: AppState> Widget<State> for Slider<State> {
         }
 
         // self.thumb.paint(theme, canvas, &rect.size(), state)
-    }
-
-    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {
-        self.last_position = event.local_position().x;
-        self.current_normalized =
-            (1. / properties.size.width) * self.last_position.min(properties.size.width).max(0.);
-
-        self.current_value = map_range(self.current_normalized, 0., 1., self.min, self.max);
-
-        if self.discrete {
-            self.current_value = self.current_value.round();
-        }
-        if let Some(l) = &mut self.value_changed {
-            (l)(self.current_value, state);
-        }
     }
 }
 
@@ -232,6 +232,4 @@ impl<State: AppState> Widget<State> for Switch<State> {
             );
         }
     }
-
-    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {}
 }

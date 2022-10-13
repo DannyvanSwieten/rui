@@ -61,12 +61,9 @@ impl<State: AppState + 'static> UserInterface<State> {
 
     pub fn double_click(&mut self, state: &mut State, event: &MouseEvent) {}
 
-    pub fn mouse_drag(&mut self, state: &mut State, event: &MouseEvent) {
-        let properties = Properties {
-            size: *self.root.size(),
-            position: *self.root.position(),
-        };
-        self.root.mouse_dragged(event, &properties, state);
+    pub fn mouse_drag(&mut self, app: &mut App<State>, state: &mut State, event: &MouseEvent) {
+        let mut ctx = EventCtx::new(app, *self.root.size());
+        self.root.event(&Event::MouseDrag(*event), &mut ctx, state)
     }
 
     pub fn mouse_moved(&mut self, app: &mut App<State>, state: &mut State, event: &MouseEvent) {

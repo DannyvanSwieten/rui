@@ -109,6 +109,7 @@ impl<State: AppState> WindowRegistry<State> {
 
     pub(crate) fn mouse_dragged(
         &mut self,
+        app: &mut App<State>,
         state: &mut State,
         id: &winit::window::WindowId,
         position: &winit::dpi::PhysicalPosition<f64>,
@@ -116,6 +117,7 @@ impl<State: AppState> WindowRegistry<State> {
     ) {
         if let Some(entry) = self.entries.get_mut(id) {
             entry.delegate.mouse_dragged(
+                app,
                 state,
                 position.x as f32,
                 position.y as f32,

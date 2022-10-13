@@ -91,14 +91,6 @@ impl<State: AppState> Widget<State> for TextBox {
         canvas.draw_paragraph(&Point::new(2.0, 0.0), &paragraph)
     }
 
-    fn mouse_dragged(
-        &mut self,
-        event: &MouseEvent,
-        properties: &crate::widget::Properties,
-        state: &mut State,
-    ) {
-    }
-
     fn keyboard_event(&mut self, event: &winit::event::KeyboardInput, state: &mut State) -> bool {
         if let Some(keycode) = event.virtual_keycode {
             if event.state == ElementState::Pressed {

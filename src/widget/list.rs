@@ -113,12 +113,6 @@ impl<State: AppState> Widget<State> for List<State> {
         }
     }
 
-    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {
-        for child in &mut self.children {
-            child.mouse_dragged(event, properties, state)
-        }
-    }
-
     fn keyboard_event(&mut self, event: &winit::event::KeyboardInput, state: &mut State) -> bool {
         for child in &mut self.children {
             if child.keyboard_event(event, state) {

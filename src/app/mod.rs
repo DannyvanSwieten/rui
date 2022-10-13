@@ -203,7 +203,8 @@ impl<State: AppState + 'static> App<State> {
                             position.x - last_mouse_position.x,
                             position.y - last_mouse_position.y,
                         );
-                        window_registry.mouse_dragged(&mut s, &window_id, &position, &delta)
+                        window_registry
+                            .mouse_dragged(&mut self, &mut s, &window_id, &position, &delta)
                     } else {
                         window_registry.mouse_moved(&mut self, &mut s, &window_id, &position)
                     }

@@ -34,10 +34,6 @@ impl<State: AppState> Widget<State> for PopupMenuWidget {
     fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, size: &Size, state: &State) {
         todo!()
     }
-
-    fn mouse_dragged(&mut self, event: &MouseEvent, properies: &Properties, state: &mut State) {
-        todo!()
-    }
 }
 
 impl PopupMenu {

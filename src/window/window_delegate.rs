@@ -28,7 +28,15 @@ pub trait WindowDelegate<State: AppState> {
         let _ = y;
     }
 
-    fn mouse_dragged(&mut self, state: &mut State, x: f32, y: f32, dx: f32, dy: f32) {
+    fn mouse_dragged(
+        &mut self,
+        app: &mut App<State>,
+        state: &mut State,
+        x: f32,
+        y: f32,
+        dx: f32,
+        dy: f32,
+    ) {
         let _ = state;
         let _ = x;
         let _ = y;

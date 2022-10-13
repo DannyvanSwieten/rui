@@ -122,13 +122,6 @@ impl<State: AppState> Widget<State> for ChildSlot<State> {
         self.widget.flex()
     }
 
-    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {
-        if self.hit_test(event.local_position()) {
-            let new_event = event.to_local(self.position());
-            self.widget.mouse_dragged(&new_event, properties, state);
-        }
-    }
-
     fn keyboard_event(&mut self, event: &KeyboardInput, state: &mut State) -> bool {
         self.widget.keyboard_event(event, state)
     }
