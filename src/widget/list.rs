@@ -116,3 +116,9 @@ impl<State: AppState> Widget<State> for List<State> {
         }
     }
 }
+
+impl<State: AppState> Default for List<State> {
+    fn default() -> Self {
+        Self::new()
+    }
+}

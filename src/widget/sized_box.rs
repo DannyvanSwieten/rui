@@ -24,7 +24,7 @@ impl<State: AppState> Widget<State> for SizedBox<State> {
         self.child.event(event, ctx, state)
     }
 
-    fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
+    fn layout(&mut self, _: &BoxConstraints, state: &State) -> Size {
         let child_constraints =
             BoxConstraints::new().with_tight_constraints(self.size.width, self.size.height);
         self.child.layout(&child_constraints, state);

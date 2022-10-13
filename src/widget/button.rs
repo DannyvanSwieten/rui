@@ -62,7 +62,7 @@ impl<State: AppState> TextButton<State> {
 }
 
 impl<State: AppState> Widget<State> for TextButton<State> {
-    fn event(&mut self, event: &Event, mut ctx: &mut EventCtx<State>, state: &mut State) -> bool {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool {
         match event {
             Event::Mouse(MouseEvent::MouseEnter(_)) => self.state = ButtonState::Hover,
             Event::Mouse(MouseEvent::MouseLeave(_)) => self.state = ButtonState::Inactive,

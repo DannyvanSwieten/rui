@@ -37,8 +37,8 @@ impl<State: AppState> Widget<State> for TextBox {
     fn event(
         &mut self,
         event: &super::Event,
-        ctx: &mut super::EventCtx<State>,
-        state: &mut State,
+        _: &mut super::EventCtx<State>,
+        _: &mut State,
     ) -> bool {
         match event {
             Event::Key(KeyEvent::Input(event)) => {
@@ -71,7 +71,8 @@ impl<State: AppState> Widget<State> for TextBox {
             _ => false,
         }
     }
-    fn layout(&mut self, constraints: &crate::constraints::BoxConstraints, state: &State) -> Size {
+
+    fn layout(&mut self, constraints: &crate::constraints::BoxConstraints, _: &State) -> Size {
         let mut font_collection = FontCollection::new();
         font_collection.set_default_font_manager(FontMgr::new(), None);
         let mut paragraph_builder = ParagraphBuilder::new(&self.style, font_collection);
@@ -85,7 +86,7 @@ impl<State: AppState> Widget<State> for TextBox {
         Size::new(constraints.max_width().unwrap(), paragraph.height())
     }
 
-    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, state: &State) {
+    fn paint(&self, _: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, _: &State) {
         let mut font_collection = FontCollection::new();
         font_collection.set_default_font_manager(FontMgr::new(), None);
         let mut paragraph_builder = ParagraphBuilder::new(&self.style, font_collection);

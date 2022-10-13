@@ -114,6 +114,12 @@ impl<State: AppState> Widget<State> for Row<State> {
     }
 }
 
+impl<State: AppState> Default for Row<State> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 pub struct Column<State> {
     children: Vec<ChildSlot<State>>,
     spacing: f32,
@@ -221,6 +227,12 @@ impl<State: AppState> Widget<State> for Column<State> {
 
     fn flex(&self) -> f32 {
         0.0
+    }
+}
+
+impl<State: AppState> Default for Column<State> {
+    fn default() -> Self {
+        Self::new()
     }
 }
 

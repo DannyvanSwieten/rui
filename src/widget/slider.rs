@@ -53,7 +53,7 @@ impl<State: AppState + 'static> Slider<State> {
 }
 
 impl<State: AppState> Widget<State> for Slider<State> {
-    fn event(&mut self, event: &Event, mut ctx: &mut EventCtx<State>, state: &mut State) -> bool {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool {
         match event {
             Event::Mouse(MouseEvent::MouseEnter(_)) => self.state = SliderState::Active,
             Event::Mouse(MouseEvent::MouseLeave(_)) => self.state = SliderState::Inactive,
@@ -90,7 +90,7 @@ impl<State: AppState> Widget<State> for Slider<State> {
         false
     }
 
-    fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
+    fn layout(&mut self, constraints: &BoxConstraints, _: &State) -> Size {
         // Boldly unwrapping here. If you have not given constraints to a slider then we don't know how big it should be.
         Size::new(
             constraints.max_width().unwrap(),
@@ -145,6 +145,12 @@ impl<State: AppState> Widget<State> for Slider<State> {
     }
 }
 
+impl<State: AppState + 'static> Default for Slider<State> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 pub struct Switch<State> {
     value_changed: Option<Box<dyn FnMut(bool, &mut State)>>,
     active: bool,
@@ -162,7 +168,7 @@ impl<State: AppState + 'static> Switch<State> {
 }
 
 impl<State: AppState> Widget<State> for Switch<State> {
-    fn event(&mut self, event: &Event, mut ctx: &mut EventCtx<State>, state: &mut State) -> bool {
+    fn event(&mut self, event: &Event, _: &mut EventCtx<State>, state: &mut State) -> bool {
         match event {
             Event::Mouse(MouseEvent::MouseEnter(_)) => self.state = SliderState::Active,
             Event::Mouse(MouseEvent::MouseLeave(_)) => self.state = SliderState::Inactive,
@@ -179,7 +185,7 @@ impl<State: AppState> Widget<State> for Switch<State> {
         false
     }
 
-    fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
+    fn layout(&mut self, constraints: &BoxConstraints, _: &State) -> Size {
         // Boldly unwrapping here. If you have not given constraints to a switch then we don't know how big it should be.
         Size::new(
             constraints.max_width().unwrap(),
@@ -187,7 +193,7 @@ impl<State: AppState> Widget<State> for Switch<State> {
         )
     }
 
-    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, state: &State) {
+    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, _: &State) {
         let mut fill_paint = Paint::default();
         fill_paint.set_anti_alias(true);
 
@@ -233,5 +239,11 @@ impl<State: AppState> Widget<State> for Switch<State> {
                 &fill_paint,
             );
         }
+    }
+}
+
+impl<State: AppState + 'static> Default for Switch<State> {
+    fn default() -> Self {
+        Self::new()
     }
 }
