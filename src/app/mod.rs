@@ -91,7 +91,7 @@ pub struct App<State: AppState> {
 }
 
 impl<State: AppState + 'static> App<State> {
-    pub async fn new(name: &str) -> Self {
+    pub async fn new() -> Self {
         let gpu_api = GpuApi::new().await;
         Self {
             pending_messages: VecDeque::new(),

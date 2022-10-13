@@ -13,7 +13,6 @@ pub struct List<State> {
     item_count: Option<usize>,
     builder: Option<Box<dyn Fn(usize, &State) -> Box<dyn Widget<State>>>>,
     children: Vec<ChildSlot<State>>,
-    viewport_position: f32,
 }
 
 impl<State: AppState> List<State> {
@@ -24,7 +23,6 @@ impl<State: AppState> List<State> {
             item_count: None,
             builder: None,
             children: Vec::new(),
-            viewport_position: 0.0,
         }
     }
 
@@ -47,7 +45,6 @@ impl<State: AppState> List<State> {
                 .into_iter()
                 .map(|child| ChildSlot::new_with_box(child))
                 .collect(),
-            viewport_position: 0.0,
         }
     }
 

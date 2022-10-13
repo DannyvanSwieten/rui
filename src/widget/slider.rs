@@ -21,11 +21,7 @@ pub struct Slider<State> {
 }
 
 impl<State: AppState + 'static> Slider<State> {
-    pub fn new() -> Self {
-        Slider::new_with_min_max_and_value(0., 1., 0., false)
-    }
-
-    pub fn new_with_min_max_and_value(min: f32, max: f32, value: f32, discrete: bool) -> Self {
+    pub fn new(min: f32, max: f32, value: f32, discrete: bool) -> Self {
         Slider {
             min,
             max,
@@ -147,7 +143,7 @@ impl<State: AppState> Widget<State> for Slider<State> {
 
 impl<State: AppState + 'static> Default for Slider<State> {
     fn default() -> Self {
-        Self::new()
+        Self::new(0., 1., 0., false)
     }
 }
 

@@ -40,7 +40,7 @@ fn build_second_window() -> Box<dyn Widget<State>> {
 }
 
 fn main() {
-    let app = pollster::block_on(App::new("Basic Example"));
+    let app = pollster::block_on(App::new());
 
     let delegate = UIAppDelegate::new().on_start(|app, _state| {
         app.ui_window_request(WindowRequest::new("Window 1", 600, 400, |_state| {
