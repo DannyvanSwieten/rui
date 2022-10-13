@@ -2,8 +2,7 @@ use crate::{
     app::AppState,
     canvas::{Canvas2D, Paint, Point, Rect, Size},
     constraints::BoxConstraints,
-    widget::{map_range, style::Theme, Event, EventCtx, Properties, Widget},
-    window::MouseEvent,
+    widget::{map_range, style::Theme, Event, EventCtx, Widget},
 };
 enum SliderState {
     Active,

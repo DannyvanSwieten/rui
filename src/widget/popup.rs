@@ -2,8 +2,7 @@ use crate::{
     app::AppState,
     canvas::{Canvas2D, Size},
     constraints::BoxConstraints,
-    widget::{Action, Properties, Theme, Widget},
-    window::MouseEvent,
+    widget::{Action, Theme, Widget},
 };
 
 pub struct PopupMenu {

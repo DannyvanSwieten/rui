@@ -4,8 +4,7 @@ use crate::{
         font::Edging, Canvas2D, Color4f, Font, FontStyle, Paint, Rect, Size, TextBlob, Typeface,
     },
     constraints::BoxConstraints,
-    widget::{style::Theme, Event, EventCtx, Properties, Widget},
-    window::MouseEvent,
+    widget::{style::Theme, Event, EventCtx, Widget},
 };
 
 enum ButtonState {

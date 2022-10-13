@@ -48,11 +48,6 @@ pub trait AppAction<State> {
     fn redo(&self, _state: &mut State);
 }
 
-pub struct Properties {
-    pub position: Point,
-    pub size: Size,
-}
-
 #[allow(unused_variables)]
 pub trait Widget<State: AppState> {
     fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) {

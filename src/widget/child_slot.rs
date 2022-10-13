@@ -2,8 +2,7 @@ use crate::{
     app::AppState,
     canvas::{Canvas2D, Point, Size},
     constraints::BoxConstraints,
-    widget::{Event, EventCtx, Properties, Theme, Widget},
-    window::MouseEvent,
+    widget::{Event, EventCtx, Theme, Widget},
 };
 use winit::event::KeyboardInput;
 

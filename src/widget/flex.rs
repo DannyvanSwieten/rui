@@ -2,8 +2,7 @@ use crate::{
     app::AppState,
     canvas::{Canvas2D, Point, Size},
     constraints::BoxConstraints,
-    widget::{style::Theme, ChildSlot, Event, EventCtx, Properties, Widget},
-    window::MouseEvent,
+    widget::{style::Theme, ChildSlot, Event, EventCtx, Widget},
 };
 
 pub struct Row<State> {
