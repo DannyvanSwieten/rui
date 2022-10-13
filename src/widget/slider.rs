@@ -2,7 +2,7 @@ use crate::{
     app::AppState,
     canvas::{Canvas2D, Paint, Point, Rect, Size},
     constraints::BoxConstraints,
-    widget::{map_range, style::Theme, Event, EventCtx, Widget},
+    widget::{map_range, style::Theme, Event, EventCtx, MouseEvent, Widget},
 };
 enum SliderState {
     Active,
@@ -55,9 +55,9 @@ impl<State: AppState + 'static> Slider<State> {
 impl<State: AppState> Widget<State> for Slider<State> {
     fn event(&mut self, event: &Event, mut ctx: &mut EventCtx<State>, state: &mut State) {
         match event {
-            Event::MouseEnter(_) => self.state = SliderState::Active,
-            Event::MouseLeave(_) => self.state = SliderState::Inactive,
-            Event::MouseDown(event) => {
+            Event::Mouse(MouseEvent::MouseEnter(_)) => self.state = SliderState::Active,
+            Event::Mouse(MouseEvent::MouseLeave(_)) => self.state = SliderState::Inactive,
+            Event::Mouse(MouseEvent::MouseDown(event)) => {
                 self.last_position = event.local_position().x;
                 self.current_normalized = (1. / ctx.size().width) * self.last_position;
 
@@ -69,9 +69,8 @@ impl<State: AppState> Widget<State> for Slider<State> {
                     (l)(self.current_value, state);
                 }
             }
-            Event::MouseUp(_) => self.state = SliderState::Inactive,
-
-            Event::MouseDrag(event) => {
+            Event::Mouse(MouseEvent::MouseUp(_)) => self.state = SliderState::Inactive,
+            Event::Mouse(MouseEvent::MouseDrag(event)) => {
                 self.last_position = event.local_position().x;
                 self.current_normalized =
                     (1. / ctx.size().width) * self.last_position.min(ctx.size().width).max(0.);
@@ -163,15 +162,15 @@ impl<State: AppState + 'static> Switch<State> {
 impl<State: AppState> Widget<State> for Switch<State> {
     fn event(&mut self, event: &Event, mut ctx: &mut EventCtx<State>, state: &mut State) {
         match event {
-            Event::MouseEnter(_) => self.state = SliderState::Active,
-            Event::MouseLeave(_) => self.state = SliderState::Inactive,
-            Event::MouseDown(_) => {
+            Event::Mouse(MouseEvent::MouseEnter(_)) => self.state = SliderState::Active,
+            Event::Mouse(MouseEvent::MouseLeave(_)) => self.state = SliderState::Inactive,
+            Event::Mouse(MouseEvent::MouseDown(_)) => {
                 self.active = !self.active;
                 if let Some(l) = &mut self.value_changed {
                     (l)(self.active, state);
                 }
             }
-            Event::MouseUp(_) => self.state = SliderState::Inactive,
+            Event::Mouse(MouseEvent::MouseUp(_)) => self.state = SliderState::Inactive,
             _ => (),
         }
     }

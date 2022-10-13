@@ -1,15 +1,19 @@
-use crate::{canvas::Point, window::MouseEvent};
+use crate::{canvas::Point, window};
 
 pub enum Event {
-    MouseMove(MouseEvent),
-    MouseEnter(MouseEvent),
-    MouseLeave(MouseEvent),
-    MouseUp(MouseEvent),
-    MouseDown(MouseEvent),
-    MouseDrag(MouseEvent),
+    Mouse(MouseEvent),
 }
 
-impl Event {
+pub enum MouseEvent {
+    MouseMove(window::MouseEvent),
+    MouseEnter(window::MouseEvent),
+    MouseLeave(window::MouseEvent),
+    MouseUp(window::MouseEvent),
+    MouseDown(window::MouseEvent),
+    MouseDrag(window::MouseEvent),
+}
+
+impl MouseEvent {
     pub fn local_position(&self) -> &Point {
         match self {
             Self::MouseMove(event) => event.local_position(),
@@ -21,7 +25,7 @@ impl Event {
         }
     }
 
-    pub fn to_local(&self, position: &Point) -> Event {
+    pub fn to_local(&self, position: &Point) -> MouseEvent {
         match self {
             Self::MouseMove(event) => Self::MouseMove(event.to_local(position)),
             Self::MouseEnter(event) => Self::MouseEnter(event.to_local(position)),

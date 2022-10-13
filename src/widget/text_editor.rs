@@ -5,7 +5,6 @@ use crate::{
         Canvas2D, Color, Color4f, Paint, Point, Rect, Size,
     },
     widget::{style::Theme, Widget},
-    window::MouseEvent,
 };
 use skia_safe::FontMgr;
 use std::ops::Range;

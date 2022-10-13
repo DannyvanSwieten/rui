@@ -4,7 +4,7 @@ use crate::{
         font::Edging, Canvas2D, Color4f, Font, FontStyle, Paint, Rect, Size, TextBlob, Typeface,
     },
     constraints::BoxConstraints,
-    widget::{style::Theme, Event, EventCtx, Widget},
+    widget::{style::Theme, Event, EventCtx, MouseEvent, Widget},
 };
 
 enum ButtonState {
@@ -64,10 +64,10 @@ impl<State: AppState> TextButton<State> {
 impl<State: AppState> Widget<State> for TextButton<State> {
     fn event(&mut self, event: &Event, mut ctx: &mut EventCtx<State>, state: &mut State) {
         match event {
-            Event::MouseEnter(_) => self.state = ButtonState::Hover,
-            Event::MouseLeave(_) => self.state = ButtonState::Inactive,
-            Event::MouseDown(_) => self.state = ButtonState::Active,
-            Event::MouseUp(_) => {
+            Event::Mouse(MouseEvent::MouseEnter(_)) => self.state = ButtonState::Hover,
+            Event::Mouse(MouseEvent::MouseLeave(_)) => self.state = ButtonState::Inactive,
+            Event::Mouse(MouseEvent::MouseDown(_)) => self.state = ButtonState::Active,
+            Event::Mouse(MouseEvent::MouseUp(_)) => {
                 if let Some(handler) = &self.on_click {
                     handler(ctx.app(), state)
                 }

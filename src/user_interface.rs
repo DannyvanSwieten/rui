@@ -1,8 +1,8 @@
 use crate::app::{App, AppState};
 use crate::canvas::{Canvas2D, Point, Size};
 use crate::constraints::BoxConstraints;
-use crate::widget::{style::StyleContext, EventCtx, *};
-use crate::window::MouseEvent;
+use crate::widget::{style::StyleContext, Action, ChildSlot, Event, EventCtx, MouseEvent, Widget};
+use crate::window;
 use std::path::Path;
 use winit::{event::KeyboardInput, window::WindowId};
 
@@ -43,29 +43,62 @@ impl<State: AppState + 'static> UserInterface<State> {
 
     pub fn resized(&mut self, _: &mut State) {}
 
-    pub fn mouse_down(&mut self, app: &mut App<State>, state: &mut State, event: &MouseEvent) {
+    pub fn mouse_down(
+        &mut self,
+        app: &mut App<State>,
+        state: &mut State,
+        event: &window::MouseEvent,
+    ) {
         let mut ctx = EventCtx::new(app, *self.root.size());
-        self.root.event(&Event::MouseDown(*event), &mut ctx, state)
+        self.root.event(
+            &Event::Mouse(MouseEvent::MouseDown(*event)),
+            &mut ctx,
+            state,
+        )
     }
 
-    pub fn mouse_up(&mut self, app: &mut App<State>, state: &mut State, event: &MouseEvent) {
+    pub fn mouse_up(
+        &mut self,
+        app: &mut App<State>,
+        state: &mut State,
+        event: &window::MouseEvent,
+    ) {
         let mut ctx = EventCtx::new(app, *self.root.size());
-        self.root.event(&Event::MouseUp(*event), &mut ctx, state)
+        self.root
+            .event(&Event::Mouse(MouseEvent::MouseUp(*event)), &mut ctx, state)
     }
 
     pub fn double_click(&mut self, _: &mut State, _: &MouseEvent) {}
 
-    pub fn mouse_drag(&mut self, app: &mut App<State>, state: &mut State, event: &MouseEvent) {
+    pub fn mouse_drag(
+        &mut self,
+        app: &mut App<State>,
+        state: &mut State,
+        event: &window::MouseEvent,
+    ) {
         let mut ctx = EventCtx::new(app, *self.root.size());
-        self.root.event(&Event::MouseDrag(*event), &mut ctx, state)
+        self.root.event(
+            &Event::Mouse(MouseEvent::MouseDrag(*event)),
+            &mut ctx,
+            state,
+        )
     }
 
-    pub fn mouse_moved(&mut self, app: &mut App<State>, state: &mut State, event: &MouseEvent) {
+    pub fn mouse_moved(
+        &mut self,
+        app: &mut App<State>,
+        state: &mut State,
+        event: &window::MouseEvent,
+    ) {
         let mut ctx = EventCtx::new(app, *self.root.size());
-        self.root.event(&Event::MouseMove(*event), &mut ctx, state)
+        self.root.event(
+            &Event::Mouse(MouseEvent::MouseMove(*event)),
+            &mut ctx,
+            state,
+        )
     }
 
-    pub fn mouse_leave(&mut self, _: &mut State, _: &MouseEvent) {}
+    pub fn mouse_leave(&mut self, _: &mut State, _: &window::MouseEvent) {}
     pub fn keyboard_event(&mut self, state: &mut State, event: &KeyboardInput) {
         self.root.keyboard_event(event, state);
     }
