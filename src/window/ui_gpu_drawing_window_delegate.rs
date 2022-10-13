@@ -1,7 +1,7 @@
 use wgpu::{Device, Queue};
 
 use crate::application::{Application, ApplicationModel};
-use crate::canvas::{skia_cpu_canvas::SkiaCanvas, Canvas2D, Point};
+use crate::canvas::{skia_cpu_canvas::SkiaCanvas, Point};
 use crate::user_interface::UserInterface;
 use crate::widget::Widget;
 use crate::window::{MouseEvent, WindowDelegate};
@@ -200,67 +200,6 @@ impl<Model: ApplicationModel + 'static> WindowDelegate<Model>
             self.queue.submit(std::iter::once(encoder.finish()));
             output.present();
         }
-
-        // if self.ui.is_none() {
-        //     return;
-        // }
-
-        // if self.sub_optimal_swapchain {
-        //     self.rebuild_swapchain(state)
-        // }
-
-        // let (mut image, view, (sub_optimal, index, framebuffer, semaphore)) = {
-        //     if let Some(ui) = self.ui.as_mut() {
-        //         ui.user_interface.paint(state, &mut ui.canvas);
-        //         let (image, image_view) = ui.canvas.flush();
-        //         (
-        //             image,
-        //             image_view,
-        //             ui.swapchain
-        //                 .next_frame_buffer()
-        //                 .expect("Acquire next image failed"),
-        //         )
-        //     } else {
-        //         return;
-        //     }
-        // };
-
-        // self.fences[index as usize].clear();
-
-        // let mut command_buffer = CommandBuffer::new(self.device.clone(), self.queue.clone());
-        // command_buffer.begin();
-
-        // self.sub_optimal_swapchain = sub_optimal;
-        // self.fences[index as usize].clear();
-        // if let Some(ui) = self.ui.as_mut() {
-        //     command_buffer.image_resource_transition(
-        //         &mut image,
-        //         ash::vk::ImageLayout::SHADER_READ_ONLY_OPTIMAL,
-        //     );
-
-        //     if let Some(renderpass) = &self.renderpass {
-        //         command_buffer.begin_render_pass(
-        //             renderpass,
-        //             &framebuffer,
-        //             ui.swapchain.physical_width(),
-        //             ui.swapchain.physical_height(),
-        //         );
-
-        //         ui.image_renderer
-        //             .render(&mut command_buffer, &view, index as usize);
-
-        //         command_buffer.end_render_pass();
-        //     }
-
-        //     command_buffer.image_resource_transition(
-        //         &mut image,
-        //         ash::vk::ImageLayout::COLOR_ATTACHMENT_OPTIMAL,
-        //     );
-
-        //     self.fences[index as usize].push(Some(command_buffer.submit()));
-
-        //     ui.swapchain.swap(&semaphore, index);
-        // }
     }
 
     fn close_button_pressed(&mut self, _state: &mut Model) -> bool {
