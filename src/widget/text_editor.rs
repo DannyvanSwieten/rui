@@ -91,14 +91,6 @@ impl<State: AppState> Widget<State> for TextBox {
         canvas.draw_paragraph(&Point::new(2.0, 0.0), &paragraph)
     }
 
-    fn mouse_up(
-        &mut self,
-        event: &MouseEvent,
-        app: &mut crate::app::App<State>,
-        state: &mut State,
-    ) {
-    }
-
     fn mouse_dragged(
         &mut self,
         event: &MouseEvent,
@@ -135,15 +127,6 @@ impl<State: AppState> Widget<State> for TextBox {
 
     fn flex(&self) -> f32 {
         0.0
-    }
-
-    fn mouse_down(
-        &mut self,
-        event: &MouseEvent,
-        _: &crate::widget::Properties,
-        _: &mut crate::app::App<State>,
-        state: &mut State,
-    ) {
     }
 
     fn character_received(&mut self, character: char, state: &mut State) -> bool {

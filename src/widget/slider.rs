@@ -1,8 +1,8 @@
 use crate::{
-    app::{App, AppState},
+    app::AppState,
     canvas::{Canvas2D, Paint, Point, Rect, Size},
     constraints::BoxConstraints,
-    widget::{map_range, style::Theme, Properties, Widget},
+    widget::{map_range, style::Theme, Event, EventCtx, Properties, Widget},
     window::MouseEvent,
 };
 enum SliderState {
@@ -54,6 +54,25 @@ impl<State: AppState + 'static> Slider<State> {
 }
 
 impl<State: AppState> Widget<State> for Slider<State> {
+    fn event(&mut self, event: &Event, mut ctx: &mut EventCtx<State>, state: &mut State) {
+        match event {
+            Event::MouseDown(event) => {
+                self.last_position = event.local_position().x;
+                self.current_normalized = (1. / ctx.size().width) * self.last_position;
+
+                self.current_value = map_range(self.current_normalized, 0., 1., self.min, self.max);
+                if self.discrete {
+                    self.current_value = self.current_value.round();
+                }
+                if let Some(l) = &mut self.value_changed {
+                    (l)(self.current_value, state);
+                }
+            }
+            Event::MouseUp(_) => self.state = SliderState::Inactive,
+            _ => (),
+        }
+    }
+
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
         // Boldly unwrapping here. If you have not given constraints to a slider then we don't know how big it should be.
         Size::new(
@@ -108,29 +127,6 @@ impl<State: AppState> Widget<State> for Slider<State> {
         // self.thumb.paint(theme, canvas, &rect.size(), state)
     }
 
-    fn mouse_down(
-        &mut self,
-        event: &MouseEvent,
-        properties: &Properties,
-        _: &mut App<State>,
-        state: &mut State,
-    ) {
-        self.last_position = event.local_position().x;
-        self.current_normalized = (1. / properties.size.width) * self.last_position;
-
-        self.current_value = map_range(self.current_normalized, 0., 1., self.min, self.max);
-        if self.discrete {
-            self.current_value = self.current_value.round();
-        }
-        if let Some(l) = &mut self.value_changed {
-            (l)(self.current_value, state);
-        }
-    }
-
-    fn mouse_up(&mut self, _: &MouseEvent, _: &mut App<State>, _: &mut State) {
-        self.state = SliderState::Inactive
-    }
-
     fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {
         self.last_position = event.local_position().x;
         self.current_normalized =
@@ -174,6 +170,19 @@ impl<State: AppState + 'static> Switch<State> {
 }
 
 impl<State: AppState> Widget<State> for Switch<State> {
+    fn event(&mut self, event: &Event, mut ctx: &mut EventCtx<State>, state: &mut State) {
+        match event {
+            Event::MouseDown(_) => {
+                self.active = !self.active;
+                if let Some(l) = &mut self.value_changed {
+                    (l)(self.active, state);
+                }
+            }
+            Event::MouseUp(_) => self.state = SliderState::Inactive,
+            _ => (),
+        }
+    }
+
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
         // Boldly unwrapping here. If you have not given constraints to a switch then we don't know how big it should be.
         Size::new(
@@ -228,23 +237,6 @@ impl<State: AppState> Widget<State> for Switch<State> {
                 &fill_paint,
             );
         }
-    }
-
-    fn mouse_down(
-        &mut self,
-        _: &MouseEvent,
-        _: &Properties,
-        _: &mut App<State>,
-        state: &mut State,
-    ) {
-        self.active = !self.active;
-        if let Some(l) = &mut self.value_changed {
-            (l)(self.active, state);
-        }
-    }
-
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<State>, state: &mut State) {
-        self.state = SliderState::Inactive
     }
 
     fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {}

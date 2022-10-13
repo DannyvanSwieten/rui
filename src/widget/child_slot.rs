@@ -1,8 +1,8 @@
 use crate::{
-    app::{App, AppState},
+    app::AppState,
     canvas::{Canvas2D, Point, Size},
     constraints::BoxConstraints,
-    widget::{Properties, Theme, Widget},
+    widget::{Event, EventCtx, Properties, Theme, Widget},
     window::MouseEvent,
 };
 use winit::event::KeyboardInput;
@@ -58,6 +58,28 @@ impl<State: AppState> ChildSlot<State> {
 }
 
 impl<State: AppState> Widget<State> for ChildSlot<State> {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) {
+        if self.hit_test(event.local_position()) {
+            let inner_event = event.to_local(self.position());
+            let mut inner_ctx = EventCtx {
+                app: ctx.app(),
+                size: self.size,
+            };
+
+            self.widget.event(&inner_event, &mut inner_ctx, state);
+        } else if self.has_mouse {
+            match event {
+                Event::MouseUp(event) => {
+                    self.has_mouse = false;
+                    let new_event = event.to_local(self.position());
+                    self.widget.mouse_left(&new_event, state);
+                }
+                Event::MouseDown(_) => (),
+                _ => (),
+            }
+        }
+    }
+
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
         self.widget.layout(constraints, state)
     }
@@ -71,34 +93,6 @@ impl<State: AppState> Widget<State> for ChildSlot<State> {
 
     fn flex(&self) -> f32 {
         self.widget.flex()
-    }
-
-    fn mouse_down(
-        &mut self,
-        event: &MouseEvent,
-        _: &Properties,
-        app: &mut App<State>,
-        state: &mut State,
-    ) {
-        if self.hit_test(event.local_position()) {
-            let properties = Properties {
-                position: *self.position(),
-                size: *self.size(),
-            };
-            let new_event = event.to_local(self.position());
-            self.widget.mouse_down(&new_event, &properties, app, state);
-        }
-    }
-
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<State>, state: &mut State) {
-        if self.hit_test(event.local_position()) {
-            let new_event = event.to_local(self.position());
-            self.widget.mouse_up(&new_event, app, state);
-        } else if self.has_mouse {
-            self.has_mouse = false;
-            let new_event = event.to_local(self.position());
-            self.widget.mouse_left(&new_event, state);
-        }
     }
 
     fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {

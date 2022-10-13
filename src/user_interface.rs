@@ -1,7 +1,7 @@
 use crate::app::{App, AppState};
 use crate::canvas::{Canvas2D, Point, Size};
 use crate::constraints::BoxConstraints;
-use crate::widget::{style::StyleContext, *};
+use crate::widget::{style::StyleContext, EventCtx, *};
 use crate::window::MouseEvent;
 use std::path::Path;
 use winit::{event::KeyboardInput, window::WindowId};
@@ -50,14 +50,13 @@ impl<State: AppState + 'static> UserInterface<State> {
     pub fn resized(&mut self, state: &mut State) {}
 
     pub fn mouse_down(&mut self, app: &mut App<State>, state: &mut State, event: &MouseEvent) {
-        let position = Point::new(0.0, 0.0);
-        let size = *self.root.size();
-        self.root
-            .mouse_down(event, &Properties { position, size }, app, state)
+        let mut ctx = EventCtx::new(app, *self.root.size());
+        self.root.event(&Event::MouseDown(*event), &mut ctx, state)
     }
 
     pub fn mouse_up(&mut self, app: &mut App<State>, state: &mut State, event: &MouseEvent) {
-        self.root.mouse_up(event, app, state)
+        let mut ctx = EventCtx::new(app, *self.root.size());
+        self.root.event(&Event::MouseUp(*event), &mut ctx, state)
     }
 
     pub fn double_click(&mut self, state: &mut State, event: &MouseEvent) {}

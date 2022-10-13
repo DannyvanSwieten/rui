@@ -1,8 +1,8 @@
 use crate::{
-    app::{App, AppState},
+    app::AppState,
     canvas::{Canvas2D, Size},
     constraints::BoxConstraints,
-    widget::{ChildSlot, Properties, Theme, Widget},
+    widget::{ChildSlot, Event, EventCtx, Properties, Theme, Widget},
     window::MouseEvent,
 };
 use winit::event::KeyboardInput;
@@ -13,6 +13,10 @@ pub struct FlexBox<State> {
 }
 
 impl<State: AppState> Widget<State> for FlexBox<State> {
+    fn event(&mut self, _: &Event, _: &mut EventCtx<State>, _: &mut State) {
+        //
+    }
+
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
         self.child.layout(constraints, state)
     }
@@ -23,20 +27,6 @@ impl<State: AppState> Widget<State> for FlexBox<State> {
 
     fn flex(&self) -> f32 {
         self.flex
-    }
-
-    fn mouse_down(
-        &mut self,
-        event: &MouseEvent,
-        properties: &Properties,
-        _: &mut App<State>,
-        state: &mut State,
-    ) {
-        todo!()
-    }
-
-    fn mouse_up(&mut self, event: &MouseEvent, _: &mut App<State>, state: &mut State) {
-        todo!()
     }
 
     fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {

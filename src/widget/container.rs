@@ -1,8 +1,8 @@
 use crate::{
-    app::{App, AppState},
+    app::AppState,
     canvas::{Canvas2D, Color4f, Paint, Point, Rect, Size},
     constraints::BoxConstraints,
-    widget::{ChildSlot, Properties, Theme, Widget},
+    widget::{ChildSlot, Event, EventCtx, Properties, Theme, Widget},
     window::MouseEvent,
 };
 use winit::event::KeyboardInput;
@@ -47,6 +47,10 @@ impl<State: AppState> Container<State> {
 }
 
 impl<State: AppState> Widget<State> for Container<State> {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) {
+        self.child.event(event, ctx, state)
+    }
+
     // The container's layout strategy is to be as small as possible.
     // So shrink input constraints by border, padding and margin
     // Then return its child's size as its own size.
@@ -98,20 +102,6 @@ impl<State: AppState> Widget<State> for Container<State> {
         }
 
         self.child.paint(theme, canvas, self.child.size(), state);
-    }
-
-    fn mouse_down(
-        &mut self,
-        event: &MouseEvent,
-        properties: &Properties,
-        app: &mut App<State>,
-        state: &mut State,
-    ) {
-        self.child.mouse_down(event, properties, app, state);
-    }
-
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<State>, state: &mut State) {
-        self.child.mouse_up(event, app, state);
     }
 
     fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {

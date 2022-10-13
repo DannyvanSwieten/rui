@@ -2,7 +2,7 @@ use crate::{
     app::{App, AppState},
     canvas::{Canvas2D, Point, Size},
     constraints::BoxConstraints,
-    widget::{style::Theme, ChildSlot, Properties, Widget},
+    widget::{style::Theme, ChildSlot, Event, EventCtx, Properties, Widget},
     window::MouseEvent,
 };
 
@@ -34,6 +34,12 @@ impl<State: AppState> Row<State> {
 }
 
 impl<State: AppState> Widget<State> for Row<State> {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) {
+        for child in &mut self.children {
+            child.event(event, ctx, state)
+        }
+    }
+
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
         // This is not a scrollable view. It needs constraints
         assert!(constraints.max_width().is_some() && constraints.max_height().is_some());
@@ -97,24 +103,6 @@ impl<State: AppState> Widget<State> for Row<State> {
     fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, state: &State) {
         for child in &self.children {
             child.paint(theme, canvas, rect, state)
-        }
-    }
-
-    fn mouse_down(
-        &mut self,
-        event: &MouseEvent,
-        properties: &Properties,
-        app: &mut App<State>,
-        state: &mut State,
-    ) {
-        for child in &mut self.children {
-            child.mouse_down(event, properties, app, state)
-        }
-    }
-
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<State>, state: &mut State) {
-        for child in &mut self.children {
-            child.mouse_up(event, app, state)
         }
     }
 
@@ -195,6 +183,12 @@ impl<State: AppState> Column<State> {
 }
 
 impl<State: AppState> Widget<State> for Column<State> {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) {
+        for child in &mut self.children {
+            child.event(event, ctx, state)
+        }
+    }
+
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
         // It needs constraints
         assert!(constraints.max_width().is_some() && constraints.max_height().is_some());
@@ -259,24 +253,6 @@ impl<State: AppState> Widget<State> for Column<State> {
     fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, state: &State) {
         for child in &self.children {
             child.paint(theme, canvas, rect, state)
-        }
-    }
-
-    fn mouse_down(
-        &mut self,
-        event: &MouseEvent,
-        properties: &Properties,
-        app: &mut App<State>,
-        state: &mut State,
-    ) {
-        for child in &mut self.children {
-            child.mouse_down(event, properties, app, state)
-        }
-    }
-
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<State>, state: &mut State) {
-        for child in &mut self.children {
-            child.mouse_up(event, app, state)
         }
     }
 
@@ -363,6 +339,10 @@ impl<State: AppState> Expanded<State> {
 }
 
 impl<State: AppState> Widget<State> for Expanded<State> {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) {
+        self.child.event(event, ctx, state)
+    }
+
     // If given to a flex container it will expand based on it's flex parameter in the dominant layout direction.
     // If for example you add it to a row it will expand in the horizontal direction. Therefor you should provide a height.
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
@@ -388,20 +368,6 @@ impl<State: AppState> Widget<State> for Expanded<State> {
 
     fn flex(&self) -> f32 {
         self.flex
-    }
-
-    fn mouse_down(
-        &mut self,
-        event: &MouseEvent,
-        properties: &Properties,
-        app: &mut App<State>,
-        state: &mut State,
-    ) {
-        self.child.mouse_down(event, properties, app, state)
-    }
-
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<State>, state: &mut State) {
-        self.child.mouse_up(event, app, state)
     }
 
     fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {

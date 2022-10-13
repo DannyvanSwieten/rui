@@ -4,7 +4,7 @@ use crate::{
         font::Edging, Canvas2D, Color4f, Font, FontStyle, Paint, Rect, Size, TextBlob, Typeface,
     },
     constraints::BoxConstraints,
-    widget::{style::Theme, Properties, Widget},
+    widget::{style::Theme, Event, EventCtx, Properties, Widget},
     window::MouseEvent,
 };
 
@@ -63,6 +63,20 @@ impl<State: AppState> TextButton<State> {
 }
 
 impl<State: AppState> Widget<State> for TextButton<State> {
+    fn event(&mut self, event: &Event, mut ctx: &mut EventCtx<State>, state: &mut State) {
+        match event {
+            Event::MouseDown(_) => self.state = ButtonState::Active,
+            Event::MouseUp(_) => {
+                if let Some(handler) = &self.on_click {
+                    handler(ctx.app(), state)
+                }
+
+                self.state = ButtonState::Inactive
+            }
+            _ => (),
+        }
+    }
+
     fn layout(&mut self, constraints: &BoxConstraints, _: &State) -> Size {
         let blob = TextBlob::from_str(&self.text, &self.font);
         let size = blob.unwrap().bounds().size();
@@ -166,24 +180,6 @@ impl<State: AppState> Widget<State> for TextButton<State> {
                 canvas.draw_string(&Rect::from_size(*size), &self.text, &self.font, &text_paint);
             }
         }
-    }
-
-    fn mouse_down(
-        &mut self,
-        event: &MouseEvent,
-        properties: &Properties,
-        _: &mut App<State>,
-        state: &mut State,
-    ) {
-        self.state = ButtonState::Active
-    }
-
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<State>, state: &mut State) {
-        if let Some(handler) = &self.on_click {
-            handler(app, state)
-        }
-
-        self.state = ButtonState::Hover
     }
 
     fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {}

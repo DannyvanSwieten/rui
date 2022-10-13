@@ -1,8 +1,8 @@
 use crate::{
-    app::{App, AppState},
+    app::AppState,
     canvas::{Canvas2D, Point, Size},
     constraints::BoxConstraints,
-    widget::{style::Theme, ChildSlot, Properties, Widget},
+    widget::{style::Theme, ChildSlot, Event, EventCtx, Properties, Widget},
     window::MouseEvent,
 };
 
@@ -69,6 +69,12 @@ impl<State: AppState> List<State> {
 }
 
 impl<State: AppState> Widget<State> for List<State> {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) {
+        for child in &mut self.children {
+            child.event(event, ctx, state)
+        }
+    }
+
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
         if let Some(builder) = &self.builder {
             self.children.clear();
@@ -104,24 +110,6 @@ impl<State: AppState> Widget<State> for List<State> {
     fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, state: &State) {
         for child in &self.children {
             child.paint(theme, canvas, rect, state)
-        }
-    }
-
-    fn mouse_down(
-        &mut self,
-        event: &MouseEvent,
-        properties: &Properties,
-        app: &mut App<State>,
-        state: &mut State,
-    ) {
-        for child in &mut self.children {
-            child.mouse_down(event, properties, app, state)
-        }
-    }
-
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<State>, state: &mut State) {
-        for child in &mut self.children {
-            child.mouse_up(event, app, state)
         }
     }
 

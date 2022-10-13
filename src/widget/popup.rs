@@ -35,10 +35,6 @@ impl<State: AppState> Widget<State> for PopupMenuWidget {
         todo!()
     }
 
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<State>, state: &mut State) {
-        todo!()
-    }
-
     fn mouse_dragged(&mut self, event: &MouseEvent, properies: &Properties, state: &mut State) {
         todo!()
     }

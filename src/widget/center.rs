@@ -1,8 +1,8 @@
 use crate::{
-    app::{App, AppState},
+    app::AppState,
     canvas::{Canvas2D, Point, Size},
     constraints::BoxConstraints,
-    widget::{ChildSlot, Properties, Theme, Widget},
+    widget::{ChildSlot, Event, EventCtx, Properties, Theme, Widget},
     window::MouseEvent,
 };
 use winit::event::KeyboardInput;
@@ -22,6 +22,10 @@ impl<State: AppState> Center<State> {
 }
 
 impl<State: AppState> Widget<State> for Center<State> {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) {
+        self.child.event(event, ctx, state)
+    }
+
     // The layout strategy for a center node: return own size if not None, otherwise as big as possible within given constraints.
     // Then center the child.
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
@@ -53,20 +57,6 @@ impl<State: AppState> Widget<State> for Center<State> {
 
     fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, state: &State) {
         self.child.paint(theme, canvas, rect, state)
-    }
-
-    fn mouse_down(
-        &mut self,
-        event: &MouseEvent,
-        properties: &Properties,
-        app: &mut App<State>,
-        state: &mut State,
-    ) {
-        self.child.mouse_down(event, properties, app, state)
-    }
-
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<State>, state: &mut State) {
-        self.child.mouse_up(event, app, state)
     }
 
     fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {
