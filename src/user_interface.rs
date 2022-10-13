@@ -1,7 +1,9 @@
 use crate::app::{App, AppState};
 use crate::canvas::{Canvas2D, Point, Size};
 use crate::constraints::BoxConstraints;
-use crate::widget::{style::StyleContext, Action, ChildSlot, Event, EventCtx, MouseEvent, Widget};
+use crate::widget::{
+    style::StyleContext, Action, ChildSlot, Event, EventCtx, KeyEvent, MouseEvent, Widget,
+};
 use crate::window;
 use std::path::Path;
 use winit::{event::KeyboardInput, window::WindowId};
@@ -54,7 +56,7 @@ impl<State: AppState + 'static> UserInterface<State> {
             &Event::Mouse(MouseEvent::MouseDown(*event)),
             &mut ctx,
             state,
-        )
+        );
     }
 
     pub fn mouse_up(
@@ -65,7 +67,7 @@ impl<State: AppState + 'static> UserInterface<State> {
     ) {
         let mut ctx = EventCtx::new(app, *self.root.size());
         self.root
-            .event(&Event::Mouse(MouseEvent::MouseUp(*event)), &mut ctx, state)
+            .event(&Event::Mouse(MouseEvent::MouseUp(*event)), &mut ctx, state);
     }
 
     pub fn double_click(&mut self, _: &mut State, _: &MouseEvent) {}
@@ -81,7 +83,7 @@ impl<State: AppState + 'static> UserInterface<State> {
             &Event::Mouse(MouseEvent::MouseDrag(*event)),
             &mut ctx,
             state,
-        )
+        );
     }
 
     pub fn mouse_moved(
@@ -95,16 +97,28 @@ impl<State: AppState + 'static> UserInterface<State> {
             &Event::Mouse(MouseEvent::MouseMove(*event)),
             &mut ctx,
             state,
-        )
+        );
     }
 
     pub fn mouse_leave(&mut self, _: &mut State, _: &window::MouseEvent) {}
-    pub fn keyboard_event(&mut self, state: &mut State, event: &KeyboardInput) {
-        self.root.keyboard_event(event, state);
+
+    pub fn keyboard_event(
+        &mut self,
+        app: &mut App<State>,
+        state: &mut State,
+        event: &KeyboardInput,
+    ) {
+        let mut ctx = EventCtx::new(app, *self.root.size());
+        self.root
+            .event(&Event::Key(KeyEvent::Input(*event)), &mut ctx, state);
     }
-    pub fn character_received(&mut self, state: &mut State, character: char) {
-        self.root.character_received(character, state);
+
+    pub fn character_received(&mut self, app: &mut App<State>, state: &mut State, character: char) {
+        let mut ctx = EventCtx::new(app, *self.root.size());
+        self.root
+            .event(&Event::Key(KeyEvent::Char(character)), &mut ctx, state);
     }
+
     pub fn layout(&mut self, constraints: &BoxConstraints, state: &State) {
         let size = self.root.layout(constraints, state);
         self.root.set_size(&size);

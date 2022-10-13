@@ -53,7 +53,7 @@ impl<State: AppState + 'static> Slider<State> {
 }
 
 impl<State: AppState> Widget<State> for Slider<State> {
-    fn event(&mut self, event: &Event, mut ctx: &mut EventCtx<State>, state: &mut State) {
+    fn event(&mut self, event: &Event, mut ctx: &mut EventCtx<State>, state: &mut State) -> bool {
         match event {
             Event::Mouse(MouseEvent::MouseEnter(_)) => self.state = SliderState::Active,
             Event::Mouse(MouseEvent::MouseLeave(_)) => self.state = SliderState::Inactive,
@@ -86,6 +86,8 @@ impl<State: AppState> Widget<State> for Slider<State> {
             }
             _ => (),
         }
+
+        false
     }
 
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
@@ -160,7 +162,7 @@ impl<State: AppState + 'static> Switch<State> {
 }
 
 impl<State: AppState> Widget<State> for Switch<State> {
-    fn event(&mut self, event: &Event, mut ctx: &mut EventCtx<State>, state: &mut State) {
+    fn event(&mut self, event: &Event, mut ctx: &mut EventCtx<State>, state: &mut State) -> bool {
         match event {
             Event::Mouse(MouseEvent::MouseEnter(_)) => self.state = SliderState::Active,
             Event::Mouse(MouseEvent::MouseLeave(_)) => self.state = SliderState::Inactive,
@@ -173,6 +175,8 @@ impl<State: AppState> Widget<State> for Switch<State> {
             Event::Mouse(MouseEvent::MouseUp(_)) => self.state = SliderState::Inactive,
             _ => (),
         }
+
+        false
     }
 
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {

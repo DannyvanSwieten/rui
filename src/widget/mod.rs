@@ -17,10 +17,9 @@ use crate::app::{App, AppState};
 use crate::canvas::{Canvas2D, Point, Size};
 use crate::constraints::BoxConstraints;
 pub use child_slot::ChildSlot;
-pub use event::{Event, MouseEvent};
+pub use event::{Event, KeyEvent, MouseEvent};
 use popup::PopupRequest;
 use style::Theme;
-use winit::event::KeyboardInput;
 
 pub fn map_range(x: f32, a: f32, b: f32, c: f32, d: f32) -> f32 {
     let slope = (d - c) / (b - a);
@@ -49,23 +48,11 @@ pub trait AppAction<State> {
 
 #[allow(unused_variables)]
 pub trait Widget<State: AppState> {
-    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) {
-        let _ = event;
-        let _ = ctx;
-        let _ = state;
-    }
-
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool;
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size;
     fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, state: &State);
     fn flex(&self) -> f32 {
         0.0
-    }
-
-    fn keyboard_event(&mut self, event: &KeyboardInput, state: &mut State) -> bool {
-        false
-    }
-    fn character_received(&mut self, character: char, state: &mut State) -> bool {
-        false
     }
 }
 

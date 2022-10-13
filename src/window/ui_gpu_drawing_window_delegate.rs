@@ -212,14 +212,19 @@ impl<State: AppState + 'static> WindowDelegate<State> for UIGpuDrawingWindowDele
         true
     }
 
-    fn keyboard_event(&mut self, state: &mut State, event: &winit::event::KeyboardInput) {
+    fn keyboard_event(
+        &mut self,
+        app: &mut App<State>,
+        state: &mut State,
+        event: &winit::event::KeyboardInput,
+    ) {
         if let Some(ui) = self.ui.as_mut() {
-            ui.user_interface.keyboard_event(state, event)
+            ui.user_interface.keyboard_event(app, state, event)
         }
     }
-    fn character_received(&mut self, state: &mut State, character: char) {
+    fn character_received(&mut self, app: &mut App<State>, state: &mut State, character: char) {
         if let Some(ui) = self.ui.as_mut() {
-            ui.user_interface.character_received(state, character)
+            ui.user_interface.character_received(app, state, character)
         }
     }
 

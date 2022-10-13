@@ -68,10 +68,14 @@ impl<State: AppState> List<State> {
 }
 
 impl<State: AppState> Widget<State> for List<State> {
-    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool {
         for child in &mut self.children {
-            child.event(event, ctx, state)
+            if child.event(event, ctx, state) {
+                return true;
+            }
         }
+
+        false
     }
 
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
@@ -110,15 +114,5 @@ impl<State: AppState> Widget<State> for List<State> {
         for child in &self.children {
             child.paint(theme, canvas, rect, state)
         }
-    }
-
-    fn keyboard_event(&mut self, event: &winit::event::KeyboardInput, state: &mut State) -> bool {
-        for child in &mut self.children {
-            if child.keyboard_event(event, state) {
-                return true;
-            }
-        }
-
-        false
     }
 }

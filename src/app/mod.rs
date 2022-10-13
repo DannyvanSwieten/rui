@@ -226,12 +226,12 @@ impl<State: AppState + 'static> App<State> {
                 Event::WindowEvent {
                     window_id,
                     event: WindowEvent::ReceivedCharacter(character),
-                } => window_registry.character_received(&window_id, character, &mut s),
+                } => window_registry.character_received(&window_id, &mut self, character, &mut s),
 
                 Event::WindowEvent {
                     window_id,
                     event: WindowEvent::KeyboardInput { input, .. },
-                } => window_registry.keyboard_event(&window_id, &input, &mut s),
+                } => window_registry.keyboard_event(&window_id, &mut self, &input, &mut s),
 
                 Event::WindowEvent {
                     event: WindowEvent::MouseInput { state, .. },

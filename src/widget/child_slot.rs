@@ -4,7 +4,6 @@ use crate::{
     constraints::BoxConstraints,
     widget::{Event, EventCtx, MouseEvent, Theme, Widget},
 };
-use winit::event::KeyboardInput;
 
 pub struct ChildSlot<State> {
     position: Point,
@@ -60,7 +59,7 @@ impl<State: AppState> ChildSlot<State> {
         event: &MouseEvent,
         ctx: &mut EventCtx<State>,
         state: &mut State,
-    ) {
+    ) -> bool {
         if self.hit_test(event.local_position()) {
             let inner_event = event.to_local(self.position());
             let mut inner_ctx = EventCtx {
@@ -80,7 +79,7 @@ impl<State: AppState> ChildSlot<State> {
             }
 
             self.widget
-                .event(&Event::Mouse(inner_event), &mut inner_ctx, state);
+                .event(&Event::Mouse(inner_event), &mut inner_ctx, state)
         } else if self.has_mouse {
             match event {
                 MouseEvent::MouseMove(event) => {
@@ -94,7 +93,7 @@ impl<State: AppState> ChildSlot<State> {
                         &Event::Mouse(MouseEvent::MouseLeave(event.to_local(self.position()))),
                         &mut inner_ctx,
                         state,
-                    );
+                    )
                 }
                 MouseEvent::MouseUp(event) => {
                     self.has_mouse = false; // Is this redundant? Don't we come across MouseMove first?
@@ -109,18 +108,21 @@ impl<State: AppState> ChildSlot<State> {
                         &Event::Mouse(MouseEvent::MouseLeave(inner_event)),
                         &mut inner_ctx,
                         state,
-                    );
+                    )
                 }
-                _ => (),
+                _ => false,
             }
+        } else {
+            false
         }
     }
 }
 
 impl<State: AppState> Widget<State> for ChildSlot<State> {
-    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool {
         match event {
             Event::Mouse(event) => self.propagate_mouse_event(event, ctx, state),
+            Event::Key(_) => self.widget.event(event, ctx, state),
         }
     }
 
@@ -137,13 +139,5 @@ impl<State: AppState> Widget<State> for ChildSlot<State> {
 
     fn flex(&self) -> f32 {
         self.widget.flex()
-    }
-
-    fn keyboard_event(&mut self, event: &KeyboardInput, state: &mut State) -> bool {
-        self.widget.keyboard_event(event, state)
-    }
-
-    fn character_received(&mut self, character: char, state: &mut State) -> bool {
-        self.widget.character_received(character, state)
     }
 }

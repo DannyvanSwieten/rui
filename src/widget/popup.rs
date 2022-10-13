@@ -2,7 +2,7 @@ use crate::{
     app::AppState,
     canvas::{Canvas2D, Size},
     constraints::BoxConstraints,
-    widget::{Action, Theme, Widget},
+    widget::{Action, Event, EventCtx, Theme, Widget},
 };
 
 pub struct PopupMenu {
@@ -26,6 +26,14 @@ impl PopupMenuWidget {
 }
 
 impl<State: AppState> Widget<State> for PopupMenuWidget {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool {
+        let _ = event;
+        let _ = ctx;
+        let _ = state;
+
+        false
+    }
+
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
         todo!()
     }

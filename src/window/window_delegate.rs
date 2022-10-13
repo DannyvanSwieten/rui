@@ -75,12 +75,19 @@ pub trait WindowDelegate<State: AppState> {
         let _ = height;
     }
 
-    fn keyboard_event(&mut self, state: &mut State, event: &winit::event::KeyboardInput) {
+    fn keyboard_event(
+        &mut self,
+        app: &mut App<State>,
+        state: &mut State,
+        event: &winit::event::KeyboardInput,
+    ) {
+        let _ = app;
         let _ = state;
         let _ = event;
     }
 
-    fn character_received(&mut self, state: &mut State, character: char) {
+    fn character_received(&mut self, app: &mut App<State>, state: &mut State, character: char) {
+        let _ = app;
         let _ = state;
         let _ = character;
     }

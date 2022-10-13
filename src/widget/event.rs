@@ -2,6 +2,7 @@ use crate::{canvas::Point, window};
 
 pub enum Event {
     Mouse(MouseEvent),
+    Key(KeyEvent),
 }
 
 pub enum MouseEvent {
@@ -35,4 +36,9 @@ impl MouseEvent {
             Self::MouseDrag(event) => Self::MouseDrag(event.to_local(position)),
         }
     }
+}
+
+pub enum KeyEvent {
+    Input(winit::event::KeyboardInput),
+    Char(char),
 }

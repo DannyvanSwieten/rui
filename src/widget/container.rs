@@ -4,7 +4,6 @@ use crate::{
     constraints::BoxConstraints,
     widget::{ChildSlot, Event, EventCtx, Theme, Widget},
 };
-use winit::event::KeyboardInput;
 
 pub struct Container<State> {
     padding: f32,
@@ -46,7 +45,7 @@ impl<State: AppState> Container<State> {
 }
 
 impl<State: AppState> Widget<State> for Container<State> {
-    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool {
         self.child.event(event, ctx, state)
     }
 
@@ -103,15 +102,7 @@ impl<State: AppState> Widget<State> for Container<State> {
         self.child.paint(theme, canvas, self.child.size(), state);
     }
 
-    fn keyboard_event(&mut self, event: &KeyboardInput, state: &mut State) -> bool {
-        self.child.keyboard_event(event, state)
-    }
-
     fn flex(&self) -> f32 {
         0.0
-    }
-
-    fn character_received(&mut self, character: char, state: &mut State) -> bool {
-        self.child.character_received(character, state)
     }
 }

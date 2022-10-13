@@ -33,10 +33,14 @@ impl<State: AppState> Row<State> {
 }
 
 impl<State: AppState> Widget<State> for Row<State> {
-    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool {
         for child in &mut self.children {
-            child.event(event, ctx, state)
+            if child.event(event, ctx, state) {
+                return true;
+            }
         }
+
+        false
     }
 
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
@@ -108,26 +112,6 @@ impl<State: AppState> Widget<State> for Row<State> {
     fn flex(&self) -> f32 {
         0.0
     }
-
-    fn keyboard_event(&mut self, event: &winit::event::KeyboardInput, state: &mut State) -> bool {
-        for child in &mut self.children {
-            if child.keyboard_event(event, state) {
-                return true;
-            }
-        }
-
-        false
-    }
-
-    fn character_received(&mut self, character: char, state: &mut State) -> bool {
-        for child in &mut self.children {
-            if child.character_received(character, state) {
-                return true;
-            }
-        }
-
-        false
-    }
 }
 
 pub struct Column<State> {
@@ -158,10 +142,14 @@ impl<State: AppState> Column<State> {
 }
 
 impl<State: AppState> Widget<State> for Column<State> {
-    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool {
         for child in &mut self.children {
-            child.event(event, ctx, state)
+            if child.event(event, ctx, state) {
+                return true;
+            }
         }
+
+        false
     }
 
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
@@ -234,26 +222,6 @@ impl<State: AppState> Widget<State> for Column<State> {
     fn flex(&self) -> f32 {
         0.0
     }
-
-    fn keyboard_event(&mut self, event: &winit::event::KeyboardInput, state: &mut State) -> bool {
-        for child in &mut self.children {
-            if child.keyboard_event(event, state) {
-                return true;
-            }
-        }
-
-        false
-    }
-
-    fn character_received(&mut self, character: char, state: &mut State) -> bool {
-        for child in &mut self.children {
-            if child.character_received(character, state) {
-                return true;
-            }
-        }
-
-        false
-    }
 }
 
 pub struct Expanded<State> {
@@ -290,7 +258,7 @@ impl<State: AppState> Expanded<State> {
 }
 
 impl<State: AppState> Widget<State> for Expanded<State> {
-    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool {
         self.child.event(event, ctx, state)
     }
 
@@ -319,13 +287,5 @@ impl<State: AppState> Widget<State> for Expanded<State> {
 
     fn flex(&self) -> f32 {
         self.flex
-    }
-
-    fn keyboard_event(&mut self, event: &winit::event::KeyboardInput, state: &mut State) -> bool {
-        self.child.keyboard_event(event, state)
-    }
-
-    fn character_received(&mut self, character: char, state: &mut State) -> bool {
-        self.child.character_received(character, state)
     }
 }
