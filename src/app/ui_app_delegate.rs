@@ -1,4 +1,4 @@
-use crate::window::{UIGpuDrawingWindowDelegate, WindowDelegate};
+use crate::window::{UiWindowDelegate, WindowDelegate};
 use crate::{
     app::{App, AppDelegate, AppState, WindowRequest},
     window::WindowRegistry,
@@ -80,7 +80,7 @@ impl<State: AppState> AppDelegate<State> for UIAppDelegate<State> {
             )
             .expect("Window creation failed");
 
-        let mut window_delegate = UIGpuDrawingWindowDelegate::new(
+        let mut window_delegate = UiWindowDelegate::new(
             app.gpu_api().device.clone(),
             app.gpu_api().queue.clone(),
             request.builder,

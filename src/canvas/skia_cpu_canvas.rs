@@ -4,44 +4,43 @@ use super::Canvas2D;
 
 pub struct SkiaCanvas {
     surface: Surface,
+    pixels: Vec<u8>,
     pub size: ISize,
 }
 
 impl SkiaCanvas {
     pub fn new(w: i32, h: i32) -> Self {
         let surface = Surface::new_raster_n32_premul(skia_safe::ISize::new(w, h));
+        let mut pixels = Vec::new();
+        pixels.resize(4 * w as usize * h as usize, 0);
         if let Some(surface) = surface {
             Self {
                 surface,
                 size: skia_safe::ISize::new(w, h),
+                pixels,
             }
         } else {
             panic!()
         }
     }
 
-    pub fn pixels(&mut self) -> Option<Vec<u8>> {
+    pub fn pixels(&mut self) -> Option<&[u8]> {
         let w = self.surface.width();
-        let h = self.surface.height();
-        let bbp = 4;
-        let size = w * h * bbp;
-        let mut data = Vec::<u8>::new();
-        data.resize(size as _, 0);
         let info = self.surface.image_info();
         if self.surface.read_pixels(
             &info,
-            &mut data,
-            w as usize * bbp as usize,
+            &mut self.pixels,
+            w as usize * 4,
             skia_safe::IPoint::new(0, 0),
         ) {
-            Some(data)
+            Some(&self.pixels)
         } else {
             None
         }
     }
 
     pub fn flush(&mut self) {
-        self.surface.flush_submit_and_sync_cpu();
+        self.surface.flush_and_submit();
     }
 }
 

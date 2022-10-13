@@ -14,7 +14,7 @@ struct UI<State: AppState> {
     user_interface: UserInterface<State>,
 }
 
-pub struct UIGpuDrawingWindowDelegate<State: AppState> {
+pub struct UiWindowDelegate<State: AppState> {
     surface: Option<wgpu::Surface>,
     device: Rc<Device>,
     queue: Rc<Queue>,
@@ -22,7 +22,7 @@ pub struct UIGpuDrawingWindowDelegate<State: AppState> {
     builder: Box<dyn Fn(&State) -> Box<dyn Widget<State>>>,
 }
 
-impl<State: AppState + 'static> UIGpuDrawingWindowDelegate<State> {
+impl<State: AppState + 'static> UiWindowDelegate<State> {
     pub fn new<F>(device: Rc<Device>, queue: Rc<Queue>, builder: F) -> Self
     where
         F: Fn(&State) -> Box<dyn Widget<State>> + 'static,
@@ -35,9 +35,79 @@ impl<State: AppState + 'static> UIGpuDrawingWindowDelegate<State> {
             builder: Box::new(builder),
         }
     }
+
+    fn render_ui(&mut self, state: &State) {
+        let size = self.ui.as_ref().unwrap().canvas.size;
+        let pixels = if let Some(ui) = &mut self.ui {
+            ui.user_interface.paint(state, &mut ui.canvas);
+            ui.canvas.pixels()
+        } else {
+            None
+        };
+
+        if let Some(surface) = &self.surface {
+            let output = surface
+                .get_current_texture()
+                .expect("Get surface image failed");
+            let view = output
+                .texture
+                .create_view(&wgpu::TextureViewDescriptor::default());
+
+            let mut encoder = self
+                .device
+                .create_command_encoder(&wgpu::CommandEncoderDescriptor {
+                    label: Some("Render Encoder"),
+                });
+
+            let stride = size.width * 4;
+            let texture_size = wgpu::Extent3d {
+                width: size.width as _,
+                height: size.height as _,
+                depth_or_array_layers: 1,
+            };
+
+            self.queue.write_texture(
+                // Tells wgpu where to copy the pixel data
+                wgpu::ImageCopyTexture {
+                    texture: &output.texture,
+                    mip_level: 0,
+                    origin: wgpu::Origin3d::ZERO,
+                    aspect: wgpu::TextureAspect::All,
+                },
+                // The actual pixel data
+                &pixels.unwrap(),
+                // The layout of the texture
+                wgpu::ImageDataLayout {
+                    offset: 0,
+                    bytes_per_row: std::num::NonZeroU32::new(stride as _),
+                    rows_per_image: std::num::NonZeroU32::new(size.height as _),
+                },
+                texture_size,
+            );
+
+            {
+                let _render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
+                    label: Some("Render Pass"),
+                    color_attachments: &[Some(wgpu::RenderPassColorAttachment {
+                        view: &view,
+                        resolve_target: None,
+                        ops: wgpu::Operations {
+                            load: wgpu::LoadOp::Load,
+                            store: true,
+                        },
+                    })],
+                    depth_stencil_attachment: None,
+                });
+            }
+
+            // submit will accept anything that implements IntoIter
+            self.queue.submit(std::iter::once(encoder.finish()));
+            output.present();
+        }
+    }
 }
 
-impl<State: AppState + 'static> WindowDelegate<State> for UIGpuDrawingWindowDelegate<State> {
+impl<State: AppState + 'static> WindowDelegate<State> for UiWindowDelegate<State> {
     fn mouse_moved(&mut self, state: &mut State, x: f32, y: f32) {
         let p = Point::from((x, y));
         if let Some(ui) = self.ui.as_mut() {
@@ -129,75 +199,7 @@ impl<State: AppState + 'static> WindowDelegate<State> for UIGpuDrawingWindowDele
 
     fn draw(&mut self, _: &App<State>, state: &State) {
         // draw user interface
-
-        let pixels = if let Some(ui) = &mut self.ui {
-            ui.user_interface.paint(state, &mut ui.canvas);
-            ui.canvas.flush();
-            ui.canvas.pixels()
-        } else {
-            None
-        };
-
-        if let Some(surface) = &self.surface {
-            let output = surface
-                .get_current_texture()
-                .expect("Get surface image failed");
-            let view = output
-                .texture
-                .create_view(&wgpu::TextureViewDescriptor::default());
-
-            let mut encoder = self
-                .device
-                .create_command_encoder(&wgpu::CommandEncoderDescriptor {
-                    label: Some("Render Encoder"),
-                });
-
-            let size = self.ui.as_ref().unwrap().canvas.size;
-            let stride = size.width * 4;
-            let texture_size = wgpu::Extent3d {
-                width: size.width as _,
-                height: size.height as _,
-                depth_or_array_layers: 1,
-            };
-
-            self.queue.write_texture(
-                // Tells wgpu where to copy the pixel data
-                wgpu::ImageCopyTexture {
-                    texture: &output.texture,
-                    mip_level: 0,
-                    origin: wgpu::Origin3d::ZERO,
-                    aspect: wgpu::TextureAspect::All,
-                },
-                // The actual pixel data
-                &pixels.unwrap(),
-                // The layout of the texture
-                wgpu::ImageDataLayout {
-                    offset: 0,
-                    bytes_per_row: std::num::NonZeroU32::new(stride as _),
-                    rows_per_image: std::num::NonZeroU32::new(size.height as _),
-                },
-                texture_size,
-            );
-
-            {
-                let _render_pass = encoder.begin_render_pass(&wgpu::RenderPassDescriptor {
-                    label: Some("Render Pass"),
-                    color_attachments: &[Some(wgpu::RenderPassColorAttachment {
-                        view: &view,
-                        resolve_target: None,
-                        ops: wgpu::Operations {
-                            load: wgpu::LoadOp::Load,
-                            store: true,
-                        },
-                    })],
-                    depth_stencil_attachment: None,
-                });
-            }
-
-            // submit will accept anything that implements IntoIter
-            self.queue.submit(std::iter::once(encoder.finish()));
-            output.present();
-        }
+        self.render_ui(state)
     }
 
     fn close_button_pressed(&mut self, _state: &mut State) -> bool {
