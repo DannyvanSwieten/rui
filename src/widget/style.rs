@@ -14,11 +14,20 @@ pub struct SliderStyle {
 
 #[derive(Default)]
 pub struct TextButtonStyle {
-    inactive: Color,
-    active: Color,
-    hoverd: Color,
-    text: Color,
-    font: Font,
+    pub inactive: Color,
+    pub active: Color,
+    pub hoverd: Color,
+    pub text: Color,
+    pub font: Font,
+    pub rounding: f32,
+}
+
+impl TextButtonStyle {
+    pub fn new() -> Self {
+        let mut style = Self::default();
+        style.rounding = 4f32;
+        style
+    }
 }
 #[derive(Default)]
 pub struct Theme {
@@ -38,12 +47,30 @@ impl Theme {
             primary: Color::new(0xFF766AC8),
             secondary: Color::new(0xFF73C8A6),
             text: Color::new(0xFFFFFFFF),
-            button: TextButtonStyle::default(),
+            button: TextButtonStyle::new(),
             slider: SliderStyle {
                 background: Color::new(0xFFFFFFFF),
                 fill: Color::new(0xFF766AC8),
                 thumb: SliderThumbStyle {
                     color: Color::new(0xFF73C8A6),
+                    size: 0.125,
+                },
+            },
+        }
+    }
+
+    pub fn default_dark() -> Self {
+        Self {
+            background: Color::new(0xFF333333),
+            primary: Color::new(0xFF1E38A1),
+            secondary: Color::new(0xFF73C8A6),
+            text: Color::new(0xFFFFFFFF),
+            button: TextButtonStyle::new(),
+            slider: SliderStyle {
+                background: Color::new(0xFF1E1E1E),
+                fill: Color::new(0xFF1E38A1),
+                thumb: SliderThumbStyle {
+                    color: Color::new(0xFF1E38A1),
                     size: 0.125,
                 },
             },
@@ -59,6 +86,7 @@ impl StyleContext {
     pub fn new() -> Self {
         let mut themes = HashMap::new();
         themes.insert("light".to_string(), Theme::default_light());
+        themes.insert("dark".to_string(), Theme::default_dark());
         Self { themes }
     }
 

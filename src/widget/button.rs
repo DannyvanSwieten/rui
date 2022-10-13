@@ -86,8 +86,8 @@ impl<State: AppState> Widget<State> for TextButton<State> {
                 };
                 canvas.draw_rounded_rect(
                     &Rect::from_wh(size.width, size.height),
-                    4.0,
-                    4.0,
+                    theme.button.rounding,
+                    theme.button.rounding,
                     &bg_paint,
                 );
                 text_paint.set_color(theme.text);
@@ -101,8 +101,8 @@ impl<State: AppState> Widget<State> for TextButton<State> {
                 bg_paint.set_stroke(true);
                 canvas.draw_rounded_rect(
                     &Rect::from_wh(size.width, size.height),
-                    4.0,
-                    4.0,
+                    theme.button.rounding,
+                    theme.button.rounding,
                     &bg_paint,
                 );
 
@@ -113,8 +113,8 @@ impl<State: AppState> Widget<State> for TextButton<State> {
                         bg_paint.set_stroke(false);
                         canvas.draw_rounded_rect(
                             &Rect::from_wh(size.width, size.height),
-                            4.0,
-                            4.0,
+                            theme.button.rounding,
+                            theme.button.rounding,
                             &bg_paint,
                         );
                     }
@@ -123,8 +123,8 @@ impl<State: AppState> Widget<State> for TextButton<State> {
                         bg_paint.set_stroke(false);
                         canvas.draw_rounded_rect(
                             &Rect::from_wh(size.width, size.height),
-                            4.0,
-                            4.0,
+                            theme.button.rounding,
+                            theme.button.rounding,
                             &bg_paint,
                         );
                     }
@@ -146,8 +146,8 @@ impl<State: AppState> Widget<State> for TextButton<State> {
                         bg_paint.set_stroke(false);
                         canvas.draw_rounded_rect(
                             &Rect::from_wh(size.width, size.height),
-                            4.0,
-                            4.0,
+                            theme.button.rounding,
+                            theme.button.rounding,
                             &bg_paint,
                         );
                     }
@@ -156,8 +156,8 @@ impl<State: AppState> Widget<State> for TextButton<State> {
                         bg_paint.set_stroke(false);
                         canvas.draw_rounded_rect(
                             &Rect::from_wh(size.width, size.height),
-                            4.0,
-                            4.0,
+                            theme.button.rounding,
+                            theme.button.rounding,
                             &bg_paint,
                         );
                     }
