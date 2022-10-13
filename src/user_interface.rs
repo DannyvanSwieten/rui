@@ -33,21 +33,15 @@ impl<State: AppState + 'static> UserInterface<State> {
         }
     }
 
-    pub fn file_dropped(&mut self, state: &mut State, path: &Path, position: &Point) {
-        // self.actions
-        //     .push(self.root.file_dropped(state, path, position))
-    }
-
-    pub fn file_hovered(&mut self, state: &mut State, path: &Path, position: &Point) {}
-
-    fn build_popup(&mut self, request: popup::PopupRequest<State>, position: &Point) {}
+    pub fn file_dropped(&mut self, _: &mut State, _: &Path, _: &Point) {}
+    pub fn file_hovered(&mut self, _: &mut State, _: &Path, _: &Point) {}
 
     pub fn resize(&mut self, state: &State, width: u32, height: u32) {
         let constraints = BoxConstraints::new().with_tight_constraints(width as f32, height as f32);
         self.layout(&constraints, state);
     }
 
-    pub fn resized(&mut self, state: &mut State) {}
+    pub fn resized(&mut self, _: &mut State) {}
 
     pub fn mouse_down(&mut self, app: &mut App<State>, state: &mut State, event: &MouseEvent) {
         let mut ctx = EventCtx::new(app, *self.root.size());
@@ -59,7 +53,7 @@ impl<State: AppState + 'static> UserInterface<State> {
         self.root.event(&Event::MouseUp(*event), &mut ctx, state)
     }
 
-    pub fn double_click(&mut self, state: &mut State, event: &MouseEvent) {}
+    pub fn double_click(&mut self, _: &mut State, _: &MouseEvent) {}
 
     pub fn mouse_drag(&mut self, app: &mut App<State>, state: &mut State, event: &MouseEvent) {
         let mut ctx = EventCtx::new(app, *self.root.size());
@@ -71,7 +65,7 @@ impl<State: AppState + 'static> UserInterface<State> {
         self.root.event(&Event::MouseMove(*event), &mut ctx, state)
     }
 
-    pub fn mouse_leave(&mut self, state: &mut State, event: &MouseEvent) {}
+    pub fn mouse_leave(&mut self, _: &mut State, _: &MouseEvent) {}
     pub fn keyboard_event(&mut self, state: &mut State, event: &KeyboardInput) {
         self.root.keyboard_event(event, state);
     }
@@ -83,7 +77,7 @@ impl<State: AppState + 'static> UserInterface<State> {
         self.root.set_size(&size);
     }
 
-    pub fn layout_child_with_name(&mut self, child_name: &str, state: &State) {
+    pub fn layout_child_with_name(&mut self, _: &str, _: &State) {
         // self.root.layout_child_with_name(child_name, state)
     }
 
