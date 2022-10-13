@@ -3,7 +3,6 @@ use crate::{
     application::{Application, ApplicationDelegate, ApplicationModel, WindowRequest},
     window::WindowRegistry,
 };
-use std::rc::Rc;
 use winit::event_loop::EventLoopWindowTarget;
 
 pub struct UIApplicationDelegate<Model: ApplicationModel> {
