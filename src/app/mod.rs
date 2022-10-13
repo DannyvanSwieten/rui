@@ -1,94 +1,125 @@
-mod application_delegate;
-mod application_model;
-mod ui_application_delegate;
+mod app_delegate;
+mod app_state;
+mod ui_app_delegate;
 
-pub use application_delegate::ApplicationDelegate;
-pub use application_model::ApplicationModel;
-pub use ui_application_delegate::UIApplicationDelegate;
+pub use app_delegate::AppDelegate;
+pub use app_state::AppState;
+pub use ui_app_delegate::UIAppDelegate;
 
 use crate::{widget::Widget, window::WindowRegistry};
-use std::collections::VecDeque;
-use vk_utils::vulkan::Vulkan;
-
-use std::ffi::{CStr, CString};
+use std::{collections::VecDeque, rc::Rc};
 
 use winit::{
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
 };
 
-use ash::extensions::{ext::DebugUtils, khr::Surface};
-
-#[cfg(target_os = "macos")]
-use ash::extensions::mvk::MacOSSurface;
-
-#[cfg(target_os = "macos")]
-use ash::vk::ExtMetalSurfaceFn;
-
-#[cfg(target_os = "macos")]
-pub fn surface_extension_name() -> &'static CStr {
-    ExtMetalSurfaceFn::name()
-}
-
-#[cfg(target_os = "windows")]
-use ash::extensions::khr::Win32Surface;
-
-#[cfg(target_os = "windows")]
-pub fn surface_extension_name() -> &'static CStr {
-    Win32Surface::name()
-}
-
-pub struct WindowRequest<Model: ApplicationModel> {
-    pub builder: Box<dyn Fn(&Model) -> Box<dyn Widget<Model>>>,
+pub struct WindowRequest<State: AppState> {
+    pub builder: Box<dyn Fn(&State) -> Box<dyn Widget<State>>>,
     pub title: Option<String>,
     pub width: u32,
     pub height: u32,
 }
 
-pub struct Application<Model: ApplicationModel> {
-    vulkan: Vulkan,
-    pending_messages: VecDeque<Model::MessageType>,
-    pending_window_requests: VecDeque<WindowRequest<Model>>,
-    _state: std::marker::PhantomData<Model>,
+impl<State: AppState> WindowRequest<State> {
+    pub fn new(
+        title: &str,
+        width: u32,
+        height: u32,
+        builder: impl Fn(&State) -> Box<dyn Widget<State>> + 'static,
+    ) -> Self {
+        Self {
+            title: Some(title.to_string()),
+            width,
+            height,
+            builder: Box::new(builder),
+        }
+    }
 }
 
-impl<Model: ApplicationModel + 'static> Application<Model> {
-    pub fn new(name: &str) -> Self {
-        let layers = [CString::new("VK_LAYER_KHRONOS_validation").unwrap()];
-        let instance_extensions = [
-            Surface::name(),
-            surface_extension_name(),
-            DebugUtils::name(),
-        ];
-        let vulkan = Vulkan::new(name, &layers, &instance_extensions);
+pub struct GpuApi {
+    pub instance: wgpu::Instance,
+    pub adapter: wgpu::Adapter,
+    pub device: Rc<wgpu::Device>,
+    pub queue: Rc<wgpu::Queue>,
+}
+
+impl GpuApi {
+    pub async fn new() -> Self {
+        let instance = wgpu::Instance::new(wgpu::Backends::METAL | wgpu::Backends::DX12);
+        let adapter = instance
+            .request_adapter(&wgpu::RequestAdapterOptions {
+                power_preference: wgpu::PowerPreference::default(),
+                compatible_surface: None,
+                force_fallback_adapter: false,
+            })
+            .await
+            .unwrap();
+
+        let (device, queue) = adapter
+            .request_device(
+                &wgpu::DeviceDescriptor {
+                    features: wgpu::Features::empty(),
+                    // WebGL doesn't support all of wgpu's features, so if
+                    // we're building for the web we'll have to disable some.
+                    limits: if cfg!(target_arch = "wasm32") {
+                        wgpu::Limits::downlevel_webgl2_defaults()
+                    } else {
+                        wgpu::Limits::default()
+                    },
+                    label: None,
+                },
+                None, // Trace path
+            )
+            .await
+            .unwrap();
 
         Self {
-            vulkan,
+            instance,
+            adapter,
+            device: Rc::new(device),
+            queue: Rc::new(queue),
+        }
+    }
+}
+
+pub struct App<State: AppState> {
+    gpu_api: GpuApi,
+    pending_messages: VecDeque<State::MessageType>,
+    pending_window_requests: VecDeque<WindowRequest<State>>,
+    _state: std::marker::PhantomData<State>,
+}
+
+impl<State: AppState + 'static> App<State> {
+    pub async fn new(name: &str) -> Self {
+        let gpu_api = GpuApi::new().await;
+        Self {
             pending_messages: VecDeque::new(),
             pending_window_requests: VecDeque::new(),
-            _state: std::marker::PhantomData::<Model>::default(),
+            _state: std::marker::PhantomData::<State>::default(),
+            gpu_api,
         }
     }
 
-    pub fn vulkan(&self) -> &Vulkan {
-        &self.vulkan
+    pub fn gpu_api(&self) -> &GpuApi {
+        &self.gpu_api
     }
 
-    pub fn send_message(&mut self, msg: Model::MessageType) {
+    pub fn send_message(&mut self, msg: State::MessageType) {
         self.pending_messages.push_back(msg)
     }
 
-    fn pop_message(&mut self) -> Option<Model::MessageType> {
+    fn pop_message(&mut self) -> Option<State::MessageType> {
         self.pending_messages.pop_front()
     }
 
-    pub fn ui_window_request(&mut self, request: WindowRequest<Model>) {
+    pub fn ui_window_request(&mut self, request: WindowRequest<State>) {
         self.pending_window_requests.push_back(request)
     }
 
-    pub fn run<Delegate>(mut self, delegate: Delegate, state: Model)
+    pub fn run<Delegate>(mut self, delegate: Delegate, state: State)
     where
-        Delegate: ApplicationDelegate<Model> + 'static,
+        Delegate: AppDelegate<State> + 'static,
     {
         let mut s = state;
         let event_loop = EventLoop::new();
@@ -96,7 +127,7 @@ impl<Model: ApplicationModel + 'static> Application<Model> {
 
         let mut window_registry = WindowRegistry::new();
 
-        d.application_will_start(&mut self, &mut s, &mut window_registry, &event_loop);
+        d.app_will_start(&mut self, &mut s, &mut window_registry, &event_loop);
         let mut last_mouse_position = winit::dpi::PhysicalPosition::<f64>::new(0., 0.);
         let mut last_file_drop: Vec<std::path::PathBuf> = Vec::new();
         let mut mouse_is_down = false;
@@ -225,7 +256,7 @@ impl<Model: ApplicationModel + 'static> Application<Model> {
                     }
                 },
                 Event::MainEventsCleared => {
-                    d.application_will_update(&self, &mut s, &mut window_registry, event_loop);
+                    d.app_will_update(&self, &mut s, &mut window_registry, event_loop);
                     window_registry.update(&mut s);
                     window_registry.draw(&self, &mut s);
                 }
@@ -233,7 +264,7 @@ impl<Model: ApplicationModel + 'static> Application<Model> {
             }
 
             if let ControlFlow::Exit = *control_flow {
-                d.application_will_quit(&mut self, event_loop)
+                d.app_will_quit(&mut self, event_loop)
             }
         });
     }

@@ -1,5 +1,5 @@
 use crate::{
-    application::{Application, ApplicationModel},
+    app::{App, AppState},
     canvas::{
         font::Edging, Canvas2D, Color4f, Font, FontStyle, Paint, Rect, Size, TextBlob, Typeface,
     },
@@ -20,15 +20,15 @@ pub enum ButtonStyle {
     Fill,
 }
 
-pub struct TextButton<Model: ApplicationModel> {
+pub struct TextButton<State: AppState> {
     state: ButtonState,
     style: ButtonStyle,
     text: String,
     font: Font,
-    on_click: Option<Box<dyn Fn(&mut Application<Model>, &mut Model)>>,
+    on_click: Option<Box<dyn Fn(&mut App<State>, &mut State)>>,
 }
 
-impl<Model: ApplicationModel> TextButton<Model> {
+impl<State: AppState> TextButton<State> {
     pub fn new(text: &str, font_size: f32) -> Self {
         let mut font = Font::new(
             Typeface::new("arial black", FontStyle::normal()).unwrap(),
@@ -56,17 +56,14 @@ impl<Model: ApplicationModel> TextButton<Model> {
         self
     }
 
-    pub fn on_click(
-        mut self,
-        handler: impl Fn(&mut Application<Model>, &mut Model) + 'static,
-    ) -> Self {
+    pub fn on_click(mut self, handler: impl Fn(&mut App<State>, &mut State) + 'static) -> Self {
         self.on_click = Some(Box::new(handler));
         self
     }
 }
 
-impl<Model: ApplicationModel> Widget<Model> for TextButton<Model> {
-    fn layout(&mut self, constraints: &BoxConstraints, _: &Model) -> Size {
+impl<State: AppState> Widget<State> for TextButton<State> {
+    fn layout(&mut self, constraints: &BoxConstraints, _: &State) -> Size {
         let blob = TextBlob::from_str(&self.text, &self.font);
         let size = blob.unwrap().bounds().size();
         let width = constraints.max_width().unwrap_or(size.width);
@@ -74,7 +71,7 @@ impl<Model: ApplicationModel> Widget<Model> for TextButton<Model> {
         Size::new(width, height)
     }
 
-    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, size: &Size, _: &Model) {
+    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, size: &Size, _: &State) {
         let mut text_paint = Paint::default();
         text_paint.set_anti_alias(true);
 
@@ -175,28 +172,28 @@ impl<Model: ApplicationModel> Widget<Model> for TextButton<Model> {
         &mut self,
         event: &MouseEvent,
         properties: &Properties,
-        _: &mut Application<Model>,
-        model: &mut Model,
+        _: &mut App<State>,
+        state: &mut State,
     ) {
         self.state = ButtonState::Active
     }
 
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut Application<Model>, model: &mut Model) {
+    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<State>, state: &mut State) {
         if let Some(handler) = &self.on_click {
-            handler(app, model)
+            handler(app, state)
         }
 
         self.state = ButtonState::Hover
     }
 
-    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, model: &mut Model) {}
+    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {}
 
-    fn mouse_moved(&mut self, event: &MouseEvent, model: &mut Model) {}
+    fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {}
 
-    fn mouse_entered(&mut self, event: &MouseEvent, model: &mut Model) {
+    fn mouse_entered(&mut self, event: &MouseEvent, state: &mut State) {
         self.state = ButtonState::Hover
     }
-    fn mouse_left(&mut self, event: &MouseEvent, model: &mut Model) {
+    fn mouse_left(&mut self, event: &MouseEvent, state: &mut State) {
         self.state = ButtonState::Inactive
     }
 }

@@ -1,5 +1,5 @@
 use crate::{
-    application::{Application, ApplicationModel},
+    app::{App, AppState},
     canvas::{Canvas2D, Color4f, Paint, Point, Rect, Size},
     constraints::BoxConstraints,
     widget::{ChildSlot, Properties, Theme, Widget},
@@ -7,18 +7,18 @@ use crate::{
 };
 use winit::event::KeyboardInput;
 
-pub struct Container<Model> {
+pub struct Container<State> {
     padding: f32,
     margin: f32,
     border: f32,
     width: Option<f32>,
     height: Option<f32>,
-    child: ChildSlot<Model>,
+    child: ChildSlot<State>,
     paint: Option<Paint>,
 }
 
-impl<Model: ApplicationModel> Container<Model> {
-    pub fn new(child: impl Widget<Model> + 'static) -> Self {
+impl<State: AppState> Container<State> {
+    pub fn new(child: impl Widget<State> + 'static) -> Self {
         Self {
             padding: 0.0,
             margin: 0.0,
@@ -46,12 +46,12 @@ impl<Model: ApplicationModel> Container<Model> {
     }
 }
 
-impl<Model: ApplicationModel> Widget<Model> for Container<Model> {
+impl<State: AppState> Widget<State> for Container<State> {
     // The container's layout strategy is to be as small as possible.
     // So shrink input constraints by border, padding and margin
     // Then return its child's size as its own size.
 
-    fn layout(&mut self, constraints: &BoxConstraints, model: &Model) -> Size {
+    fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
         // If the container is not given constraints from the parent check if we've been given a size
         // If not given a size we ask the child to layout without constraints
         // This might panic if the child is a flex container.
@@ -64,7 +64,7 @@ impl<Model: ApplicationModel> Widget<Model> for Container<Model> {
         let child_size = if constraints.max_width().is_none() || constraints.max_height().is_none()
         {
             if self.width.is_none() || self.height.is_none() {
-                self.child.layout(&BoxConstraints::new(), model)
+                self.child.layout(&BoxConstraints::new(), state)
             } else {
                 let mut child_constraints = BoxConstraints::new();
                 if self.width.is_some() {
@@ -75,11 +75,11 @@ impl<Model: ApplicationModel> Widget<Model> for Container<Model> {
                         child_constraints.with_max_height(self.height.unwrap_or(0.0))
                 }
                 self.child
-                    .layout(&child_constraints.shrunk(space_around, space_around), model)
+                    .layout(&child_constraints.shrunk(space_around, space_around), state)
             }
         } else {
             let child_constraints = constraints.shrunk(space_around * 2.0, space_around * 2.0);
-            self.child.layout(&child_constraints, model)
+            self.child.layout(&child_constraints, state)
         };
 
         self.child
@@ -92,53 +92,53 @@ impl<Model: ApplicationModel> Widget<Model> for Container<Model> {
         )
     }
 
-    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, size: &Size, model: &Model) {
+    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, size: &Size, state: &State) {
         if let Some(paint) = &self.paint {
             canvas.draw_rect(&Rect::from_size(*size), paint);
         }
 
-        self.child.paint(theme, canvas, self.child.size(), model);
+        self.child.paint(theme, canvas, self.child.size(), state);
     }
 
     fn mouse_down(
         &mut self,
         event: &MouseEvent,
         properties: &Properties,
-        app: &mut Application<Model>,
-        model: &mut Model,
+        app: &mut App<State>,
+        state: &mut State,
     ) {
-        self.child.mouse_down(event, properties, app, model);
+        self.child.mouse_down(event, properties, app, state);
     }
 
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut Application<Model>, model: &mut Model) {
-        self.child.mouse_up(event, app, model);
+    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<State>, state: &mut State) {
+        self.child.mouse_up(event, app, state);
     }
 
-    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, model: &mut Model) {
-        self.child.mouse_dragged(event, properties, model)
+    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {
+        self.child.mouse_dragged(event, properties, state)
     }
 
-    fn mouse_moved(&mut self, event: &MouseEvent, model: &mut Model) {
-        self.child.mouse_moved(event, model)
+    fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {
+        self.child.mouse_moved(event, state)
     }
 
-    fn mouse_entered(&mut self, event: &MouseEvent, model: &mut Model) {
-        self.child.mouse_entered(event, model)
+    fn mouse_entered(&mut self, event: &MouseEvent, state: &mut State) {
+        self.child.mouse_entered(event, state)
     }
 
-    fn mouse_left(&mut self, event: &MouseEvent, model: &mut Model) {
-        self.child.mouse_left(event, model)
+    fn mouse_left(&mut self, event: &MouseEvent, state: &mut State) {
+        self.child.mouse_left(event, state)
     }
 
-    fn keyboard_event(&mut self, event: &KeyboardInput, model: &mut Model) -> bool {
-        self.child.keyboard_event(event, model)
+    fn keyboard_event(&mut self, event: &KeyboardInput, state: &mut State) -> bool {
+        self.child.keyboard_event(event, state)
     }
 
     fn flex(&self) -> f32 {
         0.0
     }
 
-    fn character_received(&mut self, character: char, model: &mut Model) -> bool {
-        self.child.character_received(character, model)
+    fn character_received(&mut self, character: char, state: &mut State) -> bool {
+        self.child.character_received(character, state)
     }
 }

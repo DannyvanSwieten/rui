@@ -1,16 +1,25 @@
-use rui::application::{Application, ApplicationModel, UIApplicationDelegate};
+use rui::{
+    app::{App, AppState, UIAppDelegate, WindowRequest},
+    widget::button::TextButton,
+    widget::container::Container,
+};
 
-struct Model;
+struct State;
 
-impl ApplicationModel for Model {
+impl AppState for State {
     type MessageType = ();
 
     fn handle_message(&mut self, _: Self::MessageType) {}
 }
 
 fn main() {
-    let application = Application::new("Basic Example");
-    let delegate = UIApplicationDelegate::new();
+    let app = pollster::block_on(App::new("Basic Example"));
 
-    application.run(delegate, Model);
+    let delegate = UIAppDelegate::new().on_start(|app, _state| {
+        app.ui_window_request(WindowRequest::new("Basic Example", 600, 400, |_state| {
+            Box::new(Container::new(TextButton::new("Button", 18f32)))
+        }));
+    });
+
+    app.run(delegate, State);
 }

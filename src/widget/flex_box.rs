@@ -1,5 +1,5 @@
 use crate::{
-    application::{Application, ApplicationModel},
+    app::{App, AppState},
     canvas::{Canvas2D, Size},
     constraints::BoxConstraints,
     widget::{ChildSlot, Properties, Theme, Widget},
@@ -7,18 +7,18 @@ use crate::{
 };
 use winit::event::KeyboardInput;
 
-pub struct FlexBox<Model> {
-    child: ChildSlot<Model>,
+pub struct FlexBox<State> {
+    child: ChildSlot<State>,
     flex: f32,
 }
 
-impl<Model: ApplicationModel> Widget<Model> for FlexBox<Model> {
-    fn layout(&mut self, constraints: &BoxConstraints, model: &Model) -> Size {
-        self.child.layout(constraints, model)
+impl<State: AppState> Widget<State> for FlexBox<State> {
+    fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
+        self.child.layout(constraints, state)
     }
 
-    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, model: &Model) {
-        self.child.paint(theme, canvas, rect, model)
+    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, state: &State) {
+        self.child.paint(theme, canvas, rect, state)
     }
 
     fn flex(&self) -> f32 {
@@ -29,33 +29,33 @@ impl<Model: ApplicationModel> Widget<Model> for FlexBox<Model> {
         &mut self,
         event: &MouseEvent,
         properties: &Properties,
-        _: &mut Application<Model>,
-        model: &mut Model,
+        _: &mut App<State>,
+        state: &mut State,
     ) {
         todo!()
     }
 
-    fn mouse_up(&mut self, event: &MouseEvent, _: &mut Application<Model>, model: &mut Model) {
+    fn mouse_up(&mut self, event: &MouseEvent, _: &mut App<State>, state: &mut State) {
         todo!()
     }
 
-    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, model: &mut Model) {
+    fn mouse_dragged(&mut self, event: &MouseEvent, properties: &Properties, state: &mut State) {
         todo!()
     }
 
-    fn mouse_moved(&mut self, event: &MouseEvent, model: &mut Model) {
+    fn mouse_moved(&mut self, event: &MouseEvent, state: &mut State) {
         todo!()
     }
 
-    fn mouse_entered(&mut self, event: &MouseEvent, model: &mut Model) {
+    fn mouse_entered(&mut self, event: &MouseEvent, state: &mut State) {
         todo!()
     }
 
-    fn mouse_left(&mut self, event: &MouseEvent, model: &mut Model) {
+    fn mouse_left(&mut self, event: &MouseEvent, state: &mut State) {
         todo!()
     }
 
-    fn keyboard_event(&mut self, event: &KeyboardInput, model: &mut Model) -> bool {
-        self.child.keyboard_event(event, model)
+    fn keyboard_event(&mut self, event: &KeyboardInput, state: &mut State) -> bool {
+        self.child.keyboard_event(event, state)
     }
 }

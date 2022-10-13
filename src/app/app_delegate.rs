@@ -1,54 +1,50 @@
-use super::{Application, ApplicationModel, WindowRequest};
+use super::{App, AppState, WindowRequest};
 use crate::window::{WindowId, WindowRegistry};
 use std::path::Path;
 use winit::event_loop::{ControlFlow, EventLoopWindowTarget};
 
-pub trait ApplicationDelegate<Model: ApplicationModel> {
-    fn application_will_start(
+pub trait AppDelegate<State: AppState> {
+    fn app_will_start(
         &mut self,
-        application: &mut Application<Model>,
-        model: &mut Model,
-        window_registry: &mut WindowRegistry<Model>,
+        app: &mut App<State>,
+        state: &mut State,
+        window_registry: &mut WindowRegistry<State>,
         event_loop: &EventLoopWindowTarget<()>,
     ) {
-        let _ = application;
-        let _ = model;
+        let _ = app;
+        let _ = state;
         let _ = window_registry;
         let _ = event_loop;
     }
 
-    fn application_will_quit(
-        &mut self,
-        application: &mut Application<Model>,
-        event_loop: &EventLoopWindowTarget<()>,
-    ) {
-        let _ = application;
+    fn app_will_quit(&mut self, app: &mut App<State>, event_loop: &EventLoopWindowTarget<()>) {
+        let _ = app;
         let _ = event_loop;
     }
 
-    fn application_will_update(
+    fn app_will_update(
         &mut self,
-        application: &Application<Model>,
-        model: &mut Model,
-        window_registry: &mut WindowRegistry<Model>,
+        app: &App<State>,
+        state: &mut State,
+        window_registry: &mut WindowRegistry<State>,
         event_loop: &EventLoopWindowTarget<()>,
     ) {
-        let _ = application;
-        let _ = model;
+        let _ = app;
+        let _ = state;
         let _ = window_registry;
         let _ = event_loop;
     }
 
     fn window_requested(
         &mut self,
-        application: &Application<Model>,
-        model: &mut Model,
-        window_registry: &mut WindowRegistry<Model>,
+        app: &App<State>,
+        state: &mut State,
+        window_registry: &mut WindowRegistry<State>,
         event_loop: &EventLoopWindowTarget<()>,
-        request: WindowRequest<Model>,
+        request: WindowRequest<State>,
     ) {
-        let _ = application;
-        let _ = model;
+        let _ = app;
+        let _ = state;
         let _ = window_registry;
         let _ = event_loop;
         let _ = request;
@@ -78,12 +74,12 @@ pub trait ApplicationDelegate<Model: ApplicationModel> {
 
     fn window_requested_redraw(
         &mut self,
-        application: &Application<Model>,
-        model: &Model,
+        app: &App<State>,
+        state: &State,
         window_id: &WindowId,
     ) -> ControlFlow {
-        let _ = application;
-        let _ = model;
+        let _ = app;
+        let _ = state;
         let _ = window_id;
 
         ControlFlow::Wait

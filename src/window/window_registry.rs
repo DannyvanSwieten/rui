@@ -1,5 +1,5 @@
 use super::{WindowDelegate, WindowId};
-use crate::application::{Application, ApplicationModel};
+use crate::app::{App, AppState};
 use std::{collections::HashMap, path::Path};
 use winit::{
     error::OsError,
@@ -7,16 +7,16 @@ use winit::{
     window::{Window, WindowBuilder},
 };
 
-pub struct WindowRegistry<Model: 'static> {
-    entries: HashMap<WindowId, Entry<Model>>,
+pub struct WindowRegistry<State: 'static> {
+    entries: HashMap<WindowId, Entry<State>>,
 }
 
-struct Entry<Model> {
+struct Entry<State> {
     window: Window,
-    delegate: Box<dyn WindowDelegate<Model>>,
+    delegate: Box<dyn WindowDelegate<State>>,
 }
 
-impl<Model: ApplicationModel> WindowRegistry<Model> {
+impl<State: AppState> WindowRegistry<State> {
     pub fn new() -> Self {
         Self {
             entries: HashMap::new(),
@@ -39,7 +39,7 @@ impl<Model: ApplicationModel> WindowRegistry<Model> {
     pub fn register_with_delegate(
         &mut self,
         window: Window,
-        delegate: Box<dyn WindowDelegate<Model>>,
+        delegate: Box<dyn WindowDelegate<State>>,
     ) {
         self.entries.insert(window.id(), Entry { window, delegate });
     }
@@ -48,7 +48,7 @@ impl<Model: ApplicationModel> WindowRegistry<Model> {
         self.entries.len()
     }
 
-    pub(crate) fn update(&mut self, state: &mut Model) {
+    pub(crate) fn update(&mut self, state: &mut State) {
         for entry in self.entries.values_mut() {
             entry.delegate.update(state)
         }
@@ -56,8 +56,8 @@ impl<Model: ApplicationModel> WindowRegistry<Model> {
 
     pub(crate) fn window_resized(
         &mut self,
-        app: &Application<Model>,
-        state: &mut Model,
+        app: &App<State>,
+        state: &mut State,
         id: &winit::window::WindowId,
         size: &winit::dpi::PhysicalSize<u32>,
     ) {
@@ -68,7 +68,7 @@ impl<Model: ApplicationModel> WindowRegistry<Model> {
         }
     }
 
-    pub(crate) fn character_received(&mut self, id: &WindowId, character: char, state: &mut Model) {
+    pub(crate) fn character_received(&mut self, id: &WindowId, character: char, state: &mut State) {
         if let Some(entry) = self.entries.get_mut(id) {
             entry.delegate.character_received(state, character)
         }
@@ -78,14 +78,14 @@ impl<Model: ApplicationModel> WindowRegistry<Model> {
         &mut self,
         id: &WindowId,
         event: &winit::event::KeyboardInput,
-        state: &mut Model,
+        state: &mut State,
     ) {
         if let Some(entry) = self.entries.get_mut(id) {
             entry.delegate.keyboard_event(state, event)
         }
     }
 
-    pub(crate) fn close_button_pressed(&mut self, id: &WindowId, state: &mut Model) {
+    pub(crate) fn close_button_pressed(&mut self, id: &WindowId, state: &mut State) {
         if let Some(entry) = self.entries.get_mut(id) {
             if entry.delegate.close_button_pressed(state) {
                 self.entries.remove(id);
@@ -95,7 +95,7 @@ impl<Model: ApplicationModel> WindowRegistry<Model> {
 
     pub(crate) fn mouse_moved(
         &mut self,
-        state: &mut Model,
+        state: &mut State,
         id: &WindowId,
         position: &winit::dpi::PhysicalPosition<f64>,
     ) {
@@ -108,7 +108,7 @@ impl<Model: ApplicationModel> WindowRegistry<Model> {
 
     pub(crate) fn mouse_dragged(
         &mut self,
-        state: &mut Model,
+        state: &mut State,
         id: &winit::window::WindowId,
         position: &winit::dpi::PhysicalPosition<f64>,
         delta: &winit::dpi::PhysicalPosition<f64>,
@@ -126,8 +126,8 @@ impl<Model: ApplicationModel> WindowRegistry<Model> {
 
     pub(crate) fn mouse_down(
         &mut self,
-        app: &mut Application<Model>,
-        state: &mut Model,
+        app: &mut App<State>,
+        state: &mut State,
         id: &winit::window::WindowId,
         position: &winit::dpi::PhysicalPosition<f64>,
     ) {
@@ -140,8 +140,8 @@ impl<Model: ApplicationModel> WindowRegistry<Model> {
 
     pub(crate) fn mouse_up(
         &mut self,
-        app: &mut Application<Model>,
-        state: &mut Model,
+        app: &mut App<State>,
+        state: &mut State,
         id: &winit::window::WindowId,
         position: &winit::dpi::PhysicalPosition<f64>,
     ) {
@@ -159,7 +159,7 @@ impl<Model: ApplicationModel> WindowRegistry<Model> {
     ) {
     }
 
-    pub(crate) fn draw(&mut self, app: &Application<Model>, state: &mut Model) {
+    pub(crate) fn draw(&mut self, app: &App<State>, state: &mut State) {
         for entry in self.entries.values_mut() {
             entry.delegate.draw(app, state)
         }
@@ -172,7 +172,7 @@ impl<Model: ApplicationModel> WindowRegistry<Model> {
     pub(crate) fn file_dropped(
         &mut self,
         id: &WindowId,
-        state: &mut Model,
+        state: &mut State,
         file: &Path,
         position: &winit::dpi::PhysicalPosition<f64>,
     ) {
@@ -186,7 +186,7 @@ impl<Model: ApplicationModel> WindowRegistry<Model> {
     pub(crate) fn file_hovered(
         &mut self,
         id: &WindowId,
-        state: &mut Model,
+        state: &mut State,
         file: &Path,
         position: &winit::dpi::PhysicalPosition<f64>,
     ) {
@@ -198,7 +198,7 @@ impl<Model: ApplicationModel> WindowRegistry<Model> {
     }
 }
 
-impl<Model: ApplicationModel> Default for WindowRegistry<Model> {
+impl<State: AppState> Default for WindowRegistry<State> {
     fn default() -> Self {
         Self::new()
     }

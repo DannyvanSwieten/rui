@@ -1,6 +1,4 @@
-mod skia_vulkan_canvas;
-
-pub use skia_vulkan_canvas::{SkiaCanvasImage, SkiaGpuCanvas2D};
+pub mod skia_cpu_canvas;
 
 pub use skia_safe::{
     font, textlayout, textlayout::Paragraph, Color, Color4f, Font, FontStyle, Paint, Point, Rect,
@@ -22,8 +20,4 @@ pub trait Canvas2D {
     fn draw_string(&mut self, rect: &Rect, text: &str, font: &Font, paint: &Paint);
     fn draw_text_blob(&mut self, pos: &Point, blob: &TextBlob, paint: &Paint);
     fn draw_paragraph(&mut self, pos: &Point, paragraph: &Paragraph);
-
-    fn draw_vk_image(&mut self, image: &ash::vk::Image, width: u32, height: u32);
-    fn draw_vk_image_rect(&mut self, src_rect: &Rect, dst_rect: &Rect, image: &ash::vk::Image);
-    fn flush(&mut self) -> (SkiaCanvasImage, ash::vk::ImageView);
 }
