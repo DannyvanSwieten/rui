@@ -1,6 +1,6 @@
 use wgpu::{Device, Queue};
 
-use crate::application::{Application, ApplicationModel};
+use crate::app::{App, AppState};
 use crate::canvas::{skia_cpu_canvas::SkiaCanvas, Point};
 use crate::user_interface::UserInterface;
 use crate::widget::Widget;
@@ -9,12 +9,12 @@ use crate::window::{MouseEvent, WindowDelegate};
 use std::path::Path;
 use std::rc::Rc;
 
-struct UI<Model: ApplicationModel> {
+struct UI<Model: AppState> {
     canvas: SkiaCanvas,
     user_interface: UserInterface<Model>,
 }
 
-pub struct UIGpuDrawingWindowDelegate<Model: ApplicationModel> {
+pub struct UIGpuDrawingWindowDelegate<Model: AppState> {
     surface: Option<wgpu::Surface>,
     device: Rc<Device>,
     queue: Rc<Queue>,
@@ -22,7 +22,7 @@ pub struct UIGpuDrawingWindowDelegate<Model: ApplicationModel> {
     builder: Box<dyn Fn(&Model) -> Box<dyn Widget<Model>>>,
 }
 
-impl<Model: ApplicationModel + 'static> UIGpuDrawingWindowDelegate<Model> {
+impl<Model: AppState + 'static> UIGpuDrawingWindowDelegate<Model> {
     pub fn new<F>(device: Rc<Device>, queue: Rc<Queue>, builder: F) -> Self
     where
         F: Fn(&Model) -> Box<dyn Widget<Model>> + 'static,
@@ -37,9 +37,7 @@ impl<Model: ApplicationModel + 'static> UIGpuDrawingWindowDelegate<Model> {
     }
 }
 
-impl<Model: ApplicationModel + 'static> WindowDelegate<Model>
-    for UIGpuDrawingWindowDelegate<Model>
-{
+impl<Model: AppState + 'static> WindowDelegate<Model> for UIGpuDrawingWindowDelegate<Model> {
     fn mouse_moved(&mut self, state: &mut Model, x: f32, y: f32) {
         let p = Point::from((x, y));
         if let Some(ui) = self.ui.as_mut() {
@@ -57,7 +55,7 @@ impl<Model: ApplicationModel + 'static> WindowDelegate<Model>
         }
     }
 
-    fn mouse_down(&mut self, app: &mut Application<Model>, state: &mut Model, x: f32, y: f32) {
+    fn mouse_down(&mut self, app: &mut App<Model>, state: &mut Model, x: f32, y: f32) {
         let p = Point::from((x, y));
         if let Some(ui) = self.ui.as_mut() {
             ui.user_interface
@@ -65,7 +63,7 @@ impl<Model: ApplicationModel + 'static> WindowDelegate<Model>
         }
     }
 
-    fn mouse_up(&mut self, app: &mut Application<Model>, state: &mut Model, x: f32, y: f32) {
+    fn mouse_up(&mut self, app: &mut App<Model>, state: &mut Model, x: f32, y: f32) {
         let p = Point::from((x, y));
         if let Some(ui) = self.ui.as_mut() {
             ui.user_interface
@@ -76,7 +74,7 @@ impl<Model: ApplicationModel + 'static> WindowDelegate<Model>
     fn resized(
         &mut self,
         window: &winit::window::Window,
-        app: &Application<Model>,
+        app: &App<Model>,
         state: &mut Model,
         width: u32,
         height: u32,
@@ -86,8 +84,8 @@ impl<Model: ApplicationModel + 'static> WindowDelegate<Model>
                 usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::COPY_DST,
                 alpha_mode: wgpu::CompositeAlphaMode::Auto,
                 format: surface.get_supported_formats(&app.gpu_api().adapter)[0],
-                width: width,
-                height: height,
+                width,
+                height,
                 present_mode: wgpu::PresentMode::Fifo,
             };
             surface.configure(&app.gpu_api().device, &config);
@@ -97,8 +95,8 @@ impl<Model: ApplicationModel + 'static> WindowDelegate<Model>
                 usage: wgpu::TextureUsages::RENDER_ATTACHMENT | wgpu::TextureUsages::COPY_DST,
                 alpha_mode: wgpu::CompositeAlphaMode::Auto,
                 format: surface.get_supported_formats(&app.gpu_api().adapter)[0],
-                width: width,
-                height: height,
+                width,
+                height,
                 present_mode: wgpu::PresentMode::Fifo,
             };
             surface.configure(&app.gpu_api().device, &config);
@@ -129,7 +127,7 @@ impl<Model: ApplicationModel + 'static> WindowDelegate<Model>
         }
     }
 
-    fn draw(&mut self, _: &Application<Model>, state: &Model) {
+    fn draw(&mut self, _: &App<Model>, state: &Model) {
         // draw user interface
 
         let pixels = if let Some(ui) = &mut self.ui {

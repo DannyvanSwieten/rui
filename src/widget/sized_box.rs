@@ -1,5 +1,5 @@
 use crate::{
-    application::{Application, ApplicationModel},
+    app::{App, AppState},
     canvas::{Canvas2D, Size},
     constraints::BoxConstraints,
     widget::{ChildSlot, Properties, Theme, Widget},
@@ -12,7 +12,7 @@ pub struct SizedBox<Model> {
     child: ChildSlot<Model>,
 }
 
-impl<Model: ApplicationModel> SizedBox<Model> {
+impl<Model: AppState> SizedBox<Model> {
     pub fn new(size: Size, child: impl Widget<Model> + 'static) -> Self {
         Self {
             size,
@@ -21,7 +21,7 @@ impl<Model: ApplicationModel> SizedBox<Model> {
     }
 }
 
-impl<Model: ApplicationModel> Widget<Model> for SizedBox<Model> {
+impl<Model: AppState> Widget<Model> for SizedBox<Model> {
     fn layout(&mut self, constraints: &BoxConstraints, model: &Model) -> Size {
         let child_constraints =
             BoxConstraints::new().with_tight_constraints(self.size.width, self.size.height);
@@ -38,13 +38,13 @@ impl<Model: ApplicationModel> Widget<Model> for SizedBox<Model> {
         &mut self,
         event: &MouseEvent,
         properties: &Properties,
-        app: &mut Application<Model>,
+        app: &mut App<Model>,
         model: &mut Model,
     ) {
         self.child.mouse_down(event, properties, app, model)
     }
 
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut Application<Model>, model: &mut Model) {
+    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<Model>, model: &mut Model) {
         self.child.mouse_up(event, app, model)
     }
 

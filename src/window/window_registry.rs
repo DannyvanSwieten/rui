@@ -1,5 +1,5 @@
 use super::{WindowDelegate, WindowId};
-use crate::application::{Application, ApplicationModel};
+use crate::app::{App, AppState};
 use std::{collections::HashMap, path::Path};
 use winit::{
     error::OsError,
@@ -16,7 +16,7 @@ struct Entry<Model> {
     delegate: Box<dyn WindowDelegate<Model>>,
 }
 
-impl<Model: ApplicationModel> WindowRegistry<Model> {
+impl<Model: AppState> WindowRegistry<Model> {
     pub fn new() -> Self {
         Self {
             entries: HashMap::new(),
@@ -56,7 +56,7 @@ impl<Model: ApplicationModel> WindowRegistry<Model> {
 
     pub(crate) fn window_resized(
         &mut self,
-        app: &Application<Model>,
+        app: &App<Model>,
         state: &mut Model,
         id: &winit::window::WindowId,
         size: &winit::dpi::PhysicalSize<u32>,
@@ -126,7 +126,7 @@ impl<Model: ApplicationModel> WindowRegistry<Model> {
 
     pub(crate) fn mouse_down(
         &mut self,
-        app: &mut Application<Model>,
+        app: &mut App<Model>,
         state: &mut Model,
         id: &winit::window::WindowId,
         position: &winit::dpi::PhysicalPosition<f64>,
@@ -140,7 +140,7 @@ impl<Model: ApplicationModel> WindowRegistry<Model> {
 
     pub(crate) fn mouse_up(
         &mut self,
-        app: &mut Application<Model>,
+        app: &mut App<Model>,
         state: &mut Model,
         id: &winit::window::WindowId,
         position: &winit::dpi::PhysicalPosition<f64>,
@@ -159,7 +159,7 @@ impl<Model: ApplicationModel> WindowRegistry<Model> {
     ) {
     }
 
-    pub(crate) fn draw(&mut self, app: &Application<Model>, state: &mut Model) {
+    pub(crate) fn draw(&mut self, app: &App<Model>, state: &mut Model) {
         for entry in self.entries.values_mut() {
             entry.delegate.draw(app, state)
         }
@@ -198,7 +198,7 @@ impl<Model: ApplicationModel> WindowRegistry<Model> {
     }
 }
 
-impl<Model: ApplicationModel> Default for WindowRegistry<Model> {
+impl<Model: AppState> Default for WindowRegistry<Model> {
     fn default() -> Self {
         Self::new()
     }

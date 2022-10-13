@@ -1,5 +1,5 @@
 use crate::{
-    application::{Application, ApplicationModel},
+    app::{App, AppState},
     canvas::{Canvas2D, Point, Size},
     constraints::BoxConstraints,
     widget::{Properties, Theme, Widget},
@@ -14,7 +14,7 @@ pub struct ChildSlot<Model> {
     has_mouse: bool,
 }
 
-impl<Model: ApplicationModel> ChildSlot<Model> {
+impl<Model: AppState> ChildSlot<Model> {
     pub fn new(widget: impl Widget<Model> + 'static) -> Self {
         Self {
             position: Point::default(),
@@ -57,7 +57,7 @@ impl<Model: ApplicationModel> ChildSlot<Model> {
     }
 }
 
-impl<Model: ApplicationModel> Widget<Model> for ChildSlot<Model> {
+impl<Model: AppState> Widget<Model> for ChildSlot<Model> {
     fn layout(&mut self, constraints: &BoxConstraints, model: &Model) -> Size {
         self.widget.layout(constraints, model)
     }
@@ -77,7 +77,7 @@ impl<Model: ApplicationModel> Widget<Model> for ChildSlot<Model> {
         &mut self,
         event: &MouseEvent,
         _: &Properties,
-        app: &mut Application<Model>,
+        app: &mut App<Model>,
         model: &mut Model,
     ) {
         if self.hit_test(event.local_position()) {
@@ -90,7 +90,7 @@ impl<Model: ApplicationModel> Widget<Model> for ChildSlot<Model> {
         }
     }
 
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut Application<Model>, model: &mut Model) {
+    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<Model>, model: &mut Model) {
         if self.hit_test(event.local_position()) {
             let new_event = event.to_local(self.position());
             self.widget.mouse_up(&new_event, app, model);

@@ -1,5 +1,5 @@
 use crate::{
-    application::{Application, ApplicationModel},
+    app::{App, AppState},
     canvas::{Canvas2D, Color4f, Paint, Point, Rect, Size},
     constraints::BoxConstraints,
     widget::{ChildSlot, Properties, Theme, Widget},
@@ -17,7 +17,7 @@ pub struct Container<Model> {
     paint: Option<Paint>,
 }
 
-impl<Model: ApplicationModel> Container<Model> {
+impl<Model: AppState> Container<Model> {
     pub fn new(child: impl Widget<Model> + 'static) -> Self {
         Self {
             padding: 0.0,
@@ -46,7 +46,7 @@ impl<Model: ApplicationModel> Container<Model> {
     }
 }
 
-impl<Model: ApplicationModel> Widget<Model> for Container<Model> {
+impl<Model: AppState> Widget<Model> for Container<Model> {
     // The container's layout strategy is to be as small as possible.
     // So shrink input constraints by border, padding and margin
     // Then return its child's size as its own size.
@@ -104,13 +104,13 @@ impl<Model: ApplicationModel> Widget<Model> for Container<Model> {
         &mut self,
         event: &MouseEvent,
         properties: &Properties,
-        app: &mut Application<Model>,
+        app: &mut App<Model>,
         model: &mut Model,
     ) {
         self.child.mouse_down(event, properties, app, model);
     }
 
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut Application<Model>, model: &mut Model) {
+    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<Model>, model: &mut Model) {
         self.child.mouse_up(event, app, model);
     }
 

@@ -1,5 +1,5 @@
 use crate::{
-    application::{Application, ApplicationModel},
+    app::{App, AppState},
     canvas::{Canvas2D, Size},
     constraints::BoxConstraints,
     widget::{ChildSlot, Properties, Theme, Widget},
@@ -12,7 +12,7 @@ pub struct FlexBox<Model> {
     flex: f32,
 }
 
-impl<Model: ApplicationModel> Widget<Model> for FlexBox<Model> {
+impl<Model: AppState> Widget<Model> for FlexBox<Model> {
     fn layout(&mut self, constraints: &BoxConstraints, model: &Model) -> Size {
         self.child.layout(constraints, model)
     }
@@ -29,13 +29,13 @@ impl<Model: ApplicationModel> Widget<Model> for FlexBox<Model> {
         &mut self,
         event: &MouseEvent,
         properties: &Properties,
-        _: &mut Application<Model>,
+        _: &mut App<Model>,
         model: &mut Model,
     ) {
         todo!()
     }
 
-    fn mouse_up(&mut self, event: &MouseEvent, _: &mut Application<Model>, model: &mut Model) {
+    fn mouse_up(&mut self, event: &MouseEvent, _: &mut App<Model>, model: &mut Model) {
         todo!()
     }
 

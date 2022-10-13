@@ -1,5 +1,5 @@
 use crate::{
-    application::{Application, ApplicationModel},
+    app::{App, AppState},
     canvas::{Canvas2D, Point, Size},
     constraints::BoxConstraints,
     widget::{style::Theme, ChildSlot, Properties, Widget},
@@ -17,7 +17,7 @@ pub struct List<Model> {
     viewport_position: f32,
 }
 
-impl<Model: ApplicationModel> List<Model> {
+impl<Model: AppState> List<Model> {
     pub fn new() -> Self {
         Self {
             spacing: 0.0,
@@ -68,7 +68,7 @@ impl<Model: ApplicationModel> List<Model> {
     }
 }
 
-impl<Model: ApplicationModel> Widget<Model> for List<Model> {
+impl<Model: AppState> Widget<Model> for List<Model> {
     fn layout(&mut self, constraints: &BoxConstraints, model: &Model) -> Size {
         if let Some(builder) = &self.builder {
             self.children.clear();
@@ -111,7 +111,7 @@ impl<Model: ApplicationModel> Widget<Model> for List<Model> {
         &mut self,
         event: &MouseEvent,
         properties: &Properties,
-        app: &mut Application<Model>,
+        app: &mut App<Model>,
         model: &mut Model,
     ) {
         for child in &mut self.children {
@@ -119,7 +119,7 @@ impl<Model: ApplicationModel> Widget<Model> for List<Model> {
         }
     }
 
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut Application<Model>, model: &mut Model) {
+    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<Model>, model: &mut Model) {
         for child in &mut self.children {
             child.mouse_up(event, app, model)
         }

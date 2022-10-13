@@ -1,5 +1,5 @@
 use crate::{
-    application::{Application, ApplicationModel},
+    app::{App, AppState},
     canvas::{Canvas2D, Point, Size},
     constraints::BoxConstraints,
     widget::{ChildSlot, Properties, Theme, Widget},
@@ -12,7 +12,7 @@ pub struct Center<Model> {
     size: Option<Size>,
 }
 
-impl<Model: ApplicationModel> Center<Model> {
+impl<Model: AppState> Center<Model> {
     pub fn new<W: Widget<Model> + 'static>(child: W) -> Self {
         Self {
             child: ChildSlot::new_with_box(Box::new(child)),
@@ -21,7 +21,7 @@ impl<Model: ApplicationModel> Center<Model> {
     }
 }
 
-impl<Model: ApplicationModel> Widget<Model> for Center<Model> {
+impl<Model: AppState> Widget<Model> for Center<Model> {
     // The layout strategy for a center node: return own size if not None, otherwise as big as possible within given constraints.
     // Then center the child.
     fn layout(&mut self, constraints: &BoxConstraints, model: &Model) -> Size {
@@ -59,13 +59,13 @@ impl<Model: ApplicationModel> Widget<Model> for Center<Model> {
         &mut self,
         event: &MouseEvent,
         properties: &Properties,
-        app: &mut Application<Model>,
+        app: &mut App<Model>,
         model: &mut Model,
     ) {
         self.child.mouse_down(event, properties, app, model)
     }
 
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut Application<Model>, model: &mut Model) {
+    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<Model>, model: &mut Model) {
         self.child.mouse_up(event, app, model)
     }
 

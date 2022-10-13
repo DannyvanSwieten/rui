@@ -1,5 +1,5 @@
 use crate::{
-    application::ApplicationModel,
+    app::AppState,
     canvas::{
         textlayout::{self, FontCollection, ParagraphBuilder, ParagraphStyle, TextStyle},
         Canvas2D, Color, Color4f, Paint, Point, Rect, Size,
@@ -34,7 +34,7 @@ impl TextBox {
     }
 }
 
-impl<Model: ApplicationModel> Widget<Model> for TextBox {
+impl<Model: AppState> Widget<Model> for TextBox {
     fn layout(&mut self, constraints: &crate::constraints::BoxConstraints, model: &Model) -> Size {
         let mut font_collection = FontCollection::new();
         font_collection.set_default_font_manager(FontMgr::new(), None);
@@ -94,7 +94,7 @@ impl<Model: ApplicationModel> Widget<Model> for TextBox {
     fn mouse_up(
         &mut self,
         event: &MouseEvent,
-        app: &mut crate::application::Application<Model>,
+        app: &mut crate::app::App<Model>,
         model: &mut Model,
     ) {
     }
@@ -141,7 +141,7 @@ impl<Model: ApplicationModel> Widget<Model> for TextBox {
         &mut self,
         event: &MouseEvent,
         _: &crate::widget::Properties,
-        _: &mut crate::application::Application<Model>,
+        _: &mut crate::app::App<Model>,
         model: &mut Model,
     ) {
     }

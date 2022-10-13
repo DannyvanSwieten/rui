@@ -1,5 +1,5 @@
 use crate::{
-    application::{Application, ApplicationModel},
+    app::{App, AppState},
     canvas::{Canvas2D, Point, Size},
     constraints::BoxConstraints,
     widget::{style::Theme, ChildSlot, Properties, Widget},
@@ -11,7 +11,7 @@ pub struct Row<Model> {
     spacing: f32,
 }
 
-impl<Model: ApplicationModel> Row<Model> {
+impl<Model: AppState> Row<Model> {
     pub fn new() -> Self {
         Self {
             children: Vec::new(),
@@ -33,7 +33,7 @@ impl<Model: ApplicationModel> Row<Model> {
     }
 }
 
-impl<Model: ApplicationModel> Widget<Model> for Row<Model> {
+impl<Model: AppState> Widget<Model> for Row<Model> {
     fn layout(&mut self, constraints: &BoxConstraints, model: &Model) -> Size {
         // This is not a scrollable view. It needs constraints
         assert!(constraints.max_width().is_some() && constraints.max_height().is_some());
@@ -104,7 +104,7 @@ impl<Model: ApplicationModel> Widget<Model> for Row<Model> {
         &mut self,
         event: &MouseEvent,
         properties: &Properties,
-        app: &mut Application<Model>,
+        app: &mut App<Model>,
         model: &mut Model,
     ) {
         for child in &mut self.children {
@@ -112,7 +112,7 @@ impl<Model: ApplicationModel> Widget<Model> for Row<Model> {
         }
     }
 
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut Application<Model>, model: &mut Model) {
+    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<Model>, model: &mut Model) {
         for child in &mut self.children {
             child.mouse_up(event, app, model)
         }
@@ -172,7 +172,7 @@ pub struct Column<Model> {
     spacing: f32,
 }
 
-impl<Model: ApplicationModel> Column<Model> {
+impl<Model: AppState> Column<Model> {
     pub fn new() -> Self {
         Self {
             children: Vec::new(),
@@ -194,7 +194,7 @@ impl<Model: ApplicationModel> Column<Model> {
     }
 }
 
-impl<Model: ApplicationModel> Widget<Model> for Column<Model> {
+impl<Model: AppState> Widget<Model> for Column<Model> {
     fn layout(&mut self, constraints: &BoxConstraints, model: &Model) -> Size {
         // It needs constraints
         assert!(constraints.max_width().is_some() && constraints.max_height().is_some());
@@ -266,7 +266,7 @@ impl<Model: ApplicationModel> Widget<Model> for Column<Model> {
         &mut self,
         event: &MouseEvent,
         properties: &Properties,
-        app: &mut Application<Model>,
+        app: &mut App<Model>,
         model: &mut Model,
     ) {
         for child in &mut self.children {
@@ -274,7 +274,7 @@ impl<Model: ApplicationModel> Widget<Model> for Column<Model> {
         }
     }
 
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut Application<Model>, model: &mut Model) {
+    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<Model>, model: &mut Model) {
         for child in &mut self.children {
             child.mouse_up(event, app, model)
         }
@@ -336,7 +336,7 @@ pub struct Expanded<Model> {
     flex: f32,
 }
 
-impl<Model: ApplicationModel> Expanded<Model> {
+impl<Model: AppState> Expanded<Model> {
     pub fn new(child: impl Widget<Model> + 'static) -> Self {
         Self {
             child: ChildSlot::new(child),
@@ -362,7 +362,7 @@ impl<Model: ApplicationModel> Expanded<Model> {
     }
 }
 
-impl<Model: ApplicationModel> Widget<Model> for Expanded<Model> {
+impl<Model: AppState> Widget<Model> for Expanded<Model> {
     // If given to a flex container it will expand based on it's flex parameter in the dominant layout direction.
     // If for example you add it to a row it will expand in the horizontal direction. Therefor you should provide a height.
     fn layout(&mut self, constraints: &BoxConstraints, model: &Model) -> Size {
@@ -394,13 +394,13 @@ impl<Model: ApplicationModel> Widget<Model> for Expanded<Model> {
         &mut self,
         event: &MouseEvent,
         properties: &Properties,
-        app: &mut Application<Model>,
+        app: &mut App<Model>,
         model: &mut Model,
     ) {
         self.child.mouse_down(event, properties, app, model)
     }
 
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut Application<Model>, model: &mut Model) {
+    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<Model>, model: &mut Model) {
         self.child.mouse_up(event, app, model)
     }
 

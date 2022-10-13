@@ -1,10 +1,10 @@
-mod application_delegate;
-mod application_model;
-mod ui_application_delegate;
+mod app_delegate;
+mod app_model;
+mod ui_app_delegate;
 
-pub use application_delegate::ApplicationDelegate;
-pub use application_model::ApplicationModel;
-pub use ui_application_delegate::UIApplicationDelegate;
+pub use app_delegate::AppDelegate;
+pub use app_model::AppState;
+pub use ui_app_delegate::UIAppDelegate;
 
 use crate::{widget::Widget, window::WindowRegistry};
 use std::{collections::VecDeque, rc::Rc};
@@ -14,14 +14,14 @@ use winit::{
     event_loop::{ControlFlow, EventLoop},
 };
 
-pub struct WindowRequest<Model: ApplicationModel> {
+pub struct WindowRequest<Model: AppState> {
     pub builder: Box<dyn Fn(&Model) -> Box<dyn Widget<Model>>>,
     pub title: Option<String>,
     pub width: u32,
     pub height: u32,
 }
 
-impl<Model: ApplicationModel> WindowRequest<Model> {
+impl<Model: AppState> WindowRequest<Model> {
     pub fn new(
         title: &str,
         width: u32,
@@ -83,14 +83,14 @@ impl GpuApi {
     }
 }
 
-pub struct Application<Model: ApplicationModel> {
+pub struct App<Model: AppState> {
     gpu_api: GpuApi,
     pending_messages: VecDeque<Model::MessageType>,
     pending_window_requests: VecDeque<WindowRequest<Model>>,
     _state: std::marker::PhantomData<Model>,
 }
 
-impl<Model: ApplicationModel + 'static> Application<Model> {
+impl<Model: AppState + 'static> App<Model> {
     pub async fn new(name: &str) -> Self {
         let gpu_api = GpuApi::new().await;
         Self {
@@ -119,7 +119,7 @@ impl<Model: ApplicationModel + 'static> Application<Model> {
 
     pub fn run<Delegate>(mut self, delegate: Delegate, state: Model)
     where
-        Delegate: ApplicationDelegate<Model> + 'static,
+        Delegate: AppDelegate<Model> + 'static,
     {
         let mut s = state;
         let event_loop = EventLoop::new();
@@ -127,7 +127,7 @@ impl<Model: ApplicationModel + 'static> Application<Model> {
 
         let mut window_registry = WindowRegistry::new();
 
-        d.application_will_start(&mut self, &mut s, &mut window_registry, &event_loop);
+        d.app_will_start(&mut self, &mut s, &mut window_registry, &event_loop);
         let mut last_mouse_position = winit::dpi::PhysicalPosition::<f64>::new(0., 0.);
         let mut last_file_drop: Vec<std::path::PathBuf> = Vec::new();
         let mut mouse_is_down = false;
@@ -256,7 +256,7 @@ impl<Model: ApplicationModel + 'static> Application<Model> {
                     }
                 },
                 Event::MainEventsCleared => {
-                    d.application_will_update(&self, &mut s, &mut window_registry, event_loop);
+                    d.app_will_update(&self, &mut s, &mut window_registry, event_loop);
                     window_registry.update(&mut s);
                     window_registry.draw(&self, &mut s);
                 }
@@ -264,7 +264,7 @@ impl<Model: ApplicationModel + 'static> Application<Model> {
             }
 
             if let ControlFlow::Exit = *control_flow {
-                d.application_will_quit(&mut self, event_loop)
+                d.app_will_quit(&mut self, event_loop)
             }
         });
     }

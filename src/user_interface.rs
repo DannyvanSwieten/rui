@@ -1,4 +1,4 @@
-use crate::application::{Application, ApplicationModel};
+use crate::app::{App, AppState};
 use crate::canvas::{Canvas2D, Point, Size};
 use crate::constraints::BoxConstraints;
 use crate::widget::{style::StyleContext, *};
@@ -16,14 +16,14 @@ pub struct DragContext<Model> {
     dragged_widgets: Vec<Box<dyn Widget<Model>>>,
 }
 
-pub struct UserInterface<Model: ApplicationModel> {
+pub struct UserInterface<Model: AppState> {
     pub root: ChildSlot<Model>,
     pub style_ctx: StyleContext,
     actions: Vec<Action<Model>>,
     theme: String,
 }
 
-impl<Model: ApplicationModel + 'static> UserInterface<Model> {
+impl<Model: AppState + 'static> UserInterface<Model> {
     pub fn new(root: Box<dyn Widget<Model>>, theme: &str) -> Self {
         UserInterface {
             root: ChildSlot::new_with_box(root),
@@ -49,24 +49,14 @@ impl<Model: ApplicationModel + 'static> UserInterface<Model> {
 
     pub fn resized(&mut self, state: &mut Model) {}
 
-    pub fn mouse_down(
-        &mut self,
-        app: &mut Application<Model>,
-        state: &mut Model,
-        event: &MouseEvent,
-    ) {
+    pub fn mouse_down(&mut self, app: &mut App<Model>, state: &mut Model, event: &MouseEvent) {
         let position = Point::new(0.0, 0.0);
         let size = *self.root.size();
         self.root
             .mouse_down(event, &Properties { position, size }, app, state)
     }
 
-    pub fn mouse_up(
-        &mut self,
-        app: &mut Application<Model>,
-        state: &mut Model,
-        event: &MouseEvent,
-    ) {
+    pub fn mouse_up(&mut self, app: &mut App<Model>, state: &mut Model, event: &MouseEvent) {
         self.root.mouse_up(event, app, state)
     }
 

@@ -1,4 +1,4 @@
-pub mod application;
+pub mod app;
 pub mod canvas;
 pub mod constraints;
 pub mod user_interface;

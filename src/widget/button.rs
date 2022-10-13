@@ -1,5 +1,5 @@
 use crate::{
-    application::{Application, ApplicationModel},
+    app::{App, AppState},
     canvas::{
         font::Edging, Canvas2D, Color4f, Font, FontStyle, Paint, Rect, Size, TextBlob, Typeface,
     },
@@ -20,15 +20,15 @@ pub enum ButtonStyle {
     Fill,
 }
 
-pub struct TextButton<Model: ApplicationModel> {
+pub struct TextButton<Model: AppState> {
     state: ButtonState,
     style: ButtonStyle,
     text: String,
     font: Font,
-    on_click: Option<Box<dyn Fn(&mut Application<Model>, &mut Model)>>,
+    on_click: Option<Box<dyn Fn(&mut App<Model>, &mut Model)>>,
 }
 
-impl<Model: ApplicationModel> TextButton<Model> {
+impl<Model: AppState> TextButton<Model> {
     pub fn new(text: &str, font_size: f32) -> Self {
         let mut font = Font::new(
             Typeface::new("arial black", FontStyle::normal()).unwrap(),
@@ -56,16 +56,13 @@ impl<Model: ApplicationModel> TextButton<Model> {
         self
     }
 
-    pub fn on_click(
-        mut self,
-        handler: impl Fn(&mut Application<Model>, &mut Model) + 'static,
-    ) -> Self {
+    pub fn on_click(mut self, handler: impl Fn(&mut App<Model>, &mut Model) + 'static) -> Self {
         self.on_click = Some(Box::new(handler));
         self
     }
 }
 
-impl<Model: ApplicationModel> Widget<Model> for TextButton<Model> {
+impl<Model: AppState> Widget<Model> for TextButton<Model> {
     fn layout(&mut self, constraints: &BoxConstraints, _: &Model) -> Size {
         let blob = TextBlob::from_str(&self.text, &self.font);
         let size = blob.unwrap().bounds().size();
@@ -175,13 +172,13 @@ impl<Model: ApplicationModel> Widget<Model> for TextButton<Model> {
         &mut self,
         event: &MouseEvent,
         properties: &Properties,
-        _: &mut Application<Model>,
+        _: &mut App<Model>,
         model: &mut Model,
     ) {
         self.state = ButtonState::Active
     }
 
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut Application<Model>, model: &mut Model) {
+    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<Model>, model: &mut Model) {
         if let Some(handler) = &self.on_click {
             handler(app, model)
         }

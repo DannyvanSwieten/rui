@@ -1,7 +1,7 @@
-use crate::application::{Application, ApplicationModel};
+use crate::app::{App, AppState};
 use std::path::Path;
 
-pub trait WindowDelegate<Model: ApplicationModel> {
+pub trait WindowDelegate<Model: AppState> {
     fn close_button_pressed(&mut self, state: &mut Model) -> bool {
         let _ = state;
 
@@ -36,14 +36,14 @@ pub trait WindowDelegate<Model: ApplicationModel> {
         let _ = dy;
     }
 
-    fn mouse_down(&mut self, app: &mut Application<Model>, state: &mut Model, x: f32, y: f32) {
+    fn mouse_down(&mut self, app: &mut App<Model>, state: &mut Model, x: f32, y: f32) {
         let _ = app;
         let _ = state;
         let _ = x;
         let _ = y;
     }
 
-    fn mouse_up(&mut self, app: &mut Application<Model>, state: &mut Model, x: f32, y: f32) {
+    fn mouse_up(&mut self, app: &mut App<Model>, state: &mut Model, x: f32, y: f32) {
         let _ = app;
         let _ = state;
         let _ = x;
@@ -53,7 +53,7 @@ pub trait WindowDelegate<Model: ApplicationModel> {
     fn resized(
         &mut self,
         window: &winit::window::Window,
-        app: &Application<Model>,
+        app: &App<Model>,
         state: &mut Model,
         width: u32,
         height: u32,
@@ -75,7 +75,7 @@ pub trait WindowDelegate<Model: ApplicationModel> {
         let _ = character;
     }
 
-    fn draw(&mut self, app: &Application<Model>, state: &Model) {
+    fn draw(&mut self, app: &App<Model>, state: &Model) {
         let _ = app;
         let _ = state;
     }

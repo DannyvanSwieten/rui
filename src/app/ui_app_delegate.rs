@@ -1,17 +1,17 @@
 use crate::window::{UIGpuDrawingWindowDelegate, WindowDelegate};
 use crate::{
-    application::{Application, ApplicationDelegate, ApplicationModel, WindowRequest},
+    app::{App, AppDelegate, AppState, WindowRequest},
     window::WindowRegistry,
 };
 use winit::event_loop::EventLoopWindowTarget;
 
-pub struct UIApplicationDelegate<Model: ApplicationModel> {
-    on_start: Option<Box<dyn FnMut(&mut Application<Model>, &mut Model)>>,
-    on_update: Option<Box<dyn FnMut(&Application<Model>, &mut Model)>>,
+pub struct UIAppDelegate<Model: AppState> {
+    on_start: Option<Box<dyn FnMut(&mut App<Model>, &mut Model)>>,
+    on_update: Option<Box<dyn FnMut(&App<Model>, &mut Model)>>,
     _state: std::marker::PhantomData<Model>,
 }
 
-impl<Model: ApplicationModel> UIApplicationDelegate<Model> {
+impl<Model: AppState> UIAppDelegate<Model> {
     pub fn new() -> Self {
         Self {
             on_start: None,
@@ -22,7 +22,7 @@ impl<Model: ApplicationModel> UIApplicationDelegate<Model> {
 
     pub fn on_start<F>(mut self, f: F) -> Self
     where
-        F: FnMut(&mut Application<Model>, &mut Model) + 'static,
+        F: FnMut(&mut App<Model>, &mut Model) + 'static,
     {
         self.on_start = Some(Box::new(f));
         self
@@ -30,17 +30,17 @@ impl<Model: ApplicationModel> UIApplicationDelegate<Model> {
 
     pub fn on_update<F>(mut self, f: F) -> Self
     where
-        F: FnMut(&Application<Model>, &mut Model) + 'static,
+        F: FnMut(&App<Model>, &mut Model) + 'static,
     {
         self.on_update = Some(Box::new(f));
         self
     }
 }
 
-impl<Model: ApplicationModel> ApplicationDelegate<Model> for UIApplicationDelegate<Model> {
-    fn application_will_start(
+impl<Model: AppState> AppDelegate<Model> for UIAppDelegate<Model> {
+    fn app_will_start(
         &mut self,
-        app: &mut Application<Model>,
+        app: &mut App<Model>,
         state: &mut Model,
         _: &mut WindowRegistry<Model>,
         _: &EventLoopWindowTarget<()>,
@@ -51,9 +51,9 @@ impl<Model: ApplicationModel> ApplicationDelegate<Model> for UIApplicationDelega
         }
     }
 
-    fn application_will_update(
+    fn app_will_update(
         &mut self,
-        app: &Application<Model>,
+        app: &App<Model>,
         state: &mut Model,
         _: &mut WindowRegistry<Model>,
         _: &EventLoopWindowTarget<()>,
@@ -65,7 +65,7 @@ impl<Model: ApplicationModel> ApplicationDelegate<Model> for UIApplicationDelega
 
     fn window_requested(
         &mut self,
-        app: &Application<Model>,
+        app: &App<Model>,
         state: &mut Model,
         window_registry: &mut WindowRegistry<Model>,
         target: &EventLoopWindowTarget<()>,

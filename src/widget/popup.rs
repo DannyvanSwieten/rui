@@ -1,5 +1,5 @@
 use crate::{
-    application::{Application, ApplicationModel},
+    app::{App, AppState},
     canvas::{Canvas2D, Size},
     constraints::BoxConstraints,
     widget::{Action, Properties, Theme, Widget},
@@ -26,7 +26,7 @@ impl PopupMenuWidget {
     }
 }
 
-impl<Model: ApplicationModel> Widget<Model> for PopupMenuWidget {
+impl<Model: AppState> Widget<Model> for PopupMenuWidget {
     fn layout(&mut self, constraints: &BoxConstraints, model: &Model) -> Size {
         todo!()
     }
@@ -35,7 +35,7 @@ impl<Model: ApplicationModel> Widget<Model> for PopupMenuWidget {
         todo!()
     }
 
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut Application<Model>, model: &mut Model) {
+    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<Model>, model: &mut Model) {
         todo!()
     }
 
@@ -85,7 +85,7 @@ pub struct PopupRequest<Model> {
     pub handler: Box<dyn FnMut(usize, usize, &mut Model) -> Action<Model>>,
 }
 
-impl<Model: ApplicationModel + 'static> PopupRequest<Model> {
+impl<Model: AppState + 'static> PopupRequest<Model> {
     pub fn new<F>(menu: PopupMenu, handler: F) -> Self
     where
         F: FnMut(usize, usize, &mut Model) -> Action<Model> + 'static,

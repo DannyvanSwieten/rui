@@ -1,5 +1,5 @@
 use crate::{
-    application::{Application, ApplicationModel},
+    app::{App, AppState},
     canvas::{Canvas2D, Paint, Point, Rect, Size},
     constraints::BoxConstraints,
     widget::{map_range, style::Theme, Properties, Widget},
@@ -21,7 +21,7 @@ pub struct Slider<Model> {
     state: SliderState,
 }
 
-impl<Model: ApplicationModel + 'static> Slider<Model> {
+impl<Model: AppState + 'static> Slider<Model> {
     pub fn new() -> Self {
         Slider::new_with_min_max_and_value(0., 1., 0., false)
     }
@@ -53,7 +53,7 @@ impl<Model: ApplicationModel + 'static> Slider<Model> {
     }
 }
 
-impl<Model: ApplicationModel> Widget<Model> for Slider<Model> {
+impl<Model: AppState> Widget<Model> for Slider<Model> {
     fn layout(&mut self, constraints: &BoxConstraints, model: &Model) -> Size {
         // Boldly unwrapping here. If you have not given constraints to a slider then we don't know how big it should be.
         Size::new(
@@ -112,7 +112,7 @@ impl<Model: ApplicationModel> Widget<Model> for Slider<Model> {
         &mut self,
         event: &MouseEvent,
         properties: &Properties,
-        _: &mut Application<Model>,
+        _: &mut App<Model>,
         model: &mut Model,
     ) {
         self.last_position = event.local_position().x;
@@ -127,7 +127,7 @@ impl<Model: ApplicationModel> Widget<Model> for Slider<Model> {
         }
     }
 
-    fn mouse_up(&mut self, _: &MouseEvent, _: &mut Application<Model>, _: &mut Model) {
+    fn mouse_up(&mut self, _: &MouseEvent, _: &mut App<Model>, _: &mut Model) {
         self.state = SliderState::Inactive
     }
 
@@ -163,7 +163,7 @@ pub struct Switch<Model> {
     state: SliderState,
 }
 
-impl<Model: ApplicationModel + 'static> Switch<Model> {
+impl<Model: AppState + 'static> Switch<Model> {
     pub fn new() -> Self {
         Self {
             value_changed: None,
@@ -173,7 +173,7 @@ impl<Model: ApplicationModel + 'static> Switch<Model> {
     }
 }
 
-impl<Model: ApplicationModel> Widget<Model> for Switch<Model> {
+impl<Model: AppState> Widget<Model> for Switch<Model> {
     fn layout(&mut self, constraints: &BoxConstraints, model: &Model) -> Size {
         // Boldly unwrapping here. If you have not given constraints to a switch then we don't know how big it should be.
         Size::new(
@@ -234,7 +234,7 @@ impl<Model: ApplicationModel> Widget<Model> for Switch<Model> {
         &mut self,
         _: &MouseEvent,
         _: &Properties,
-        _: &mut Application<Model>,
+        _: &mut App<Model>,
         model: &mut Model,
     ) {
         self.active = !self.active;
@@ -243,7 +243,7 @@ impl<Model: ApplicationModel> Widget<Model> for Switch<Model> {
         }
     }
 
-    fn mouse_up(&mut self, event: &MouseEvent, app: &mut Application<Model>, model: &mut Model) {
+    fn mouse_up(&mut self, event: &MouseEvent, app: &mut App<Model>, model: &mut Model) {
         self.state = SliderState::Inactive
     }
 
