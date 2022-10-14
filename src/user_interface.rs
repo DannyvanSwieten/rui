@@ -52,11 +52,11 @@ impl<State: AppState + 'static> UserInterface<State> {
         state: &mut State,
         event: &window::MouseEvent,
     ) {
-        let properties = Properties {
+        let mut properties = Properties {
             size: *self.root.size(),
             ..Properties::default()
         };
-        let mut ctx = EventCtx::new(app, &properties);
+        let mut ctx = EventCtx::new(app, &mut properties);
         self.root.event(
             &Event::Mouse(MouseEvent::MouseDown(*event)),
             &mut ctx,
@@ -70,11 +70,11 @@ impl<State: AppState + 'static> UserInterface<State> {
         state: &mut State,
         event: &window::MouseEvent,
     ) {
-        let properties = Properties {
+        let mut properties = Properties {
             size: *self.root.size(),
             ..Properties::default()
         };
-        let mut ctx = EventCtx::new(app, &properties);
+        let mut ctx = EventCtx::new(app, &mut properties);
         self.root
             .event(&Event::Mouse(MouseEvent::MouseUp(*event)), &mut ctx, state);
     }
@@ -87,11 +87,11 @@ impl<State: AppState + 'static> UserInterface<State> {
         state: &mut State,
         event: &window::MouseEvent,
     ) {
-        let properties = Properties {
+        let mut properties = Properties {
             size: *self.root.size(),
             ..Properties::default()
         };
-        let mut ctx = EventCtx::new(app, &properties);
+        let mut ctx = EventCtx::new(app, &mut properties);
         self.root.event(
             &Event::Mouse(MouseEvent::MouseDrag(*event)),
             &mut ctx,
@@ -105,11 +105,11 @@ impl<State: AppState + 'static> UserInterface<State> {
         state: &mut State,
         event: &window::MouseEvent,
     ) {
-        let properties = Properties {
+        let mut properties = Properties {
             size: *self.root.size(),
             ..Properties::default()
         };
-        let mut ctx = EventCtx::new(app, &properties);
+        let mut ctx = EventCtx::new(app, &mut properties);
         self.root.event(
             &Event::Mouse(MouseEvent::MouseMove(*event)),
             &mut ctx,
@@ -125,21 +125,21 @@ impl<State: AppState + 'static> UserInterface<State> {
         state: &mut State,
         event: &KeyboardInput,
     ) {
-        let properties = Properties {
+        let mut properties = Properties {
             size: *self.root.size(),
             ..Properties::default()
         };
-        let mut ctx = EventCtx::new(app, &properties);
+        let mut ctx = EventCtx::new(app, &mut properties);
         self.root
             .event(&Event::Key(KeyEvent::Input(*event)), &mut ctx, state);
     }
 
     pub fn character_received(&mut self, app: &mut App<State>, state: &mut State, character: char) {
-        let properties = Properties {
+        let mut properties = Properties {
             size: *self.root.size(),
             ..Properties::default()
         };
-        let mut ctx = EventCtx::new(app, &properties);
+        let mut ctx = EventCtx::new(app, &mut properties);
         self.root
             .event(&Event::Key(KeyEvent::Char(character)), &mut ctx, state);
     }

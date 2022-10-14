@@ -53,7 +53,6 @@ pub trait AppAction<State> {
     fn redo(&self, _state: &mut State);
 }
 
-#[allow(unused_variables)]
 pub trait Widget<State: AppState> {
     fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool;
 
@@ -68,11 +67,11 @@ pub trait Widget<State: AppState> {
 
 pub struct EventCtx<'a, State: AppState> {
     app: &'a mut App<State>,
-    properties: &'a Properties,
+    properties: &'a mut Properties,
 }
 
-impl<'a, State: AppState + 'static> EventCtx<'a, State> {
-    pub(crate) fn new(app: &'a mut App<State>, properties: &'a Properties) -> Self {
+impl<'a, State: AppState> EventCtx<'a, State> {
+    pub(crate) fn new(app: &'a mut App<State>, properties: &'a mut Properties) -> Self {
         Self { app, properties }
     }
 
@@ -80,6 +79,12 @@ impl<'a, State: AppState + 'static> EventCtx<'a, State> {
         &self.properties.size
     }
 
+    pub fn request_repaint(&mut self) {
+        // What to do here?
+    }
+}
+
+impl<'a, State: AppState + 'static> EventCtx<'a, State> {
     pub fn ui_window_request(&mut self, request: WindowRequest<State>) {
         self.app.ui_window_request(request)
     }

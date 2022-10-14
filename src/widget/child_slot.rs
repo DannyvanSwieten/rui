@@ -68,7 +68,7 @@ impl<State: AppState> ChildSlot<State> {
             let inner_event = event.to_local(self.position());
             let mut inner_ctx = EventCtx {
                 app: ctx.app,
-                properties: &self.properties,
+                properties: &mut self.properties,
             };
             self.widget
                 .event(&Event::Mouse(inner_event), &mut inner_ctx, state)
