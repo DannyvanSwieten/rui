@@ -1,5 +1,5 @@
 use crate::{
-    app::{App, AppState},
+    app::AppState,
     canvas::{
         font::Edging, Canvas2D, Color4f, Font, FontStyle, Paint, Rect, Size, TextBlob, Typeface,
     },
@@ -24,7 +24,7 @@ pub struct TextButton<State: AppState> {
     style: ButtonStyle,
     text: String,
     font: Font,
-    on_click: Option<Box<dyn Fn(&mut App<State>, &mut State)>>,
+    on_click: Option<Box<dyn Fn(&mut EventCtx<State>, &mut State)>>,
 }
 
 impl<State: AppState> TextButton<State> {
@@ -55,7 +55,10 @@ impl<State: AppState> TextButton<State> {
         self
     }
 
-    pub fn on_click(mut self, handler: impl Fn(&mut App<State>, &mut State) + 'static) -> Self {
+    pub fn on_click(
+        mut self,
+        handler: impl Fn(&mut EventCtx<State>, &mut State) + 'static,
+    ) -> Self {
         self.on_click = Some(Box::new(handler));
         self
     }
@@ -69,7 +72,7 @@ impl<State: AppState> Widget<State> for TextButton<State> {
             Event::Mouse(MouseEvent::MouseDown(_)) => self.state = ButtonState::Active,
             Event::Mouse(MouseEvent::MouseUp(_)) => {
                 if let Some(handler) = &self.on_click {
-                    handler(ctx.app(), state)
+                    handler(ctx, state)
                 }
 
                 self.state = ButtonState::Inactive

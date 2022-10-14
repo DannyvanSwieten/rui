@@ -48,7 +48,7 @@ impl<State: AppState + 'static> Slider<State> {
     }
 }
 
-impl<State: AppState> Widget<State> for Slider<State> {
+impl<State: AppState + 'static> Widget<State> for Slider<State> {
     fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool {
         match event {
             Event::Mouse(MouseEvent::MouseEnter(_)) => self.state = SliderState::Active,

@@ -18,8 +18,8 @@ fn build_first_window() -> Box<dyn Widget<State>> {
         Container::new(
             TextButton::new("Open new window", 24.0)
                 .style(ButtonStyle::Outline)
-                .on_click(|app, _state| {
-                    app.ui_window_request(WindowRequest::new("Second Window", 600, 400, |_| {
+                .on_click(|ctx, _state| {
+                    ctx.ui_window_request(WindowRequest::new("Second Window", 600, 400, |_| {
                         build_second_window()
                     }));
                 }),

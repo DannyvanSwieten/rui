@@ -14,13 +14,16 @@ mod child_slot;
 mod event;
 mod properties;
 
-use crate::app::{App, AppState};
-use crate::canvas::{Canvas2D, Point, Size};
-use crate::constraints::BoxConstraints;
 pub use child_slot::ChildSlot;
 pub use event::{Event, KeyEvent, MouseEvent};
-use popup::PopupRequest;
 pub use properties::Properties;
+
+use crate::{
+    app::{App, AppState, WindowRequest},
+    canvas::{Canvas2D, Point, Size},
+    constraints::BoxConstraints,
+};
+use popup::PopupRequest;
 use style::Theme;
 
 pub fn map_range(x: f32, a: f32, b: f32, c: f32, d: f32) -> f32 {
@@ -63,16 +66,16 @@ pub struct EventCtx<'a, State: AppState> {
     properties: &'a Properties,
 }
 
-impl<'a, State: AppState> EventCtx<'a, State> {
+impl<'a, State: AppState + 'static> EventCtx<'a, State> {
     pub(crate) fn new(app: &'a mut App<State>, properties: &'a Properties) -> Self {
         Self { app, properties }
     }
 
-    pub fn app(&mut self) -> &mut App<State> {
-        self.app
-    }
-
     pub fn size(&self) -> &Size {
         &self.properties.size
+    }
+
+    pub fn ui_window_request(&mut self, request: WindowRequest<State>) {
+        self.app.ui_window_request(request)
     }
 }
