@@ -60,12 +60,12 @@ pub trait Widget<State: AppState> {
 
 pub struct EventCtx<'a, State: AppState> {
     app: &'a mut App<State>,
-    size: Size,
+    properties: &'a Properties,
 }
 
 impl<'a, State: AppState> EventCtx<'a, State> {
-    pub(crate) fn new(app: &'a mut App<State>, size: Size) -> Self {
-        Self { app, size }
+    pub(crate) fn new(app: &'a mut App<State>, properties: &'a Properties) -> Self {
+        Self { app, properties }
     }
 
     pub fn app(&mut self) -> &mut App<State> {
@@ -73,6 +73,6 @@ impl<'a, State: AppState> EventCtx<'a, State> {
     }
 
     pub fn size(&self) -> &Size {
-        &self.size
+        &self.properties.size
     }
 }

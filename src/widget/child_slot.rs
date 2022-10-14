@@ -58,54 +58,26 @@ impl<State: AppState> ChildSlot<State> {
         state: &mut State,
     ) -> bool {
         if self.hit_test(event.local_position()) {
-            let inner_event = event.to_local(self.position());
-            let mut inner_ctx = EventCtx {
-                app: ctx.app(),
-                size: self.properties.size,
-            };
-
             if !self.properties.has_mouse {
-                if let MouseEvent::MouseMove(event) = inner_event {
+                if let MouseEvent::MouseMove(event) = event {
                     self.properties.has_mouse = true;
-                    self.widget.event(
-                        &Event::Mouse(MouseEvent::MouseEnter(event)),
-                        &mut inner_ctx,
-                        state,
-                    );
+                    self.event(&Event::Mouse(MouseEvent::MouseEnter(*event)), ctx, state);
                 }
             }
 
+            let inner_event = event.to_local(self.position());
+            let mut inner_ctx = EventCtx {
+                app: ctx.app(),
+                properties: &self.properties,
+            };
             self.widget
                 .event(&Event::Mouse(inner_event), &mut inner_ctx, state)
         } else if self.properties.has_mouse {
             match event {
-                MouseEvent::MouseMove(event) => {
+                MouseEvent::MouseMove(event) | MouseEvent::MouseUp(event) => {
                     self.properties.has_mouse = false;
-                    let mut inner_ctx = EventCtx {
-                        app: ctx.app(),
-                        size: self.properties.size,
-                    };
-
-                    self.widget.event(
-                        &Event::Mouse(MouseEvent::MouseLeave(event.to_local(self.position()))),
-                        &mut inner_ctx,
-                        state,
-                    )
-                }
-                MouseEvent::MouseUp(event) => {
-                    self.properties.has_mouse = false; // Is this redundant? Don't we come across MouseMove first?
-
-                    let inner_event = event.to_local(self.position());
-                    let mut inner_ctx = EventCtx {
-                        app: ctx.app(),
-                        size: self.properties.size,
-                    };
-
-                    self.widget.event(
-                        &Event::Mouse(MouseEvent::MouseLeave(inner_event)),
-                        &mut inner_ctx,
-                        state,
-                    )
+                    self.event(&Event::Mouse(MouseEvent::MouseLeave(*event)), ctx, state);
+                    false
                 }
                 _ => false,
             }

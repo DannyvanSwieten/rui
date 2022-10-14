@@ -2,7 +2,8 @@ use crate::app::{App, AppState};
 use crate::canvas::{Canvas2D, Point, Size};
 use crate::constraints::BoxConstraints;
 use crate::widget::{
-    style::StyleContext, Action, ChildSlot, Event, EventCtx, KeyEvent, MouseEvent, Widget,
+    style::StyleContext, Action, ChildSlot, Event, EventCtx, KeyEvent, MouseEvent, Properties,
+    Widget,
 };
 use crate::window;
 use std::path::Path;
@@ -51,7 +52,11 @@ impl<State: AppState + 'static> UserInterface<State> {
         state: &mut State,
         event: &window::MouseEvent,
     ) {
-        let mut ctx = EventCtx::new(app, *self.root.size());
+        let properties = Properties {
+            size: *self.root.size(),
+            ..Properties::default()
+        };
+        let mut ctx = EventCtx::new(app, &properties);
         self.root.event(
             &Event::Mouse(MouseEvent::MouseDown(*event)),
             &mut ctx,
@@ -65,7 +70,11 @@ impl<State: AppState + 'static> UserInterface<State> {
         state: &mut State,
         event: &window::MouseEvent,
     ) {
-        let mut ctx = EventCtx::new(app, *self.root.size());
+        let properties = Properties {
+            size: *self.root.size(),
+            ..Properties::default()
+        };
+        let mut ctx = EventCtx::new(app, &properties);
         self.root
             .event(&Event::Mouse(MouseEvent::MouseUp(*event)), &mut ctx, state);
     }
@@ -78,7 +87,11 @@ impl<State: AppState + 'static> UserInterface<State> {
         state: &mut State,
         event: &window::MouseEvent,
     ) {
-        let mut ctx = EventCtx::new(app, *self.root.size());
+        let properties = Properties {
+            size: *self.root.size(),
+            ..Properties::default()
+        };
+        let mut ctx = EventCtx::new(app, &properties);
         self.root.event(
             &Event::Mouse(MouseEvent::MouseDrag(*event)),
             &mut ctx,
@@ -92,7 +105,11 @@ impl<State: AppState + 'static> UserInterface<State> {
         state: &mut State,
         event: &window::MouseEvent,
     ) {
-        let mut ctx = EventCtx::new(app, *self.root.size());
+        let properties = Properties {
+            size: *self.root.size(),
+            ..Properties::default()
+        };
+        let mut ctx = EventCtx::new(app, &properties);
         self.root.event(
             &Event::Mouse(MouseEvent::MouseMove(*event)),
             &mut ctx,
@@ -108,13 +125,21 @@ impl<State: AppState + 'static> UserInterface<State> {
         state: &mut State,
         event: &KeyboardInput,
     ) {
-        let mut ctx = EventCtx::new(app, *self.root.size());
+        let properties = Properties {
+            size: *self.root.size(),
+            ..Properties::default()
+        };
+        let mut ctx = EventCtx::new(app, &properties);
         self.root
             .event(&Event::Key(KeyEvent::Input(*event)), &mut ctx, state);
     }
 
     pub fn character_received(&mut self, app: &mut App<State>, state: &mut State, character: char) {
-        let mut ctx = EventCtx::new(app, *self.root.size());
+        let properties = Properties {
+            size: *self.root.size(),
+            ..Properties::default()
+        };
+        let mut ctx = EventCtx::new(app, &properties);
         self.root
             .event(&Event::Key(KeyEvent::Char(character)), &mut ctx, state);
     }
