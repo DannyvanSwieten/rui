@@ -99,6 +99,10 @@ impl<'a> PaintCtx<'a> {
         Self { properties }
     }
 
+    pub fn is_mouse_over(&self) -> bool {
+        self.properties.has_mouse
+    }
+
     pub fn size(&self) -> &Size {
         &self.properties.size
     }

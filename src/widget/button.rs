@@ -5,10 +5,10 @@ use crate::{
     widget::{style::Theme, Event, EventCtx, MouseEvent, PaintCtx, Widget},
 };
 
+#[derive(PartialEq, Eq)]
 enum ButtonState {
-    Inactive,
-    Active,
-    Hover,
+    Pressed,
+    Unpressed,
 }
 
 pub enum ButtonStyle {
@@ -40,7 +40,7 @@ impl<State: AppState> TextButton<State> {
         text_paint.set_anti_alias(true);
         text_paint.set_color4f(Color4f::new(1.0, 1.0, 1.0, 1.0), None);
         Self {
-            state: ButtonState::Inactive,
+            state: ButtonState::Unpressed,
             text: text.to_string(),
             font,
             on_click: None,
@@ -65,15 +65,19 @@ impl<State: AppState> TextButton<State> {
 impl<State: AppState> Widget<State> for TextButton<State> {
     fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool {
         match event {
-            Event::Mouse(MouseEvent::MouseEnter(_)) => self.state = ButtonState::Hover,
-            Event::Mouse(MouseEvent::MouseLeave(_)) => self.state = ButtonState::Inactive,
-            Event::Mouse(MouseEvent::MouseDown(_)) => self.state = ButtonState::Active,
+            Event::Mouse(MouseEvent::MouseEnter(_)) => ctx.request_repaint(),
+            Event::Mouse(MouseEvent::MouseLeave(_)) => ctx.request_repaint(),
+            Event::Mouse(MouseEvent::MouseDown(_)) => {
+                self.state = ButtonState::Pressed;
+                ctx.request_repaint()
+            }
             Event::Mouse(MouseEvent::MouseUp(_)) => {
                 if let Some(handler) = &self.on_click {
                     handler(ctx, state)
                 }
 
-                self.state = ButtonState::Inactive
+                self.state = ButtonState::Unpressed;
+                ctx.request_repaint()
             }
             _ => (),
         }
@@ -98,11 +102,15 @@ impl<State: AppState> Widget<State> for TextButton<State> {
             ButtonStyle::Fill => {
                 let mut bg_paint = Paint::default();
                 bg_paint.set_anti_alias(true);
-                match self.state {
-                    ButtonState::Inactive => bg_paint.set_color(theme.primary.with_a(200)),
-                    ButtonState::Active => bg_paint.set_color(theme.primary),
-                    ButtonState::Hover => bg_paint.set_color(theme.primary.with_a(230)),
-                };
+
+                if self.state == ButtonState::Pressed {
+                    bg_paint.set_color(theme.primary);
+                } else if ctx.is_mouse_over() {
+                    bg_paint.set_color(theme.primary.with_a(230));
+                } else {
+                    bg_paint.set_color(theme.primary.with_a(200));
+                }
+
                 canvas.draw_rounded_rect(
                     &rect,
                     theme.button.rounding,
@@ -125,28 +133,24 @@ impl<State: AppState> Widget<State> for TextButton<State> {
                     &bg_paint,
                 );
 
-                match self.state {
-                    ButtonState::Inactive => (),
-                    ButtonState::Active => {
-                        bg_paint.set_color(theme.primary.with_a(100));
-                        bg_paint.set_stroke(false);
-                        canvas.draw_rounded_rect(
-                            &rect,
-                            theme.button.rounding,
-                            theme.button.rounding,
-                            &bg_paint,
-                        );
-                    }
-                    ButtonState::Hover => {
-                        bg_paint.set_color(theme.primary.with_a(50));
-                        bg_paint.set_stroke(false);
-                        canvas.draw_rounded_rect(
-                            &rect,
-                            theme.button.rounding,
-                            theme.button.rounding,
-                            &bg_paint,
-                        );
-                    }
+                if self.state == ButtonState::Pressed {
+                    bg_paint.set_color(theme.primary.with_a(100));
+                    bg_paint.set_stroke(false);
+                    canvas.draw_rounded_rect(
+                        &rect,
+                        theme.button.rounding,
+                        theme.button.rounding,
+                        &bg_paint,
+                    );
+                } else if ctx.is_mouse_over() {
+                    bg_paint.set_color(theme.primary.with_a(50));
+                    bg_paint.set_stroke(false);
+                    canvas.draw_rounded_rect(
+                        &rect,
+                        theme.button.rounding,
+                        theme.button.rounding,
+                        &bg_paint,
+                    );
                 }
 
                 text_paint.set_color(theme.primary);
@@ -158,28 +162,24 @@ impl<State: AppState> Widget<State> for TextButton<State> {
 
                 let mut bg_paint = Paint::default();
                 bg_paint.set_anti_alias(true);
-                match self.state {
-                    ButtonState::Inactive => (),
-                    ButtonState::Active => {
-                        bg_paint.set_color(theme.primary.with_a(100));
-                        bg_paint.set_stroke(false);
-                        canvas.draw_rounded_rect(
-                            &rect,
-                            theme.button.rounding,
-                            theme.button.rounding,
-                            &bg_paint,
-                        );
-                    }
-                    ButtonState::Hover => {
-                        bg_paint.set_color(theme.primary.with_a(50));
-                        bg_paint.set_stroke(false);
-                        canvas.draw_rounded_rect(
-                            &rect,
-                            theme.button.rounding,
-                            theme.button.rounding,
-                            &bg_paint,
-                        );
-                    }
+                if self.state == ButtonState::Pressed {
+                    bg_paint.set_color(theme.primary.with_a(100));
+                    bg_paint.set_stroke(false);
+                    canvas.draw_rounded_rect(
+                        &rect,
+                        theme.button.rounding,
+                        theme.button.rounding,
+                        &bg_paint,
+                    );
+                } else if ctx.is_mouse_over() {
+                    bg_paint.set_color(theme.primary.with_a(50));
+                    bg_paint.set_stroke(false);
+                    canvas.draw_rounded_rect(
+                        &rect,
+                        theme.button.rounding,
+                        theme.button.rounding,
+                        &bg_paint,
+                    );
                 }
 
                 canvas.draw_string(&rect, &self.text, &self.font, &text_paint);
