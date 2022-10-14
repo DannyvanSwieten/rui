@@ -12,6 +12,7 @@ pub mod text_editor;
 
 mod child_slot;
 mod event;
+mod properties;
 
 use crate::app::{App, AppState};
 use crate::canvas::{Canvas2D, Point, Size};
@@ -19,6 +20,7 @@ use crate::constraints::BoxConstraints;
 pub use child_slot::ChildSlot;
 pub use event::{Event, KeyEvent, MouseEvent};
 use popup::PopupRequest;
+pub use properties::Properties;
 use style::Theme;
 
 pub fn map_range(x: f32, a: f32, b: f32, c: f32, d: f32) -> f32 {
