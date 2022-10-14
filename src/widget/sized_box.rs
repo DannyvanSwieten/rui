@@ -2,7 +2,7 @@ use crate::{
     app::AppState,
     canvas::{Canvas2D, Size},
     constraints::BoxConstraints,
-    widget::{ChildSlot, Event, EventCtx, Theme, Widget},
+    widget::{ChildSlot, Event, EventCtx, PaintCtx, Theme, Widget},
 };
 
 pub struct SizedBox<State> {
@@ -32,7 +32,7 @@ impl<State: AppState> Widget<State> for SizedBox<State> {
         self.size
     }
 
-    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, state: &State) {
-        self.child.paint(theme, canvas, rect, state);
+    fn paint(&self, theme: &Theme, ctx: &PaintCtx, canvas: &mut dyn Canvas2D, state: &State) {
+        self.child.paint(theme, ctx, canvas, state);
     }
 }

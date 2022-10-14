@@ -20,7 +20,7 @@ pub use properties::Properties;
 
 use crate::{
     app::{App, AppState, WindowRequest},
-    canvas::{Canvas2D, Point, Size},
+    canvas::{Canvas2D, Point, Rect, Size},
     constraints::BoxConstraints,
 };
 use popup::PopupRequest;
@@ -54,8 +54,11 @@ pub trait AppAction<State> {
 #[allow(unused_variables)]
 pub trait Widget<State: AppState> {
     fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool;
+
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size;
-    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, state: &State);
+
+    fn paint(&self, theme: &Theme, ctx: &PaintCtx, canvas: &mut dyn Canvas2D, state: &State);
+
     fn flex(&self) -> f32 {
         0.0
     }
@@ -77,5 +80,23 @@ impl<'a, State: AppState + 'static> EventCtx<'a, State> {
 
     pub fn ui_window_request(&mut self, request: WindowRequest<State>) {
         self.app.ui_window_request(request)
+    }
+}
+
+pub struct PaintCtx<'a> {
+    properties: &'a Properties,
+}
+
+impl<'a> PaintCtx<'a> {
+    pub(crate) fn new(properties: &'a Properties) -> Self {
+        Self { properties }
+    }
+
+    pub fn size(&self) -> &Size {
+        &self.properties.size
+    }
+
+    pub fn rect(&self) -> Rect {
+        Rect::from_size(self.properties.size)
     }
 }

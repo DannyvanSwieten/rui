@@ -2,7 +2,7 @@ use crate::{
     app::AppState,
     canvas::{Canvas2D, Point, Size},
     constraints::BoxConstraints,
-    widget::{Event, EventCtx, MouseEvent, Properties, Theme, Widget},
+    widget::{Event, EventCtx, MouseEvent, PaintCtx, Properties, Theme, Widget},
 };
 
 pub struct ChildSlot<State> {
@@ -99,10 +99,12 @@ impl<State: AppState> Widget<State> for ChildSlot<State> {
         self.widget.layout(constraints, state)
     }
 
-    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, _: &Size, state: &State) {
+    fn paint(&self, theme: &Theme, _: &PaintCtx, canvas: &mut dyn Canvas2D, state: &State) {
+        let inner_ctx = PaintCtx::new(&self.properties);
+
         canvas.save();
         canvas.translate(self.position());
-        self.widget.paint(theme, canvas, self.size(), state);
+        self.widget.paint(theme, &inner_ctx, canvas, state);
         canvas.restore();
     }
 

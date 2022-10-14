@@ -2,7 +2,7 @@ use crate::{
     app::AppState,
     canvas::{Canvas2D, Color4f, Paint, Point, Rect, Size},
     constraints::BoxConstraints,
-    widget::{ChildSlot, Event, EventCtx, Theme, Widget},
+    widget::{ChildSlot, Event, EventCtx, PaintCtx, Theme, Widget},
 };
 
 pub struct Container<State> {
@@ -94,12 +94,12 @@ impl<State: AppState> Widget<State> for Container<State> {
         )
     }
 
-    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, size: &Size, state: &State) {
+    fn paint(&self, theme: &Theme, ctx: &PaintCtx, canvas: &mut dyn Canvas2D, state: &State) {
         if let Some(paint) = &self.paint {
-            canvas.draw_rect(&Rect::from_size(*size), paint);
+            canvas.draw_rect(&Rect::from_size(*ctx.size()), paint);
         }
 
-        self.child.paint(theme, canvas, self.child.size(), state);
+        self.child.paint(theme, ctx, canvas, state);
     }
 
     fn flex(&self) -> f32 {

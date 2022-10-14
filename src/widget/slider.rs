@@ -2,7 +2,7 @@ use crate::{
     app::AppState,
     canvas::{Canvas2D, Paint, Point, Rect, Size},
     constraints::BoxConstraints,
-    widget::{map_range, style::Theme, Event, EventCtx, MouseEvent, Widget},
+    widget::{map_range, style::Theme, Event, EventCtx, MouseEvent, PaintCtx, Widget},
 };
 enum SliderState {
     Active,
@@ -94,16 +94,17 @@ impl<State: AppState + 'static> Widget<State> for Slider<State> {
         )
     }
 
-    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, _: &State) {
+    fn paint(&self, theme: &Theme, ctx: &PaintCtx, canvas: &mut dyn Canvas2D, _: &State) {
+        let rect = ctx.rect();
+
         let mut fill_paint = Paint::default();
         fill_paint.set_anti_alias(true);
 
         let rounding = 4.0;
-        let gutter_height = rect.height / 8.0;
+        let gutter_height = rect.height() / 8.0;
         let thumb_size = gutter_height * 1.5;
         let active_thumb_size = thumb_size * 2.5;
 
-        let rect = Rect::from_size(*rect);
         let mut fill_rect = Rect::from_wh(rect.width(), gutter_height);
         fill_rect.offset(Point::new(0.0, rect.center_y() - fill_rect.center_y()));
 
@@ -189,16 +190,17 @@ impl<State: AppState> Widget<State> for Switch<State> {
         )
     }
 
-    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, _: &State) {
+    fn paint(&self, theme: &Theme, ctx: &PaintCtx, canvas: &mut dyn Canvas2D, _: &State) {
+        let rect = ctx.rect();
+
         let mut fill_paint = Paint::default();
         fill_paint.set_anti_alias(true);
 
         let rounding = 4.0;
-        let gutter_height = rect.height / 4.0;
+        let gutter_height = rect.height() / 4.0;
         let thumb_size = gutter_height * 1.25;
         let active_thumb_size = thumb_size * 1.5;
 
-        let rect = Rect::from_size(*rect);
         let mut fill_rect = Rect::from_wh(rect.width(), gutter_height);
         fill_rect.offset(Point::new(0.0, rect.center_y() - fill_rect.center_y()));
         let mut unfill_rect = Rect::from_wh(rect.width(), gutter_height);

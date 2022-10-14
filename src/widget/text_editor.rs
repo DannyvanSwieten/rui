@@ -4,7 +4,7 @@ use crate::{
         textlayout::{self, FontCollection, ParagraphBuilder, ParagraphStyle, TextStyle},
         Canvas2D, Color, Color4f, Paint, Point, Rect, Size,
     },
-    widget::{style::Theme, Event, KeyEvent, Widget},
+    widget::{style::Theme, Event, KeyEvent, PaintCtx, Widget},
 };
 use skia_safe::FontMgr;
 use std::ops::Range;
@@ -86,7 +86,9 @@ impl<State: AppState> Widget<State> for TextBox {
         Size::new(constraints.max_width().unwrap(), paragraph.height())
     }
 
-    fn paint(&self, _: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, _: &State) {
+    fn paint(&self, _: &Theme, ctx: &PaintCtx, canvas: &mut dyn Canvas2D, _: &State) {
+        let rect = ctx.rect();
+
         let mut font_collection = FontCollection::new();
         font_collection.set_default_font_manager(FontMgr::new(), None);
         let mut paragraph_builder = ParagraphBuilder::new(&self.style, font_collection);
@@ -103,7 +105,7 @@ impl<State: AppState> Widget<State> for TextBox {
         }
 
         let mut paragraph = paragraph_builder.build();
-        paragraph.layout(rect.width - 4.0);
+        paragraph.layout(rect.width() - 4.0);
         let selection_boxes = paragraph.get_rects_for_range(
             self.state.selection.clone(),
             textlayout::RectHeightStyle::IncludeLineSpacingBottom,
@@ -117,14 +119,14 @@ impl<State: AppState> Widget<State> for TextBox {
 
         let mut border_paint = Paint::default();
         border_paint.set_color(Color::from_rgb(255, 255, 255));
-        canvas.draw_rect(&Rect::from_size(*rect), &border_paint);
+        canvas.draw_rect(&rect, &border_paint);
         if selected_rect.width() > 0.0 {
             border_paint.set_color(Color::from_rgb(0, 0, 255));
             canvas.draw_rect(&selected_rect, &border_paint);
         }
         border_paint.set_stroke(true);
         border_paint.set_color(Color::from_rgb(0, 0, 0));
-        canvas.draw_rect(&Rect::from_size(*rect), &border_paint);
+        canvas.draw_rect(&rect, &border_paint);
         canvas.draw_paragraph(&Point::new(2.0, 0.0), &paragraph)
     }
 

@@ -2,7 +2,7 @@ use crate::{
     app::AppState,
     canvas::{Canvas2D, Point, Size},
     constraints::BoxConstraints,
-    widget::{style::Theme, ChildSlot, Event, EventCtx, Widget},
+    widget::{style::Theme, ChildSlot, Event, EventCtx, PaintCtx, Widget},
 };
 
 pub struct List<State> {
@@ -107,9 +107,9 @@ impl<State: AppState> Widget<State> for List<State> {
         )
     }
 
-    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, rect: &Size, state: &State) {
+    fn paint(&self, theme: &Theme, ctx: &PaintCtx, canvas: &mut dyn Canvas2D, state: &State) {
         for child in &self.children {
-            child.paint(theme, canvas, rect, state)
+            child.paint(theme, ctx, canvas, state)
         }
     }
 }

@@ -2,8 +2,8 @@ use crate::app::{App, AppState};
 use crate::canvas::{Canvas2D, Point, Size};
 use crate::constraints::BoxConstraints;
 use crate::widget::{
-    style::StyleContext, Action, ChildSlot, Event, EventCtx, KeyEvent, MouseEvent, Properties,
-    Widget,
+    style::StyleContext, Action, ChildSlot, Event, EventCtx, KeyEvent, MouseEvent, PaintCtx,
+    Properties, Widget,
 };
 use crate::window;
 use std::path::Path;
@@ -155,10 +155,16 @@ impl<State: AppState + 'static> UserInterface<State> {
 
     pub fn paint(&mut self, state: &State, canvas: &mut dyn Canvas2D) {
         canvas.clear(&self.style_ctx.theme(&self.theme).unwrap().background);
+
+        let properties = Properties {
+            size: *self.root.size(),
+            ..Properties::default()
+        };
+
         self.root.paint(
             self.style_ctx.theme(&self.theme).unwrap(),
+            &PaintCtx::new(&properties),
             canvas,
-            self.root.size(),
             state,
         );
     }

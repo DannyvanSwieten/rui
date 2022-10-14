@@ -1,10 +1,8 @@
 use crate::{
     app::AppState,
-    canvas::{
-        font::Edging, Canvas2D, Color4f, Font, FontStyle, Paint, Rect, Size, TextBlob, Typeface,
-    },
+    canvas::{font::Edging, Canvas2D, Color4f, Font, FontStyle, Paint, Size, TextBlob, Typeface},
     constraints::BoxConstraints,
-    widget::{style::Theme, Event, EventCtx, MouseEvent, Widget},
+    widget::{style::Theme, Event, EventCtx, MouseEvent, PaintCtx, Widget},
 };
 
 enum ButtonState {
@@ -91,10 +89,11 @@ impl<State: AppState> Widget<State> for TextButton<State> {
         Size::new(width, height)
     }
 
-    fn paint(&self, theme: &Theme, canvas: &mut dyn Canvas2D, size: &Size, _: &State) {
+    fn paint(&self, theme: &Theme, ctx: &PaintCtx, canvas: &mut dyn Canvas2D, _: &State) {
         let mut text_paint = Paint::default();
         text_paint.set_anti_alias(true);
 
+        let rect = ctx.rect();
         match self.style {
             ButtonStyle::Fill => {
                 let mut bg_paint = Paint::default();
@@ -105,13 +104,13 @@ impl<State: AppState> Widget<State> for TextButton<State> {
                     ButtonState::Hover => bg_paint.set_color(theme.primary.with_a(230)),
                 };
                 canvas.draw_rounded_rect(
-                    &Rect::from_wh(size.width, size.height),
+                    &rect,
                     theme.button.rounding,
                     theme.button.rounding,
                     &bg_paint,
                 );
                 text_paint.set_color(theme.text);
-                canvas.draw_string(&Rect::from_size(*size), &self.text, &self.font, &text_paint);
+                canvas.draw_string(&rect, &self.text, &self.font, &text_paint);
             }
             ButtonStyle::Outline => {
                 let mut bg_paint = Paint::default();
@@ -120,7 +119,7 @@ impl<State: AppState> Widget<State> for TextButton<State> {
                 bg_paint.set_color(theme.primary);
                 bg_paint.set_stroke(true);
                 canvas.draw_rounded_rect(
-                    &Rect::from_wh(size.width, size.height),
+                    &rect,
                     theme.button.rounding,
                     theme.button.rounding,
                     &bg_paint,
@@ -132,7 +131,7 @@ impl<State: AppState> Widget<State> for TextButton<State> {
                         bg_paint.set_color(theme.primary.with_a(100));
                         bg_paint.set_stroke(false);
                         canvas.draw_rounded_rect(
-                            &Rect::from_wh(size.width, size.height),
+                            &rect,
                             theme.button.rounding,
                             theme.button.rounding,
                             &bg_paint,
@@ -142,7 +141,7 @@ impl<State: AppState> Widget<State> for TextButton<State> {
                         bg_paint.set_color(theme.primary.with_a(50));
                         bg_paint.set_stroke(false);
                         canvas.draw_rounded_rect(
-                            &Rect::from_wh(size.width, size.height),
+                            &rect,
                             theme.button.rounding,
                             theme.button.rounding,
                             &bg_paint,
@@ -152,7 +151,7 @@ impl<State: AppState> Widget<State> for TextButton<State> {
 
                 text_paint.set_color(theme.primary);
 
-                canvas.draw_string(&Rect::from_size(*size), &self.text, &self.font, &text_paint);
+                canvas.draw_string(&rect, &self.text, &self.font, &text_paint);
             }
             ButtonStyle::Text => {
                 text_paint.set_color(theme.primary);
@@ -165,7 +164,7 @@ impl<State: AppState> Widget<State> for TextButton<State> {
                         bg_paint.set_color(theme.primary.with_a(100));
                         bg_paint.set_stroke(false);
                         canvas.draw_rounded_rect(
-                            &Rect::from_wh(size.width, size.height),
+                            &rect,
                             theme.button.rounding,
                             theme.button.rounding,
                             &bg_paint,
@@ -175,7 +174,7 @@ impl<State: AppState> Widget<State> for TextButton<State> {
                         bg_paint.set_color(theme.primary.with_a(50));
                         bg_paint.set_stroke(false);
                         canvas.draw_rounded_rect(
-                            &Rect::from_wh(size.width, size.height),
+                            &rect,
                             theme.button.rounding,
                             theme.button.rounding,
                             &bg_paint,
@@ -183,7 +182,7 @@ impl<State: AppState> Widget<State> for TextButton<State> {
                     }
                 }
 
-                canvas.draw_string(&Rect::from_size(*size), &self.text, &self.font, &text_paint);
+                canvas.draw_string(&rect, &self.text, &self.font, &text_paint);
             }
         }
     }
