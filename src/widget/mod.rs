@@ -1,6 +1,7 @@
 pub mod button;
 pub mod center;
 pub mod container;
+pub mod expanded;
 pub mod flex;
 pub mod flex_box;
 pub mod list;
@@ -8,6 +9,7 @@ pub mod popup;
 pub mod sized_box;
 pub mod slider;
 pub mod style;
+pub mod switch;
 pub mod text_editor;
 
 mod child_slot;
