@@ -5,11 +5,6 @@ use crate::{
     widget::{map_range, style::Theme, Event, EventCtx, MouseEvent, PaintCtx, Widget},
 };
 
-enum SliderState {
-    Active,
-    Inactive,
-}
-
 pub struct Slider<State> {
     min: f32,
     max: f32,
@@ -18,7 +13,6 @@ pub struct Slider<State> {
     current_value: f32,
     last_position: f32,
     value_changed: Option<Box<dyn FnMut(f32, &mut State)>>,
-    state: SliderState,
 }
 
 impl<State: AppState + 'static> Slider<State> {
@@ -31,7 +25,6 @@ impl<State: AppState + 'static> Slider<State> {
             current_value: value,
             last_position: 0.,
             value_changed: None,
-            state: SliderState::Inactive,
         }
     }
 
@@ -52,8 +45,8 @@ impl<State: AppState + 'static> Slider<State> {
 impl<State: AppState + 'static> Widget<State> for Slider<State> {
     fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool {
         match event {
-            Event::Mouse(MouseEvent::MouseEnter(_)) => self.state = SliderState::Active,
-            Event::Mouse(MouseEvent::MouseLeave(_)) => self.state = SliderState::Inactive,
+            Event::Mouse(MouseEvent::MouseEnter(_)) => ctx.request_repaint(),
+            Event::Mouse(MouseEvent::MouseLeave(_)) => ctx.request_repaint(),
             Event::Mouse(MouseEvent::MouseDown(event)) => {
                 self.last_position = event.local_position().x;
                 self.current_normalized = (1. / ctx.size().width) * self.last_position;
@@ -65,8 +58,9 @@ impl<State: AppState + 'static> Widget<State> for Slider<State> {
                 if let Some(l) = &mut self.value_changed {
                     (l)(self.current_value, state);
                 }
+                ctx.request_repaint()
             }
-            Event::Mouse(MouseEvent::MouseUp(_)) => self.state = SliderState::Inactive,
+            Event::Mouse(MouseEvent::MouseUp(_)) => ctx.request_repaint(),
             Event::Mouse(MouseEvent::MouseDrag(event)) => {
                 self.last_position = event.local_position().x;
                 self.current_normalized =
@@ -80,6 +74,7 @@ impl<State: AppState + 'static> Widget<State> for Slider<State> {
                 if let Some(l) = &mut self.value_changed {
                     (l)(self.current_value, state);
                 }
+                ctx.request_repaint()
             }
             _ => (),
         }
@@ -130,7 +125,7 @@ impl<State: AppState + 'static> Widget<State> for Slider<State> {
             &fill_paint,
         );
 
-        if let SliderState::Active = self.state {
+        if ctx.is_mouse_over() {
             fill_paint.set_alpha_f(0.25);
             canvas.draw_circle(
                 &Point::new(self.last_position, rect.center_y()),

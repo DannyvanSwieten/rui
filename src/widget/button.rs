@@ -5,12 +5,6 @@ use crate::{
     widget::{style::Theme, Event, EventCtx, MouseEvent, PaintCtx, Widget},
 };
 
-#[derive(PartialEq, Eq)]
-enum ButtonState {
-    Pressed,
-    Unpressed,
-}
-
 pub enum ButtonStyle {
     Text,
     Outline,
@@ -18,7 +12,7 @@ pub enum ButtonStyle {
 }
 
 pub struct TextButton<State: AppState> {
-    state: ButtonState,
+    pressed: bool,
     style: ButtonStyle,
     text: String,
     font: Font,
@@ -40,7 +34,7 @@ impl<State: AppState> TextButton<State> {
         text_paint.set_anti_alias(true);
         text_paint.set_color4f(Color4f::new(1.0, 1.0, 1.0, 1.0), None);
         Self {
-            state: ButtonState::Unpressed,
+            pressed: false,
             text: text.to_string(),
             font,
             on_click: None,
@@ -68,7 +62,7 @@ impl<State: AppState> Widget<State> for TextButton<State> {
             Event::Mouse(MouseEvent::MouseEnter(_)) => ctx.request_repaint(),
             Event::Mouse(MouseEvent::MouseLeave(_)) => ctx.request_repaint(),
             Event::Mouse(MouseEvent::MouseDown(_)) => {
-                self.state = ButtonState::Pressed;
+                self.pressed = true;
                 ctx.request_repaint()
             }
             Event::Mouse(MouseEvent::MouseUp(_)) => {
@@ -76,7 +70,7 @@ impl<State: AppState> Widget<State> for TextButton<State> {
                     handler(ctx, state)
                 }
 
-                self.state = ButtonState::Unpressed;
+                self.pressed = false;
                 ctx.request_repaint()
             }
             _ => (),
@@ -103,7 +97,7 @@ impl<State: AppState> Widget<State> for TextButton<State> {
                 let mut bg_paint = Paint::default();
                 bg_paint.set_anti_alias(true);
 
-                if self.state == ButtonState::Pressed {
+                if self.pressed {
                     bg_paint.set_color(theme.primary);
                 } else if ctx.is_mouse_over() {
                     bg_paint.set_color(theme.primary.with_a(230));
@@ -133,7 +127,7 @@ impl<State: AppState> Widget<State> for TextButton<State> {
                     &bg_paint,
                 );
 
-                if self.state == ButtonState::Pressed {
+                if self.pressed {
                     bg_paint.set_color(theme.primary.with_a(100));
                     bg_paint.set_stroke(false);
                     canvas.draw_rounded_rect(
@@ -162,7 +156,7 @@ impl<State: AppState> Widget<State> for TextButton<State> {
 
                 let mut bg_paint = Paint::default();
                 bg_paint.set_anti_alias(true);
-                if self.state == ButtonState::Pressed {
+                if self.pressed {
                     bg_paint.set_color(theme.primary.with_a(100));
                     bg_paint.set_stroke(false);
                     canvas.draw_rounded_rect(

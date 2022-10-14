@@ -5,15 +5,9 @@ use crate::{
     widget::{style::Theme, Event, EventCtx, MouseEvent, PaintCtx, Widget},
 };
 
-enum SwitchState {
-    Active,
-    Inactive,
-}
-
 pub struct Switch<State> {
     value_changed: Option<Box<dyn FnMut(bool, &mut State)>>,
     active: bool,
-    state: SwitchState,
 }
 
 impl<State: AppState + 'static> Switch<State> {
@@ -21,23 +15,23 @@ impl<State: AppState + 'static> Switch<State> {
         Self {
             value_changed: None,
             active: false,
-            state: SwitchState::Inactive,
         }
     }
 }
 
 impl<State: AppState> Widget<State> for Switch<State> {
-    fn event(&mut self, event: &Event, _: &mut EventCtx<State>, state: &mut State) -> bool {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool {
         match event {
-            Event::Mouse(MouseEvent::MouseEnter(_)) => self.state = SwitchState::Active,
-            Event::Mouse(MouseEvent::MouseLeave(_)) => self.state = SwitchState::Inactive,
+            Event::Mouse(MouseEvent::MouseEnter(_)) => ctx.request_repaint(),
+            Event::Mouse(MouseEvent::MouseLeave(_)) => ctx.request_repaint(),
             Event::Mouse(MouseEvent::MouseDown(_)) => {
                 self.active = !self.active;
                 if let Some(l) = &mut self.value_changed {
                     (l)(self.active, state);
                 }
+                ctx.request_repaint()
             }
-            Event::Mouse(MouseEvent::MouseUp(_)) => self.state = SwitchState::Inactive,
+            Event::Mouse(MouseEvent::MouseUp(_)) => ctx.request_repaint(),
             _ => (),
         }
 
@@ -91,7 +85,7 @@ impl<State: AppState> Widget<State> for Switch<State> {
             &fill_paint,
         );
 
-        if let SwitchState::Active = self.state {
+        if ctx.is_mouse_over() {
             fill_paint.set_alpha_f(0.25);
             canvas.draw_circle(
                 &Point::new(thumb_position, rect.center_y()),
