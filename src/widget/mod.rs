@@ -19,6 +19,7 @@ mod properties;
 pub use child_slot::ChildSlot;
 pub use event::{Event, KeyEvent, MouseEvent};
 pub use properties::Properties;
+use winit::window::WindowId;
 
 use crate::{
     app::{App, AppState, WindowRequest},
@@ -69,11 +70,20 @@ pub trait Widget<State: AppState> {
 pub struct EventCtx<'a, State: AppState> {
     app: &'a mut App<State>,
     properties: &'a Properties,
+    window_id: WindowId,
 }
 
 impl<'a, State: AppState + 'static> EventCtx<'a, State> {
-    pub(crate) fn new(app: &'a mut App<State>, properties: &'a Properties) -> Self {
-        Self { app, properties }
+    pub(crate) fn new(
+        app: &'a mut App<State>,
+        properties: &'a Properties,
+        window_id: WindowId,
+    ) -> Self {
+        Self {
+            app,
+            properties,
+            window_id,
+        }
     }
 
     pub fn size(&self) -> &Size {

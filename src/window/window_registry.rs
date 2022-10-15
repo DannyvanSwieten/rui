@@ -64,7 +64,7 @@ impl<State: AppState> WindowRegistry<State> {
         if let Some(entry) = self.entries.get_mut(id) {
             entry
                 .delegate
-                .resized(&entry.window, app, state, size.width, size.height)
+                .resized(&entry.window, app, state, *id, size.width, size.height)
         }
     }
 
@@ -76,7 +76,9 @@ impl<State: AppState> WindowRegistry<State> {
         state: &mut State,
     ) {
         if let Some(entry) = self.entries.get_mut(id) {
-            entry.delegate.character_received(app, state, character)
+            entry
+                .delegate
+                .character_received(app, state, *id, character)
         }
     }
 
@@ -88,13 +90,13 @@ impl<State: AppState> WindowRegistry<State> {
         state: &mut State,
     ) {
         if let Some(entry) = self.entries.get_mut(id) {
-            entry.delegate.keyboard_event(app, state, event)
+            entry.delegate.keyboard_event(app, state, *id, event)
         }
     }
 
     pub(crate) fn close_button_pressed(&mut self, id: &WindowId, state: &mut State) {
         if let Some(entry) = self.entries.get_mut(id) {
-            if entry.delegate.close_button_pressed(state) {
+            if entry.delegate.close_button_pressed(state, *id) {
                 self.entries.remove(id);
             }
         }
@@ -110,7 +112,7 @@ impl<State: AppState> WindowRegistry<State> {
         if let Some(entry) = self.entries.get_mut(id) {
             entry
                 .delegate
-                .mouse_moved(app, state, position.x as f32, position.y as f32);
+                .mouse_moved(app, state, *id, position.x as f32, position.y as f32);
         }
     }
 
@@ -126,6 +128,7 @@ impl<State: AppState> WindowRegistry<State> {
             entry.delegate.mouse_dragged(
                 app,
                 state,
+                *id,
                 position.x as f32,
                 position.y as f32,
                 delta.x as f32,
@@ -144,7 +147,7 @@ impl<State: AppState> WindowRegistry<State> {
         if let Some(entry) = self.entries.get_mut(id) {
             entry
                 .delegate
-                .mouse_down(app, state, position.x as f32, position.y as f32);
+                .mouse_down(app, state, *id, position.x as f32, position.y as f32);
         }
     }
 
@@ -158,7 +161,7 @@ impl<State: AppState> WindowRegistry<State> {
         if let Some(entry) = self.entries.get_mut(id) {
             entry
                 .delegate
-                .mouse_up(app, state, position.x as f32, position.y as f32);
+                .mouse_up(app, state, *id, position.x as f32, position.y as f32);
         }
     }
 
@@ -189,7 +192,7 @@ impl<State: AppState> WindowRegistry<State> {
         if let Some(entry) = self.entries.get_mut(id) {
             entry
                 .delegate
-                .file_dropped(state, file, position.x as f32, position.y as f32)
+                .file_dropped(state, *id, file, position.x as f32, position.y as f32)
         }
     }
 
@@ -203,7 +206,7 @@ impl<State: AppState> WindowRegistry<State> {
         if let Some(entry) = self.entries.get_mut(id) {
             entry
                 .delegate
-                .file_hovered(state, file, position.x as f32, position.y as f32)
+                .file_hovered(state, *id, file, position.x as f32, position.y as f32)
         }
     }
 }

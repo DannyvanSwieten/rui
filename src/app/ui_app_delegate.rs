@@ -89,6 +89,7 @@ impl<State: AppState> AppDelegate<State> for UIAppDelegate<State> {
             &window,
             app,
             state,
+            window.id(),
             window.inner_size().width,
             window.inner_size().height,
         );

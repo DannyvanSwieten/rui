@@ -1,4 +1,5 @@
 use wgpu::{Device, Queue};
+use winit::window::WindowId;
 
 use crate::app::{App, AppState};
 use crate::canvas::{skia_cpu_canvas::SkiaCanvas, Point};
@@ -108,11 +109,18 @@ impl<State: AppState + 'static> UiWindowDelegate<State> {
 }
 
 impl<State: AppState + 'static> WindowDelegate<State> for UiWindowDelegate<State> {
-    fn mouse_moved(&mut self, app: &mut App<State>, state: &mut State, x: f32, y: f32) {
+    fn mouse_moved(
+        &mut self,
+        app: &mut App<State>,
+        state: &mut State,
+        window_id: WindowId,
+        x: f32,
+        y: f32,
+    ) {
         let p = Point::from((x, y));
         if let Some(ui) = self.ui.as_mut() {
             ui.user_interface
-                .mouse_moved(app, state, &MouseEvent::new(0, &p, &p));
+                .mouse_moved(app, state, window_id, &MouseEvent::new(0, &p, &p));
         }
     }
 
@@ -120,6 +128,7 @@ impl<State: AppState + 'static> WindowDelegate<State> for UiWindowDelegate<State
         &mut self,
         app: &mut App<State>,
         state: &mut State,
+        window_id: WindowId,
         x: f32,
         y: f32,
         dx: f32,
@@ -128,24 +137,42 @@ impl<State: AppState + 'static> WindowDelegate<State> for UiWindowDelegate<State
         let p = Point::from((x, y));
         let d = Point::from((dx, dy));
         if let Some(ui) = self.ui.as_mut() {
-            ui.user_interface
-                .mouse_drag(app, state, &MouseEvent::new_with_delta(0, &p, &p, &d));
+            ui.user_interface.mouse_drag(
+                app,
+                state,
+                window_id,
+                &MouseEvent::new_with_delta(0, &p, &p, &d),
+            );
         }
     }
 
-    fn mouse_down(&mut self, app: &mut App<State>, state: &mut State, x: f32, y: f32) {
+    fn mouse_down(
+        &mut self,
+        app: &mut App<State>,
+        state: &mut State,
+        window_id: WindowId,
+        x: f32,
+        y: f32,
+    ) {
         let p = Point::from((x, y));
         if let Some(ui) = self.ui.as_mut() {
             ui.user_interface
-                .mouse_down(app, state, &MouseEvent::new(0, &p, &p));
+                .mouse_down(app, state, window_id, &MouseEvent::new(0, &p, &p));
         }
     }
 
-    fn mouse_up(&mut self, app: &mut App<State>, state: &mut State, x: f32, y: f32) {
+    fn mouse_up(
+        &mut self,
+        app: &mut App<State>,
+        state: &mut State,
+        window_id: WindowId,
+        x: f32,
+        y: f32,
+    ) {
         let p = Point::from((x, y));
         if let Some(ui) = self.ui.as_mut() {
             ui.user_interface
-                .mouse_up(app, state, &MouseEvent::new(0, &p, &p));
+                .mouse_up(app, state, window_id, &MouseEvent::new(0, &p, &p));
         }
     }
 
@@ -154,6 +181,7 @@ impl<State: AppState + 'static> WindowDelegate<State> for UiWindowDelegate<State
         window: &winit::window::Window,
         app: &App<State>,
         state: &mut State,
+        window_id: WindowId,
         width: u32,
         height: u32,
     ) {
@@ -183,7 +211,7 @@ impl<State: AppState + 'static> WindowDelegate<State> for UiWindowDelegate<State
 
         let mut user_interface = UserInterface::new((self.builder)(state), "light");
         user_interface.resize(state, width, height);
-        user_interface.resized(state);
+        user_interface.resized(state, window_id);
 
         self.ui = Some(UI {
             canvas: SkiaCanvas::new(width as _, height as _),
@@ -191,17 +219,31 @@ impl<State: AppState + 'static> WindowDelegate<State> for UiWindowDelegate<State
         });
     }
 
-    fn file_dropped(&mut self, state: &mut State, path: &Path, x: f32, y: f32) {
+    fn file_dropped(
+        &mut self,
+        state: &mut State,
+        window_id: WindowId,
+        path: &Path,
+        x: f32,
+        y: f32,
+    ) {
         if let Some(ui) = self.ui.as_mut() {
             ui.user_interface
-                .file_dropped(state, path, &Point::new(x, y))
+                .file_dropped(state, window_id, path, &Point::new(x, y))
         }
     }
 
-    fn file_hovered(&mut self, state: &mut State, path: &Path, x: f32, y: f32) {
+    fn file_hovered(
+        &mut self,
+        state: &mut State,
+        window_id: WindowId,
+        path: &Path,
+        x: f32,
+        y: f32,
+    ) {
         if let Some(ui) = self.ui.as_mut() {
             ui.user_interface
-                .file_hovered(state, path, &Point::new(x, y))
+                .file_hovered(state, window_id, path, &Point::new(x, y))
         }
     }
 
@@ -210,7 +252,7 @@ impl<State: AppState + 'static> WindowDelegate<State> for UiWindowDelegate<State
         self.render_ui(state)
     }
 
-    fn close_button_pressed(&mut self, _state: &mut State) -> bool {
+    fn close_button_pressed(&mut self, _state: &mut State, _: WindowId) -> bool {
         true
     }
 
@@ -218,15 +260,24 @@ impl<State: AppState + 'static> WindowDelegate<State> for UiWindowDelegate<State
         &mut self,
         app: &mut App<State>,
         state: &mut State,
+        window_id: WindowId,
         event: &winit::event::KeyboardInput,
     ) {
         if let Some(ui) = self.ui.as_mut() {
-            ui.user_interface.keyboard_event(app, state, event)
+            ui.user_interface
+                .keyboard_event(app, state, window_id, event)
         }
     }
-    fn character_received(&mut self, app: &mut App<State>, state: &mut State, character: char) {
+    fn character_received(
+        &mut self,
+        app: &mut App<State>,
+        state: &mut State,
+        window_id: WindowId,
+        character: char,
+    ) {
         if let Some(ui) = self.ui.as_mut() {
-            ui.user_interface.character_received(app, state, character)
+            ui.user_interface
+                .character_received(app, state, window_id, character)
         }
     }
 
