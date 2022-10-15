@@ -61,7 +61,8 @@ impl<State: AppState> ChildSlot<State> {
             if !self.properties.has_mouse {
                 if let MouseEvent::MouseMove(event) = event {
                     self.properties.has_mouse = true;
-                    self.event(&Event::Mouse(MouseEvent::MouseEnter(*event)), ctx, state);
+                    self.widget
+                        .event(&Event::Mouse(MouseEvent::MouseEnter(*event)), ctx, state);
                 }
             }
 
@@ -77,7 +78,8 @@ impl<State: AppState> ChildSlot<State> {
             match event {
                 MouseEvent::MouseMove(event) | MouseEvent::MouseUp(event) => {
                     self.properties.has_mouse = false;
-                    self.event(&Event::Mouse(MouseEvent::MouseLeave(*event)), ctx, state);
+                    self.widget
+                        .event(&Event::Mouse(MouseEvent::MouseLeave(*event)), ctx, state);
                     false
                 }
                 _ => false,
