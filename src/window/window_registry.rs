@@ -11,8 +11,8 @@ pub struct WindowRegistry<State: 'static> {
     entries: HashMap<WindowId, Entry<State>>,
 }
 
-struct Entry<State> {
-    window: Window,
+pub struct Entry<State> {
+    pub window: Window,
     delegate: Box<dyn WindowDelegate<State>>,
 }
 
@@ -21,6 +21,10 @@ impl<State: AppState> WindowRegistry<State> {
         Self {
             entries: HashMap::new(),
         }
+    }
+
+    pub fn get_mut(&mut self, id: WindowId) -> Option<&mut Entry<State>> {
+        self.entries.get_mut(&id)
     }
 
     pub fn create_window(

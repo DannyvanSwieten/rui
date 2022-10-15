@@ -13,7 +13,22 @@ use std::{collections::VecDeque, rc::Rc};
 use winit::{
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
+    window::{CursorIcon, WindowId},
 };
+
+pub struct CursorIconRequest {
+    window_id: WindowId,
+    cursor_icon: CursorIcon,
+}
+
+impl CursorIconRequest {
+    pub fn new(window_id: WindowId, cursor_icon: CursorIcon) -> Self {
+        Self {
+            window_id,
+            cursor_icon,
+        }
+    }
+}
 
 pub struct WindowRequest<State: AppState> {
     pub builder: Box<dyn Fn(&State) -> Box<dyn Widget<State>>>,
@@ -88,6 +103,7 @@ pub struct App<State: AppState> {
     gpu_api: GpuApi,
     pending_messages: VecDeque<State::MessageType>,
     pending_window_requests: VecDeque<WindowRequest<State>>,
+    pending_cursor_requests: VecDeque<CursorIconRequest>,
     _state: std::marker::PhantomData<State>,
 }
 
@@ -98,6 +114,7 @@ impl<State: AppState + 'static> App<State> {
         Self {
             pending_messages: VecDeque::new(),
             pending_window_requests: VecDeque::new(),
+            pending_cursor_requests: VecDeque::new(),
             _state: std::marker::PhantomData::<State>::default(),
             gpu_api,
         }
@@ -117,6 +134,10 @@ impl<State: AppState + 'static> App<State> {
 
     pub fn ui_window_request(&mut self, request: WindowRequest<State>) {
         self.pending_window_requests.push_back(request)
+    }
+
+    pub fn cursor_icon_request(&mut self, request: CursorIconRequest) {
+        self.pending_cursor_requests.push_back(request)
     }
 
     pub fn run<Delegate>(mut self, delegate: Delegate, state: State)
@@ -141,6 +162,13 @@ impl<State: AppState + 'static> App<State> {
             while let Some(request) = self.pending_window_requests.pop_front() {
                 d.window_requested(&self, &mut s, &mut window_registry, event_loop, request)
             }
+
+            while let Some(request) = self.pending_cursor_requests.pop_front() {
+                if let Some(entry) = window_registry.get_mut(request.window_id) {
+                    entry.window.set_cursor_icon(request.cursor_icon)
+                }
+            }
+
             *control_flow = winit::event_loop::ControlFlow::Poll;
             match e {
                 Event::WindowEvent {

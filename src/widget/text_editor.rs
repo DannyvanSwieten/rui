@@ -8,7 +8,12 @@ use crate::{
 };
 use skia_safe::FontMgr;
 use std::ops::Range;
-use winit::event::{ElementState, VirtualKeyCode};
+use winit::{
+    event::{ElementState, VirtualKeyCode},
+    window::CursorIcon,
+};
+
+use super::MouseEvent;
 
 #[derive(Default)]
 struct EditorState {
@@ -33,14 +38,22 @@ impl TextBox {
     }
 }
 
-impl<State: AppState> Widget<State> for TextBox {
+impl<State: AppState + 'static> Widget<State> for TextBox {
     fn event(
         &mut self,
         event: &super::Event,
-        _: &mut super::EventCtx<State>,
+        event_ctx: &mut super::EventCtx<State>,
         _: &mut State,
     ) -> bool {
         match event {
+            Event::Mouse(MouseEvent::MouseEnter(_)) => {
+                event_ctx.request_cursor(CursorIcon::Text);
+                true
+            }
+            Event::Mouse(MouseEvent::MouseLeave(_)) => {
+                event_ctx.request_cursor(CursorIcon::Default);
+                true
+            }
             Event::Key(KeyEvent::Input(event)) => {
                 if let Some(keycode) = event.virtual_keycode {
                     if event.state == ElementState::Pressed {

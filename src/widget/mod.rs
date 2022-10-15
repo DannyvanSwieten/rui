@@ -19,10 +19,10 @@ mod properties;
 pub use child_slot::ChildSlot;
 pub use event::{Event, KeyEvent, MouseEvent};
 pub use properties::Properties;
-use winit::window::WindowId;
+use winit::window::{CursorIcon, WindowId};
 
 use crate::{
-    app::{App, AppState, WindowRequest},
+    app::{App, AppState, CursorIconRequest, WindowRequest},
     canvas::{Canvas2D, Point, Rect, Size},
     constraints::BoxConstraints,
 };
@@ -92,6 +92,11 @@ impl<'a, State: AppState + 'static> EventCtx<'a, State> {
 
     pub fn ui_window_request(&mut self, request: WindowRequest<State>) {
         self.app.ui_window_request(request)
+    }
+
+    pub fn request_cursor(&mut self, icon: CursorIcon) {
+        self.app
+            .cursor_icon_request(CursorIconRequest::new(self.window_id, icon))
     }
 }
 
