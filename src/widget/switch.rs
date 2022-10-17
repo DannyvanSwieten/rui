@@ -11,7 +11,7 @@ enum SwitchState {
 }
 
 pub struct Switch<State> {
-    value_changed: Option<Box<dyn FnMut(bool, &mut State)>>,
+    value_changed: Option<Box<dyn Fn(bool, &mut State)>>,
     active: bool,
     state: SwitchState,
 }
@@ -23,6 +23,19 @@ impl<State: AppState + 'static> Switch<State> {
             active: false,
             state: SwitchState::Inactive,
         }
+    }
+
+    pub fn active(mut self, state: bool) -> Self {
+        self.active = state;
+        self
+    }
+
+    pub fn value_changed<F>(mut self, f: F) -> Self
+    where
+        F: Fn(bool, &mut State) + 'static,
+    {
+        self.value_changed = Some(Box::new(f));
+        self
     }
 }
 
