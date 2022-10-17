@@ -35,11 +35,11 @@ impl<State: AppState + 'static> Slider<State> {
         }
     }
 
-    pub fn with_handler<F>(mut self, handler: F) -> Self
+    pub fn value_changed<F>(mut self, f: F) -> Self
     where
         F: FnMut(f32, &mut State) + 'static,
     {
-        self.value_changed = Some(Box::new(handler));
+        self.value_changed = Some(Box::new(f));
         self
     }
 
