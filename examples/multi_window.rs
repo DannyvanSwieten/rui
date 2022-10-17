@@ -19,7 +19,7 @@ fn build_first_window() -> Box<dyn Widget<State>> {
             TextButton::new("Open new window", 24.0)
                 .style(ButtonStyle::Outline)
                 .on_click(|ctx, _state| {
-                    ctx.ui_window_request(WindowRequest::new("Second Window", 600, 400, |_| {
+                    ctx.request_ui_window(WindowRequest::new("Second Window", 600, 400, |_| {
                         build_second_window()
                     }));
                 }),
@@ -40,9 +40,12 @@ fn main() {
     let app = App::new();
 
     let delegate = UIAppDelegate::new().on_start(|app, _| {
-        app.ui_window_request(WindowRequest::new("Window 1", 600, 400, |_| {
-            build_first_window()
-        }));
+        app.request(rui::app::AppRequest::OpenWindowRequest(WindowRequest::new(
+            "Window 1",
+            600,
+            400,
+            |_| build_first_window(),
+        )));
     });
 
     app.run(delegate, State);

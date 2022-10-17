@@ -22,7 +22,7 @@ pub use properties::Properties;
 use winit::window::{CursorIcon, WindowId};
 
 use crate::{
-    app::{App, AppState, CursorIconRequest, WindowRequest},
+    app::{App, AppRequest, AppState, CursorIconRequest, WindowRequest},
     canvas::{Canvas2D, Point, Rect, Size},
     constraints::BoxConstraints,
 };
@@ -90,13 +90,19 @@ impl<'a, State: AppState + 'static> EventCtx<'a, State> {
         &self.properties.size
     }
 
-    pub fn ui_window_request(&mut self, request: WindowRequest<State>) {
-        self.app.ui_window_request(request)
+    pub fn request(&mut self, request: AppRequest<State>) {
+        self.app.request(request)
     }
 
-    pub fn request_cursor(&mut self, icon: CursorIcon) {
-        self.app
-            .cursor_icon_request(CursorIconRequest::new(self.window_id, icon))
+    pub fn request_ui_window(&mut self, request: WindowRequest<State>) {
+        self.request(AppRequest::OpenWindowRequest(request))
+    }
+
+    pub fn change_cursor(&mut self, icon: CursorIcon) {
+        self.request(AppRequest::ChangeCursorRequest(CursorIconRequest::new(
+            self.window_id,
+            icon,
+        )))
     }
 }
 
