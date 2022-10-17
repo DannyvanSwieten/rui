@@ -22,28 +22,38 @@ struct EditorState {
     selection: Range<usize>,
 }
 
-pub struct TextBox {
+pub struct TextBox<State> {
     state: EditorState,
     placeholder: String,
     style: ParagraphStyle,
+    on_commit: Option<Box<dyn Fn(&mut State, &str)>>,
 }
 
-impl TextBox {
+impl<State> TextBox<State> {
     pub fn new(placeholder: &str) -> Self {
         Self {
             state: EditorState::default(),
             placeholder: placeholder.to_string(),
             style: ParagraphStyle::new(),
+            on_commit: None,
         }
+    }
+
+    pub fn on_commit<F>(mut self, f: F) -> Self
+    where
+        F: Fn(&mut State, &str) + 'static,
+    {
+        self.on_commit = Some(Box::new(f));
+        self
     }
 }
 
-impl<State: AppState + 'static> Widget<State> for TextBox {
+impl<State: AppState + 'static> Widget<State> for TextBox<State> {
     fn event(
         &mut self,
         event: &super::Event,
         event_ctx: &mut super::EventCtx<State>,
-        _: &mut State,
+        state: &mut State,
     ) -> bool {
         match event {
             Event::Mouse(MouseEvent::MouseEnter(_)) => {
@@ -66,6 +76,11 @@ impl<State: AppState + 'static> Widget<State> for TextBox {
                                     self.state.caret_position -= 1;
                                 }
                             }
+                            VirtualKeyCode::Return => {
+                                if let Some(on_commit) = &self.on_commit {
+                                    (*on_commit)(state, &self.state.text)
+                                }
+                            }
                             _ => (),
                         }
                     }
@@ -81,6 +96,7 @@ impl<State: AppState + 'static> Widget<State> for TextBox {
 
                 true
             }
+
             _ => false,
         }
     }
