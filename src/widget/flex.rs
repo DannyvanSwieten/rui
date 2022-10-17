@@ -60,7 +60,7 @@ impl<State: AppState> Widget<State> for Flex<State> {
 
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
         // This is not a scrollable view. It needs constraints
-        assert!(constraints.has_max());
+        // assert!(constraints.has_max());
 
         // Start without child constraints
         let child_constraints = BoxConstraints::new();
@@ -107,11 +107,13 @@ impl<State: AppState> Widget<State> for Flex<State> {
 
             let flex_factor = match self.direction {
                 Direction::Horizontal => {
+                    assert!(constraints.max_width().is_some());
                     let width = constraints.max_width().unwrap();
                     let unconstraint_width = width - total_spacing - constrained_size.width;
                     unconstraint_width / total_flex
                 }
                 Direction::Vertical => {
+                    assert!(constraints.max_height().is_some());
                     let height = constraints.max_height().unwrap();
                     let unconstraint_height = height - total_spacing - constrained_size.height;
                     unconstraint_height / total_flex
@@ -147,10 +149,14 @@ impl<State: AppState> Widget<State> for Flex<State> {
             }
         }
 
-        Size::new(
-            constraints.max_width().unwrap(),
-            constraints.max_height().unwrap(),
-        )
+        if total_flex > 0.0 {
+            Size::new(
+                constraints.max_width().unwrap(),
+                constraints.max_height().unwrap(),
+            )
+        } else {
+            Size::new(constrained_size.width, constrained_size.height)
+        }
     }
 
     fn paint(&self, theme: &Theme, ctx: &PaintCtx, canvas: &mut dyn Canvas2D, state: &State) {
