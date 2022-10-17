@@ -1,5 +1,5 @@
 use rui::{
-    app::{App, AppState, UIAppDelegate, WindowRequest},
+    app::{App, AppRequest, AppState, UIAppDelegate, WindowRequest},
     widget::button::ButtonStyle,
     widget::container::Container,
     widget::{button::TextButton, Widget},
@@ -40,7 +40,7 @@ fn main() {
     let app = App::new();
 
     let delegate = UIAppDelegate::new().on_start(|app, _| {
-        app.request(rui::app::AppRequest::OpenWindowRequest(WindowRequest::new(
+        app.request(AppRequest::OpenWindow(WindowRequest::new(
             "Window 1",
             600,
             400,

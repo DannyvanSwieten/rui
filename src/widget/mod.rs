@@ -95,7 +95,7 @@ impl<'a, State: AppState + 'static> EventCtx<'a, State> {
     }
 
     pub fn request_ui_window(&mut self, request: WindowRequest<State>) {
-        self.request(AppRequest::OpenWindowRequest(request))
+        self.request(AppRequest::OpenWindow(request))
     }
 
     pub fn change_cursor(&mut self, icon: CursorIcon) {

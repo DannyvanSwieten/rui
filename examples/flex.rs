@@ -1,5 +1,5 @@
 use rui::{
-    app::{App, AppState, UIAppDelegate, WindowRequest},
+    app::{App, AppRequest, AppState, UIAppDelegate, WindowRequest},
     widget::{
         button::{ButtonStyle, TextButton},
         flex::Flex,
@@ -18,7 +18,7 @@ fn main() {
     let app = App::new();
 
     let delegate = UIAppDelegate::new().on_start(|app, _state| {
-        app.request(rui::app::AppRequest::OpenWindowRequest(WindowRequest::new(
+        app.request(AppRequest::OpenWindow(WindowRequest::new(
             "Flex",
             600,
             400,
