@@ -20,7 +20,7 @@ impl<State: AppState> SizedBox<State> {
 }
 
 impl<State: AppState> Widget<State> for SizedBox<State> {
-    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx, state: &State) -> bool {
         self.child.event(event, ctx, state)
     }
 

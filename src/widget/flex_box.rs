@@ -11,7 +11,7 @@ pub struct FlexBox<State> {
 }
 
 impl<State: AppState> Widget<State> for FlexBox<State> {
-    fn event(&mut self, _: &Event, _: &mut EventCtx<State>, _: &mut State) -> bool {
+    fn event(&mut self, _: &Event, _: &mut EventCtx, _: &State) -> bool {
         false
     }
 

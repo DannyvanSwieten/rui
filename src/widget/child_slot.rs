@@ -41,7 +41,7 @@ impl<State: AppState> ChildSlot<State> {
         &self.properties.size
     }
 
-    pub fn hit_test(&mut self, point: &Point) -> bool {
+    pub fn hit_test(&self, point: &Point) -> bool {
         let pos = self.properties.position;
         let size = self.properties.size;
 
@@ -54,8 +54,8 @@ impl<State: AppState> ChildSlot<State> {
     fn propagate_mouse_event(
         &mut self,
         event: &MouseEvent,
-        ctx: &mut EventCtx<State>,
-        state: &mut State,
+        ctx: &mut EventCtx,
+        state: &State,
     ) -> bool {
         if self.hit_test(event.local_position()) {
             if !self.properties.has_mouse {
@@ -68,7 +68,6 @@ impl<State: AppState> ChildSlot<State> {
 
             let inner_event = event.to_local(self.position());
             let mut inner_ctx = EventCtx {
-                app: ctx.app,
                 properties: &self.properties,
                 window_id: ctx.window_id,
             };
@@ -91,7 +90,7 @@ impl<State: AppState> ChildSlot<State> {
 }
 
 impl<State: AppState> Widget<State> for ChildSlot<State> {
-    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx, state: &State) -> bool {
         match event {
             Event::Mouse(event) => self.propagate_mouse_event(event, ctx, state),
             Event::Key(_) => self.widget.event(event, ctx, state),

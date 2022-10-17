@@ -112,7 +112,7 @@ impl<State: AppState + 'static> WindowDelegate<State> for UiWindowDelegate<State
     fn mouse_moved(
         &mut self,
         app: &mut App<State>,
-        state: &mut State,
+        state: &State,
         window_id: WindowId,
         x: f32,
         y: f32,
@@ -127,7 +127,7 @@ impl<State: AppState + 'static> WindowDelegate<State> for UiWindowDelegate<State
     fn mouse_dragged(
         &mut self,
         app: &mut App<State>,
-        state: &mut State,
+        state: &State,
         window_id: WindowId,
         x: f32,
         y: f32,
@@ -149,7 +149,7 @@ impl<State: AppState + 'static> WindowDelegate<State> for UiWindowDelegate<State
     fn mouse_down(
         &mut self,
         app: &mut App<State>,
-        state: &mut State,
+        state: &State,
         window_id: WindowId,
         x: f32,
         y: f32,
@@ -164,7 +164,7 @@ impl<State: AppState + 'static> WindowDelegate<State> for UiWindowDelegate<State
     fn mouse_up(
         &mut self,
         app: &mut App<State>,
-        state: &mut State,
+        state: &State,
         window_id: WindowId,
         x: f32,
         y: f32,
@@ -180,7 +180,7 @@ impl<State: AppState + 'static> WindowDelegate<State> for UiWindowDelegate<State
         &mut self,
         window: &winit::window::Window,
         app: &App<State>,
-        state: &mut State,
+        state: &State,
         window_id: WindowId,
         width: u32,
         height: u32,
@@ -219,28 +219,14 @@ impl<State: AppState + 'static> WindowDelegate<State> for UiWindowDelegate<State
         });
     }
 
-    fn file_dropped(
-        &mut self,
-        state: &mut State,
-        window_id: WindowId,
-        path: &Path,
-        x: f32,
-        y: f32,
-    ) {
+    fn file_dropped(&mut self, state: &State, window_id: WindowId, path: &Path, x: f32, y: f32) {
         if let Some(ui) = self.ui.as_mut() {
             ui.user_interface
                 .file_dropped(state, window_id, path, &Point::new(x, y))
         }
     }
 
-    fn file_hovered(
-        &mut self,
-        state: &mut State,
-        window_id: WindowId,
-        path: &Path,
-        x: f32,
-        y: f32,
-    ) {
+    fn file_hovered(&mut self, state: &State, window_id: WindowId, path: &Path, x: f32, y: f32) {
         if let Some(ui) = self.ui.as_mut() {
             ui.user_interface
                 .file_hovered(state, window_id, path, &Point::new(x, y))
@@ -252,14 +238,14 @@ impl<State: AppState + 'static> WindowDelegate<State> for UiWindowDelegate<State
         self.render_ui(state)
     }
 
-    fn close_button_pressed(&mut self, _state: &mut State, _: WindowId) -> bool {
+    fn close_button_pressed(&mut self, _state: &State, _: WindowId) -> bool {
         true
     }
 
     fn keyboard_event(
         &mut self,
         app: &mut App<State>,
-        state: &mut State,
+        state: &State,
         window_id: WindowId,
         event: &winit::event::KeyboardInput,
     ) {
@@ -271,7 +257,7 @@ impl<State: AppState + 'static> WindowDelegate<State> for UiWindowDelegate<State
     fn character_received(
         &mut self,
         app: &mut App<State>,
-        state: &mut State,
+        state: &State,
         window_id: WindowId,
         character: char,
     ) {
@@ -281,5 +267,5 @@ impl<State: AppState + 'static> WindowDelegate<State> for UiWindowDelegate<State
         }
     }
 
-    fn update(&mut self, _state: &mut State) {}
+    fn update(&mut self, _state: &State) {}
 }

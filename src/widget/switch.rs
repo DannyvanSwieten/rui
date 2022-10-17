@@ -10,13 +10,13 @@ enum SwitchState {
     Inactive,
 }
 
-pub struct Switch<State> {
-    value_changed: Option<Box<dyn Fn(bool, &mut State)>>,
+pub struct Switch {
+    value_changed: Option<Box<dyn Fn(bool)>>,
     active: bool,
     state: SwitchState,
 }
 
-impl<State: AppState + 'static> Switch<State> {
+impl Switch {
     pub fn new() -> Self {
         Self {
             value_changed: None,
@@ -32,22 +32,22 @@ impl<State: AppState + 'static> Switch<State> {
 
     pub fn value_changed<F>(mut self, f: F) -> Self
     where
-        F: Fn(bool, &mut State) + 'static,
+        F: Fn(bool) + 'static,
     {
         self.value_changed = Some(Box::new(f));
         self
     }
 }
 
-impl<State: AppState> Widget<State> for Switch<State> {
-    fn event(&mut self, event: &Event, _: &mut EventCtx<State>, state: &mut State) -> bool {
+impl<State: AppState> Widget<State> for Switch {
+    fn event(&mut self, event: &Event, _: &mut EventCtx, _: &State) -> bool {
         match event {
             Event::Mouse(MouseEvent::MouseEnter(_)) => self.state = SwitchState::Active,
             Event::Mouse(MouseEvent::MouseLeave(_)) => self.state = SwitchState::Inactive,
             Event::Mouse(MouseEvent::MouseDown(_)) => {
                 self.active = !self.active;
-                if let Some(l) = &mut self.value_changed {
-                    (l)(self.active, state);
+                if let Some(l) = &self.value_changed {
+                    (l)(self.active);
                 }
             }
             Event::Mouse(MouseEvent::MouseUp(_)) => self.state = SwitchState::Inactive,
@@ -115,7 +115,7 @@ impl<State: AppState> Widget<State> for Switch<State> {
     }
 }
 
-impl<State: AppState + 'static> Default for Switch<State> {
+impl Default for Switch {
     fn default() -> Self {
         Self::new()
     }

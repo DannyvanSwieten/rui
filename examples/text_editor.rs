@@ -8,13 +8,13 @@ struct State;
 impl AppState for State {
     type MessageType = ();
 
-    fn handle_message(&mut self, _: Self::MessageType) {}
+    fn handle_message(&self, _: Self::MessageType) {}
 }
 
 fn main() {
     let app = App::new();
 
-    let delegate = UIAppDelegate::new().on_start(|app, _state| {
+    let delegate = UIAppDelegate::new().on_start(|app| {
         app.request(rui::app::AppRequest::OpenWindowRequest(WindowRequest::new(
             "TextBox Example",
             400,

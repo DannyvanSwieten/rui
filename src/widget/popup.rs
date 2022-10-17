@@ -26,7 +26,7 @@ struct PopupMenuWidget {
 // }
 
 impl<State: AppState> Widget<State> for PopupMenuWidget {
-    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx, state: &State) -> bool {
         let _ = event;
         let _ = ctx;
         let _ = state;
@@ -69,13 +69,13 @@ impl PopupMenu {
 
 pub struct PopupRequest<State> {
     _menu: PopupMenu,
-    pub handler: Box<dyn FnMut(usize, usize, &mut State) -> Action<State>>,
+    pub handler: Box<dyn FnMut(usize, usize) -> Action<State>>,
 }
 
 impl<State: AppState + 'static> PopupRequest<State> {
     pub fn new<F>(menu: PopupMenu, handler: F) -> Self
     where
-        F: FnMut(usize, usize, &mut State) -> Action<State> + 'static,
+        F: FnMut(usize, usize) -> Action<State> + 'static,
     {
         PopupRequest {
             _menu: menu,

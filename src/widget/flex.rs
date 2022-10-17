@@ -48,7 +48,7 @@ impl<State: AppState> Flex<State> {
 }
 
 impl<State: AppState> Widget<State> for Flex<State> {
-    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx, state: &State) -> bool {
         for child in &mut self.children {
             if child.event(event, ctx, state) {
                 return true;

@@ -19,10 +19,10 @@ mod properties;
 pub use child_slot::ChildSlot;
 pub use event::{Event, KeyEvent, MouseEvent};
 pub use properties::Properties;
-use winit::window::{CursorIcon, WindowId};
+use winit::window::WindowId;
 
 use crate::{
-    app::{App, AppRequest, AppState, CursorIconRequest, WindowRequest},
+    app::AppState,
     canvas::{Canvas2D, Point, Rect, Size},
     constraints::BoxConstraints,
 };
@@ -50,13 +50,13 @@ pub enum Action<State> {
 }
 
 pub trait AppAction<State> {
-    fn undo(&self, _state: &mut State);
-    fn redo(&self, _state: &mut State);
+    fn undo(&self, _state: &State);
+    fn redo(&self, _state: &State);
 }
 
 #[allow(unused_variables)]
 pub trait Widget<State: AppState> {
-    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool;
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx, state: &State) -> bool;
 
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size;
 
@@ -67,20 +67,14 @@ pub trait Widget<State: AppState> {
     }
 }
 
-pub struct EventCtx<'a, State: AppState> {
-    app: &'a mut App<State>,
+pub struct EventCtx<'a> {
     properties: &'a Properties,
     window_id: WindowId,
 }
 
-impl<'a, State: AppState + 'static> EventCtx<'a, State> {
-    pub(crate) fn new(
-        app: &'a mut App<State>,
-        properties: &'a Properties,
-        window_id: WindowId,
-    ) -> Self {
+impl<'a> EventCtx<'a> {
+    pub(crate) fn new(properties: &'a Properties, window_id: WindowId) -> Self {
         Self {
-            app,
             properties,
             window_id,
         }
@@ -90,20 +84,20 @@ impl<'a, State: AppState + 'static> EventCtx<'a, State> {
         &self.properties.size
     }
 
-    pub fn request(&mut self, request: AppRequest<State>) {
-        self.app.request(request)
-    }
+    // pub fn request(&self, request: AppRequest<State>) {
+    //     self.app.request(request)
+    // }
 
-    pub fn request_ui_window(&mut self, request: WindowRequest<State>) {
-        self.request(AppRequest::OpenWindowRequest(request))
-    }
+    // pub fn request_ui_window(&self, request: WindowRequest<State>) {
+    //     self.request(AppRequest::OpenWindowRequest(request))
+    // }
 
-    pub fn change_cursor(&mut self, icon: CursorIcon) {
-        self.request(AppRequest::ChangeCursorRequest(CursorIconRequest::new(
-            self.window_id,
-            icon,
-        )))
-    }
+    // pub fn change_cursor(&self, icon: CursorIcon) {
+    //     self.request(AppRequest::ChangeCursorRequest(CursorIconRequest::new(
+    //         self.window_id,
+    //         icon,
+    //     )))
+    // }
 }
 
 pub struct PaintCtx<'a> {

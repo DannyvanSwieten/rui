@@ -143,13 +143,13 @@ impl<State: AppState + 'static> App<State> {
     where
         Delegate: AppDelegate<State> + 'static,
     {
-        let mut s = state;
+        let s = state;
         let event_loop = EventLoop::new();
         let mut d = delegate;
 
         let mut window_registry = WindowRegistry::new();
 
-        d.app_will_start(&mut self, &mut s, &mut window_registry, &event_loop);
+        d.app_will_start(&mut self, &s, &mut window_registry, &event_loop);
         let mut last_mouse_position = winit::dpi::PhysicalPosition::<f64>::new(0., 0.);
         let mut last_file_drop: Vec<std::path::PathBuf> = Vec::new();
         let mut mouse_is_down = false;
@@ -161,7 +161,7 @@ impl<State: AppState + 'static> App<State> {
             while let Some(request) = self.pending_requests.pop_front() {
                 match request {
                     AppRequest::OpenWindowRequest(request) => {
-                        d.window_requested(&self, &mut s, &mut window_registry, event_loop, request)
+                        d.window_requested(&self, &s, &mut window_registry, event_loop, request)
                     }
 
                     AppRequest::ChangeCursorRequest(request) => {
@@ -178,7 +178,7 @@ impl<State: AppState + 'static> App<State> {
                     event: WindowEvent::CloseRequested,
                     window_id,
                 } => {
-                    window_registry.close_button_pressed(&window_id, &mut s);
+                    window_registry.close_button_pressed(&window_id, &s);
                     if window_registry.active_window_count() == 0 {
                         *control_flow = ControlFlow::Exit;
                     }
@@ -197,7 +197,7 @@ impl<State: AppState + 'static> App<State> {
                 Event::WindowEvent {
                     event: WindowEvent::Resized(physical_size),
                     window_id,
-                } => window_registry.window_resized(&self, &mut s, &window_id, &physical_size),
+                } => window_registry.window_resized(&self, &s, &window_id, &physical_size),
 
                 Event::WindowEvent {
                     event: WindowEvent::DroppedFile(path_buffer),
@@ -206,12 +206,9 @@ impl<State: AppState + 'static> App<State> {
                 Event::WindowEvent {
                     event: WindowEvent::HoveredFile(path_buffer),
                     window_id,
-                } => window_registry.file_hovered(
-                    &window_id,
-                    &mut s,
-                    &path_buffer,
-                    &last_mouse_position,
-                ),
+                } => {
+                    window_registry.file_hovered(&window_id, &s, &path_buffer, &last_mouse_position)
+                }
                 Event::WindowEvent {
                     event: WindowEvent::Focused(f),
                     window_id,
@@ -236,19 +233,13 @@ impl<State: AppState + 'static> App<State> {
                             position.x - last_mouse_position.x,
                             position.y - last_mouse_position.y,
                         );
-                        window_registry
-                            .mouse_dragged(&mut self, &mut s, &window_id, &position, &delta)
+                        window_registry.mouse_dragged(&mut self, &s, &window_id, &position, &delta)
                     } else {
-                        window_registry.mouse_moved(&mut self, &mut s, &window_id, &position)
+                        window_registry.mouse_moved(&mut self, &s, &window_id, &position)
                     }
 
                     if !last_file_drop.is_empty() {
-                        window_registry.file_dropped(
-                            &window_id,
-                            &mut s,
-                            &last_file_drop[0],
-                            &position,
-                        );
+                        window_registry.file_dropped(&window_id, &s, &last_file_drop[0], &position);
 
                         last_file_drop.clear();
                     }
@@ -259,12 +250,12 @@ impl<State: AppState + 'static> App<State> {
                 Event::WindowEvent {
                     window_id,
                     event: WindowEvent::ReceivedCharacter(character),
-                } => window_registry.character_received(&window_id, &mut self, character, &mut s),
+                } => window_registry.character_received(&window_id, &mut self, character, &s),
 
                 Event::WindowEvent {
                     window_id,
                     event: WindowEvent::KeyboardInput { input, .. },
-                } => window_registry.keyboard_event(&window_id, &mut self, &input, &mut s),
+                } => window_registry.keyboard_event(&window_id, &mut self, &input, &s),
 
                 Event::WindowEvent {
                     event: WindowEvent::MouseInput { state, .. },
@@ -272,27 +263,17 @@ impl<State: AppState + 'static> App<State> {
                 } => match state {
                     winit::event::ElementState::Pressed => {
                         mouse_is_down = true;
-                        window_registry.mouse_down(
-                            &mut self,
-                            &mut s,
-                            &window_id,
-                            &last_mouse_position,
-                        )
+                        window_registry.mouse_down(&mut self, &s, &window_id, &last_mouse_position)
                     }
                     winit::event::ElementState::Released => {
                         mouse_is_down = false;
-                        window_registry.mouse_up(
-                            &mut self,
-                            &mut s,
-                            &window_id,
-                            &last_mouse_position,
-                        )
+                        window_registry.mouse_up(&mut self, &s, &window_id, &last_mouse_position)
                     }
                 },
                 Event::MainEventsCleared => {
-                    d.app_will_update(&self, &mut s, &mut window_registry, event_loop);
-                    window_registry.update(&mut s);
-                    window_registry.draw(&self, &mut s);
+                    d.app_will_update(&self, &s, &mut window_registry, event_loop);
+                    window_registry.update(&s);
+                    window_registry.draw(&self, &s);
                 }
                 _ => (),
             }

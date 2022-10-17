@@ -7,7 +7,7 @@ pub trait AppDelegate<State: AppState> {
     fn app_will_start(
         &mut self,
         app: &mut App<State>,
-        state: &mut State,
+        state: &State,
         window_registry: &mut WindowRegistry<State>,
         event_loop: &EventLoopWindowTarget<()>,
     ) {
@@ -25,7 +25,7 @@ pub trait AppDelegate<State: AppState> {
     fn app_will_update(
         &mut self,
         app: &App<State>,
-        state: &mut State,
+        state: &State,
         window_registry: &mut WindowRegistry<State>,
         event_loop: &EventLoopWindowTarget<()>,
     ) {
@@ -38,7 +38,7 @@ pub trait AppDelegate<State: AppState> {
     fn window_requested(
         &mut self,
         app: &App<State>,
-        state: &mut State,
+        state: &State,
         window_registry: &mut WindowRegistry<State>,
         event_loop: &EventLoopWindowTarget<()>,
         request: WindowRequest<State>,

@@ -36,20 +36,20 @@ impl<State: AppState + 'static> UserInterface<State> {
         }
     }
 
-    pub fn file_dropped(&mut self, _: &mut State, _: WindowId, _: &Path, _: &Point) {}
-    pub fn file_hovered(&mut self, _: &mut State, _: WindowId, _: &Path, _: &Point) {}
+    pub fn file_dropped(&self, _: &State, _: WindowId, _: &Path, _: &Point) {}
+    pub fn file_hovered(&self, _: &State, _: WindowId, _: &Path, _: &Point) {}
 
     pub fn resize(&mut self, state: &State, width: u32, height: u32) {
         let constraints = BoxConstraints::new().with_tight_constraints(width as f32, height as f32);
         self.layout(&constraints, state);
     }
 
-    pub fn resized(&mut self, _: &mut State, _: WindowId) {}
+    pub fn resized(&self, _: &State, _: WindowId) {}
 
     pub fn mouse_down(
         &mut self,
-        app: &mut App<State>,
-        state: &mut State,
+        _: &mut App<State>,
+        state: &State,
         window_id: WindowId,
         event: &window::MouseEvent,
     ) {
@@ -57,7 +57,7 @@ impl<State: AppState + 'static> UserInterface<State> {
             size: *self.root.size(),
             ..Properties::default()
         };
-        let mut ctx = EventCtx::new(app, &properties, window_id);
+        let mut ctx = EventCtx::new(&properties, window_id);
         self.root.event(
             &Event::Mouse(MouseEvent::MouseDown(*event)),
             &mut ctx,
@@ -67,8 +67,8 @@ impl<State: AppState + 'static> UserInterface<State> {
 
     pub fn mouse_up(
         &mut self,
-        app: &mut App<State>,
-        state: &mut State,
+        _: &mut App<State>,
+        state: &State,
         window_id: WindowId,
         event: &window::MouseEvent,
     ) {
@@ -76,17 +76,17 @@ impl<State: AppState + 'static> UserInterface<State> {
             size: *self.root.size(),
             ..Properties::default()
         };
-        let mut ctx = EventCtx::new(app, &properties, window_id);
+        let mut ctx = EventCtx::new(&properties, window_id);
         self.root
             .event(&Event::Mouse(MouseEvent::MouseUp(*event)), &mut ctx, state);
     }
 
-    pub fn double_click(&mut self, _: &mut State, _: &MouseEvent) {}
+    pub fn double_click(&self, _: &State, _: &MouseEvent) {}
 
     pub fn mouse_drag(
         &mut self,
-        app: &mut App<State>,
-        state: &mut State,
+        _: &mut App<State>,
+        state: &State,
         window_id: WindowId,
         event: &window::MouseEvent,
     ) {
@@ -94,7 +94,7 @@ impl<State: AppState + 'static> UserInterface<State> {
             size: *self.root.size(),
             ..Properties::default()
         };
-        let mut ctx = EventCtx::new(app, &properties, window_id);
+        let mut ctx = EventCtx::new(&properties, window_id);
         self.root.event(
             &Event::Mouse(MouseEvent::MouseDrag(*event)),
             &mut ctx,
@@ -104,8 +104,8 @@ impl<State: AppState + 'static> UserInterface<State> {
 
     pub fn mouse_moved(
         &mut self,
-        app: &mut App<State>,
-        state: &mut State,
+        _: &mut App<State>,
+        state: &State,
         window_id: WindowId,
         event: &window::MouseEvent,
     ) {
@@ -113,7 +113,7 @@ impl<State: AppState + 'static> UserInterface<State> {
             size: *self.root.size(),
             ..Properties::default()
         };
-        let mut ctx = EventCtx::new(app, &properties, window_id);
+        let mut ctx = EventCtx::new(&properties, window_id);
         self.root.event(
             &Event::Mouse(MouseEvent::MouseMove(*event)),
             &mut ctx,
@@ -121,12 +121,12 @@ impl<State: AppState + 'static> UserInterface<State> {
         );
     }
 
-    pub fn mouse_leave(&mut self, _: &mut State, _: &window::MouseEvent) {}
+    pub fn mouse_leave(&self, _: &State, _: &window::MouseEvent) {}
 
     pub fn keyboard_event(
         &mut self,
-        app: &mut App<State>,
-        state: &mut State,
+        _: &mut App<State>,
+        state: &State,
         window_id: WindowId,
         event: &KeyboardInput,
     ) {
@@ -134,15 +134,15 @@ impl<State: AppState + 'static> UserInterface<State> {
             size: *self.root.size(),
             ..Properties::default()
         };
-        let mut ctx = EventCtx::new(app, &properties, window_id);
+        let mut ctx = EventCtx::new(&properties, window_id);
         self.root
             .event(&Event::Key(KeyEvent::Input(*event)), &mut ctx, state);
     }
 
     pub fn character_received(
         &mut self,
-        app: &mut App<State>,
-        state: &mut State,
+        _: &mut App<State>,
+        state: &State,
         window_id: WindowId,
         character: char,
     ) {
@@ -150,7 +150,7 @@ impl<State: AppState + 'static> UserInterface<State> {
             size: *self.root.size(),
             ..Properties::default()
         };
-        let mut ctx = EventCtx::new(app, &properties, window_id);
+        let mut ctx = EventCtx::new(&properties, window_id);
         self.root
             .event(&Event::Key(KeyEvent::Char(character)), &mut ctx, state);
     }
@@ -160,11 +160,11 @@ impl<State: AppState + 'static> UserInterface<State> {
         self.root.set_size(&size);
     }
 
-    pub fn layout_child_with_name(&mut self, _: &str, _: &State) {
+    pub fn layout_child_with_name(&self, _: &str, _: &State) {
         // self.root.layout_child_with_name(child_name, state)
     }
 
-    pub fn paint(&mut self, state: &State, canvas: &mut dyn Canvas2D) {
+    pub fn paint(&self, state: &State, canvas: &mut dyn Canvas2D) {
         canvas.clear(&self.style_ctx.theme(&self.theme).unwrap().background);
 
         let properties = Properties {
