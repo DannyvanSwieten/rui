@@ -24,7 +24,7 @@ fn build_first_window() -> Box<dyn Widget<State>> {
                     }));
                 }),
         )
-        .with_padding(50f32),
+        .with_padding(50.0),
     )
 }
 fn build_second_window() -> Box<dyn Widget<State>> {
@@ -32,7 +32,7 @@ fn build_second_window() -> Box<dyn Widget<State>> {
         Container::new(
             TextButton::new("You opened a second window", 24.0).style(ButtonStyle::Outline),
         )
-        .with_padding(50f32),
+        .with_padding(50.0),
     )
 }
 
