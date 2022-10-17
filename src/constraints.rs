@@ -70,4 +70,12 @@ impl BoxConstraints {
     pub fn max_height(&self) -> Option<f32> {
         self.max_height
     }
+
+    pub fn has_min(&self) -> bool {
+        self.min_width.is_some() && self.min_height.is_some()
+    }
+
+    pub fn has_max(&self) -> bool {
+        self.max_width.is_some() && self.max_height.is_some()
+    }
 }

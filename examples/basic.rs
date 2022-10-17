@@ -20,7 +20,7 @@ fn main() {
         app.ui_window_request(WindowRequest::new("Basic Example", 600, 400, |_state| {
             Box::new(
                 Container::new(TextButton::new("Button", 24.0).style(ButtonStyle::Outline))
-                    .with_padding(50f32),
+                    .with_padding(50.0),
             )
         }));
     });

@@ -45,7 +45,8 @@ impl<State: AppState> Widget<State> for Row<State> {
 
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
         // This is not a scrollable view. It needs constraints
-        assert!(constraints.max_width().is_some() && constraints.max_height().is_some());
+        assert!(constraints.has_max());
+
         // Start without child constraints
         let child_constraints = BoxConstraints::new();
         let constrained_sizes: Vec<Size> = self
@@ -160,8 +161,10 @@ impl<State: AppState> Widget<State> for Column<State> {
 
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
         // It needs constraints
-        assert!(constraints.max_width().is_some() && constraints.max_height().is_some());
+        assert!(constraints.has_max());
+
         let total_spacing = (self.children.len() as f32 - 1.0) * self.spacing;
+
         // Start with no constraints
         let child_constraints = BoxConstraints::new();
         let constrained_sizes: Vec<Size> = self

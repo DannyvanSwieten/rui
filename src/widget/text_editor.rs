@@ -106,7 +106,7 @@ impl<State: AppState + 'static> Widget<State> for TextBox<State> {
         font_collection.set_default_font_manager(FontMgr::new(), None);
         let mut paragraph_builder = ParagraphBuilder::new(&self.style, font_collection);
         let mut ts = TextStyle::new();
-        ts.set_font_size(18f32);
+        ts.set_font_size(18.0);
         ts.set_foreground_color(Paint::default());
         paragraph_builder.push_style(&ts);
         paragraph_builder.add_text(&self.placeholder);
@@ -122,7 +122,7 @@ impl<State: AppState + 'static> Widget<State> for TextBox<State> {
         font_collection.set_default_font_manager(FontMgr::new(), None);
         let mut paragraph_builder = ParagraphBuilder::new(&self.style, font_collection);
         let mut ts = TextStyle::new();
-        ts.set_font_size(18f32);
+        ts.set_font_size(18.0);
         if !self.state.text.is_empty() {
             ts.set_foreground_color(Paint::default());
             paragraph_builder.push_style(&ts);
