@@ -53,6 +53,11 @@ impl<State: AppState> WindowRequest<State> {
     }
 }
 
+pub enum AppRequest<State: AppState> {
+    OpenWindowRequest(WindowRequest<State>),
+    ChangeCursorRequest(CursorIconRequest),
+}
+
 pub struct GpuApi {
     pub instance: wgpu::Instance,
     pub adapter: wgpu::Adapter,
@@ -102,8 +107,7 @@ impl GpuApi {
 pub struct App<State: AppState> {
     gpu_api: GpuApi,
     pending_messages: VecDeque<State::MessageType>,
-    pending_window_requests: VecDeque<WindowRequest<State>>,
-    pending_cursor_requests: VecDeque<CursorIconRequest>,
+    pending_requests: VecDeque<AppRequest<State>>,
     _state: std::marker::PhantomData<State>,
 }
 
@@ -113,8 +117,7 @@ impl<State: AppState + 'static> App<State> {
 
         Self {
             pending_messages: VecDeque::new(),
-            pending_window_requests: VecDeque::new(),
-            pending_cursor_requests: VecDeque::new(),
+            pending_requests: VecDeque::new(),
             _state: std::marker::PhantomData::<State>::default(),
             gpu_api,
         }
@@ -132,12 +135,8 @@ impl<State: AppState + 'static> App<State> {
         self.pending_messages.pop_front()
     }
 
-    pub fn ui_window_request(&mut self, request: WindowRequest<State>) {
-        self.pending_window_requests.push_back(request)
-    }
-
-    pub fn cursor_icon_request(&mut self, request: CursorIconRequest) {
-        self.pending_cursor_requests.push_back(request)
+    pub fn request(&mut self, request: AppRequest<State>) {
+        self.pending_requests.push_back(request)
     }
 
     pub fn run<Delegate>(mut self, delegate: Delegate, state: State)
@@ -159,13 +158,17 @@ impl<State: AppState + 'static> App<State> {
                 s.handle_message(msg)
             }
 
-            while let Some(request) = self.pending_window_requests.pop_front() {
-                d.window_requested(&self, &mut s, &mut window_registry, event_loop, request)
-            }
+            while let Some(request) = self.pending_requests.pop_front() {
+                match request {
+                    AppRequest::OpenWindowRequest(request) => {
+                        d.window_requested(&self, &mut s, &mut window_registry, event_loop, request)
+                    }
 
-            while let Some(request) = self.pending_cursor_requests.pop_front() {
-                if let Some(entry) = window_registry.get_mut(request.window_id) {
-                    entry.window.set_cursor_icon(request.cursor_icon)
+                    AppRequest::ChangeCursorRequest(request) => {
+                        if let Some(entry) = window_registry.get_mut(request.window_id) {
+                            entry.window.set_cursor_icon(request.cursor_icon)
+                        }
+                    }
                 }
             }
 
