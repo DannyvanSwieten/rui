@@ -8,11 +8,22 @@ pub struct BoxConstraints {
 
 impl BoxConstraints {
     pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn new_with_min(width: f32, height: f32) -> Self {
         Self {
-            min_width: None,
-            min_height: None,
-            max_width: None,
-            max_height: None,
+            min_width: Some(width),
+            min_height: Some(height),
+            ..Default::default()
+        }
+    }
+
+    pub fn new_with_max(width: f32, height: f32) -> Self {
+        Self {
+            max_width: Some(width),
+            max_height: Some(height),
+            ..Default::default()
         }
     }
 
