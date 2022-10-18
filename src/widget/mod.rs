@@ -26,6 +26,7 @@ use crate::{
     constraints::BoxConstraints,
 };
 use popup::PopupRequest;
+use std::sync::mpsc;
 use style::Theme;
 use winit::window::WindowId;
 
@@ -70,15 +71,19 @@ pub trait Widget<State: AppState> {
 pub struct EventCtx<'a, Message> {
     properties: &'a Properties,
     window_id: WindowId,
-    phantom: std::marker::PhantomData<Message>,
+    message_tx: mpsc::Sender<Message>,
 }
 
 impl<'a, Message> EventCtx<'a, Message> {
-    pub(crate) fn new(properties: &'a Properties, window_id: WindowId) -> Self {
+    pub(crate) fn new(
+        properties: &'a Properties,
+        window_id: WindowId,
+        message_tx: mpsc::Sender<Message>,
+    ) -> Self {
         Self {
             properties,
             window_id,
-            phantom: std::marker::PhantomData,
+            message_tx,
         }
     }
 
@@ -87,7 +92,7 @@ impl<'a, Message> EventCtx<'a, Message> {
     }
 
     pub fn publish(&self, message: Message) {
-        todo!()
+        self.message_tx.send(message).unwrap()
     }
 
     // pub fn request(&self, request: AppRequest<State>) {

@@ -70,7 +70,7 @@ impl<State: AppState> ChildSlot<State> {
             let mut inner_ctx = EventCtx {
                 properties: &self.properties,
                 window_id: ctx.window_id,
-                phantom: std::marker::PhantomData,
+                message_tx: ctx.message_tx.clone(),
             };
             self.widget
                 .event(&Event::Mouse(inner_event), &mut inner_ctx, state)

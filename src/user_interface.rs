@@ -50,7 +50,7 @@ impl<State: AppState + 'static> UserInterface<State> {
 
     pub fn mouse_down(
         &mut self,
-        _: &mut App<State>,
+        app: &mut App<State>,
         state: &State,
         window_id: WindowId,
         event: &window::MouseEvent,
@@ -59,7 +59,7 @@ impl<State: AppState + 'static> UserInterface<State> {
             size: *self.root.size(),
             ..Properties::default()
         };
-        let mut ctx = EventCtx::new(&properties, window_id);
+        let mut ctx = EventCtx::new(&properties, window_id, app.message_tx.clone());
         self.root.event(
             &Event::Mouse(MouseEvent::MouseDown(*event)),
             &mut ctx,
@@ -69,7 +69,7 @@ impl<State: AppState + 'static> UserInterface<State> {
 
     pub fn mouse_up(
         &mut self,
-        _: &mut App<State>,
+        app: &mut App<State>,
         state: &State,
         window_id: WindowId,
         event: &window::MouseEvent,
@@ -78,7 +78,7 @@ impl<State: AppState + 'static> UserInterface<State> {
             size: *self.root.size(),
             ..Properties::default()
         };
-        let mut ctx = EventCtx::new(&properties, window_id);
+        let mut ctx = EventCtx::new(&properties, window_id, app.message_tx.clone());
         self.root
             .event(&Event::Mouse(MouseEvent::MouseUp(*event)), &mut ctx, state);
     }
@@ -87,7 +87,7 @@ impl<State: AppState + 'static> UserInterface<State> {
 
     pub fn mouse_drag(
         &mut self,
-        _: &mut App<State>,
+        app: &mut App<State>,
         state: &State,
         window_id: WindowId,
         event: &window::MouseEvent,
@@ -96,7 +96,7 @@ impl<State: AppState + 'static> UserInterface<State> {
             size: *self.root.size(),
             ..Properties::default()
         };
-        let mut ctx = EventCtx::new(&properties, window_id);
+        let mut ctx = EventCtx::new(&properties, window_id, app.message_tx.clone());
         self.root.event(
             &Event::Mouse(MouseEvent::MouseDrag(*event)),
             &mut ctx,
@@ -106,7 +106,7 @@ impl<State: AppState + 'static> UserInterface<State> {
 
     pub fn mouse_moved(
         &mut self,
-        _: &mut App<State>,
+        app: &mut App<State>,
         state: &State,
         window_id: WindowId,
         event: &window::MouseEvent,
@@ -115,7 +115,7 @@ impl<State: AppState + 'static> UserInterface<State> {
             size: *self.root.size(),
             ..Properties::default()
         };
-        let mut ctx = EventCtx::new(&properties, window_id);
+        let mut ctx = EventCtx::new(&properties, window_id, app.message_tx.clone());
         self.root.event(
             &Event::Mouse(MouseEvent::MouseMove(*event)),
             &mut ctx,
@@ -127,7 +127,7 @@ impl<State: AppState + 'static> UserInterface<State> {
 
     pub fn keyboard_event(
         &mut self,
-        _: &mut App<State>,
+        app: &mut App<State>,
         state: &State,
         window_id: WindowId,
         event: &KeyboardInput,
@@ -136,14 +136,14 @@ impl<State: AppState + 'static> UserInterface<State> {
             size: *self.root.size(),
             ..Properties::default()
         };
-        let mut ctx = EventCtx::new(&properties, window_id);
+        let mut ctx = EventCtx::new(&properties, window_id, app.message_tx.clone());
         self.root
             .event(&Event::Key(KeyEvent::Input(*event)), &mut ctx, state);
     }
 
     pub fn character_received(
         &mut self,
-        _: &mut App<State>,
+        app: &mut App<State>,
         state: &State,
         window_id: WindowId,
         character: char,
@@ -152,7 +152,7 @@ impl<State: AppState + 'static> UserInterface<State> {
             size: *self.root.size(),
             ..Properties::default()
         };
-        let mut ctx = EventCtx::new(&properties, window_id);
+        let mut ctx = EventCtx::new(&properties, window_id, app.message_tx.clone());
         self.root
             .event(&Event::Key(KeyEvent::Char(character)), &mut ctx, state);
     }

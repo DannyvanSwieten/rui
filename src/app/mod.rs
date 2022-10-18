@@ -8,7 +8,7 @@ pub use ui_app_delegate::UIAppDelegate;
 
 use crate::{widget::Widget, window::WindowRegistry, Queue};
 use pollster::block_on;
-use std::rc::Rc;
+use std::{rc::Rc, sync::mpsc};
 use winit::{
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
@@ -105,7 +105,8 @@ impl GpuApi {
 
 pub struct App<State: AppState> {
     gpu_api: GpuApi,
-    pending_messages: Queue<State::Message>,
+    pub message_tx: mpsc::Sender<State::Message>,
+    message_tr: mpsc::Receiver<State::Message>,
     pending_requests: Queue<AppRequest<State>>,
     _state: std::marker::PhantomData<State>,
 }
@@ -114,8 +115,11 @@ impl<State: AppState + 'static> App<State> {
     pub fn new() -> Self {
         let gpu_api = block_on(GpuApi::new());
 
+        let (message_tx, message_tr) = mpsc::channel();
+
         Self {
-            pending_messages: Queue::new(),
+            message_tx,
+            message_tr,
             pending_requests: Queue::new(),
             _state: std::marker::PhantomData::<State>::default(),
             gpu_api,
@@ -124,10 +128,6 @@ impl<State: AppState + 'static> App<State> {
 
     pub fn gpu_api(&self) -> &GpuApi {
         &self.gpu_api
-    }
-
-    pub fn send_message(&mut self, msg: State::Message) {
-        self.pending_messages.push(msg)
     }
 
     pub fn request(&mut self, request: AppRequest<State>) {
@@ -149,7 +149,7 @@ impl<State: AppState + 'static> App<State> {
         let mut last_file_drop: Vec<std::path::PathBuf> = Vec::new();
         let mut mouse_is_down = false;
         event_loop.run(move |e, event_loop, control_flow| {
-            while let Some(message) = self.pending_messages.pop() {
+            while let Ok(message) = self.message_tr.try_recv() {
                 s.handle_message(message, &mut MessageCtx::new(&mut self));
             }
 
