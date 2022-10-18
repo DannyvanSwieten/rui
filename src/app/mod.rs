@@ -6,9 +6,9 @@ pub use app_delegate::AppDelegate;
 pub use app_state::{AppState, MessageCtx};
 pub use ui_app_delegate::UIAppDelegate;
 
-use crate::{widget::Widget, window::WindowRegistry};
+use crate::{widget::Widget, window::WindowRegistry, Queue};
 use pollster::block_on;
-use std::{collections::VecDeque, rc::Rc};
+use std::rc::Rc;
 use winit::{
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
@@ -105,8 +105,8 @@ impl GpuApi {
 
 pub struct App<State: AppState> {
     gpu_api: GpuApi,
-    pending_messages: VecDeque<State::Message>,
-    pending_requests: VecDeque<AppRequest<State>>,
+    pending_messages: Queue<State::Message>,
+    pending_requests: Queue<AppRequest<State>>,
     _state: std::marker::PhantomData<State>,
 }
 
@@ -115,8 +115,8 @@ impl<State: AppState + 'static> App<State> {
         let gpu_api = block_on(GpuApi::new());
 
         Self {
-            pending_messages: VecDeque::new(),
-            pending_requests: VecDeque::new(),
+            pending_messages: Queue::new(),
+            pending_requests: Queue::new(),
             _state: std::marker::PhantomData::<State>::default(),
             gpu_api,
         }
@@ -127,15 +127,11 @@ impl<State: AppState + 'static> App<State> {
     }
 
     pub fn send_message(&mut self, msg: State::Message) {
-        self.pending_messages.push_back(msg)
-    }
-
-    fn pop_message(&mut self) -> Option<State::Message> {
-        self.pending_messages.pop_front()
+        self.pending_messages.push(msg)
     }
 
     pub fn request(&mut self, request: AppRequest<State>) {
-        self.pending_requests.push_back(request)
+        self.pending_requests.push(request)
     }
 
     pub fn run<Delegate>(mut self, delegate: Delegate, state: State)
@@ -153,11 +149,11 @@ impl<State: AppState + 'static> App<State> {
         let mut last_file_drop: Vec<std::path::PathBuf> = Vec::new();
         let mut mouse_is_down = false;
         event_loop.run(move |e, event_loop, control_flow| {
-            while let Some(msg) = self.pop_message() {
-                s.handle_message(msg, &mut MessageCtx::new(&mut self))
+            while let Some(message) = self.pending_messages.pop() {
+                s.handle_message(message, &mut MessageCtx::new(&mut self));
             }
 
-            while let Some(request) = self.pending_requests.pop_front() {
+            while let Some(request) = self.pending_requests.pop() {
                 match request {
                     AppRequest::OpenWindow(request) => {
                         d.window_requested(&self, &s, &mut window_registry, event_loop, request)
