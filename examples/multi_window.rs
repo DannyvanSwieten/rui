@@ -8,7 +8,7 @@ struct State;
 impl AppState for State {
     type Message = OpenWindow;
 
-    fn handle_message(&self, _: Self::Message, ctx: &mut MessageCtx<Self>) {
+    fn handle_message(&mut self, _: Self::Message, ctx: &mut MessageCtx<Self>) {
         ctx.request(AppRequest::OpenWindow(WindowRequest::new(
             "Second window",
             600,

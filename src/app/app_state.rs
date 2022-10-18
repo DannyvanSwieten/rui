@@ -3,7 +3,7 @@ use super::{App, AppRequest};
 pub trait AppState: Sized {
     type Message: Clone;
 
-    fn handle_message(&self, msg: Self::Message, ctx: &mut MessageCtx<Self>);
+    fn handle_message(&mut self, msg: Self::Message, ctx: &mut MessageCtx<Self>);
 }
 
 pub struct MessageCtx<'a, State: AppState> {
