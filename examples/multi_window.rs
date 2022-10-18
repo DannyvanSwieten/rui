@@ -1,5 +1,5 @@
 use rui::{
-    app::{App, AppState, UIAppDelegate, WindowRequest},
+    app::{App, AppRequest, AppState, MessageCtx, UIAppDelegate, WindowRequest},
     widget::{button::ButtonStyle, button::TextButton, container::Container, Widget},
 };
 
@@ -8,8 +8,13 @@ struct State;
 impl AppState for State {
     type Message = OpenWindow;
 
-    fn handle_message(&self, _message: Self::Message) {
-        //
+    fn handle_message(&self, _: Self::Message, ctx: &mut MessageCtx<Self>) {
+        ctx.request(AppRequest::OpenWindow(WindowRequest::new(
+            "Second window",
+            600,
+            400,
+            |_| build_second_window(),
+        )))
     }
 }
 
@@ -17,11 +22,10 @@ impl AppState for State {
 struct OpenWindow;
 
 fn build_first_window() -> Box<dyn Widget<State>> {
-    Box::new(
-        Container::new(TextButton::new("Open new window", 24.0).on_click(OpenWindow))
-            .with_padding(50.0),
-    )
+    let button = TextButton::new("Open new window", 24.0).on_click(OpenWindow);
+    Box::new(Container::new(button).with_padding(50.0))
 }
+
 fn build_second_window() -> Box<dyn Widget<State>> {
     Box::new(
         Container::new(

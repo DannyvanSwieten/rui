@@ -3,7 +3,7 @@ mod app_state;
 mod ui_app_delegate;
 
 pub use app_delegate::AppDelegate;
-pub use app_state::AppState;
+pub use app_state::{AppState, MessageCtx};
 pub use ui_app_delegate::UIAppDelegate;
 
 use crate::{widget::Widget, window::WindowRegistry};
@@ -154,7 +154,7 @@ impl<State: AppState + 'static> App<State> {
         let mut mouse_is_down = false;
         event_loop.run(move |e, event_loop, control_flow| {
             while let Some(msg) = self.pop_message() {
-                s.handle_message(msg)
+                s.handle_message(msg, &mut MessageCtx::new(&mut self))
             }
 
             while let Some(request) = self.pending_requests.pop_front() {

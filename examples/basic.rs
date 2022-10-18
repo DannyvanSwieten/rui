@@ -1,5 +1,5 @@
 use rui::{
-    app::{App, AppState, UIAppDelegate, WindowRequest},
+    app::{App, AppState, MessageCtx, UIAppDelegate, WindowRequest},
     widget::{button::TextButton, container::Container},
 };
 
@@ -8,7 +8,7 @@ struct State;
 impl AppState for State {
     type Message = ();
 
-    fn handle_message(&self, _: Self::Message) {}
+    fn handle_message(&self, _: Self::Message, _: &mut MessageCtx<Self>) {}
 }
 
 fn main() {
