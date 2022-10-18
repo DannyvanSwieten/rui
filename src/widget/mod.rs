@@ -95,14 +95,6 @@ impl<'a, Message> EventCtx<'a, Message> {
         self.message_tx.send(message).unwrap()
     }
 
-    // pub fn request(&self, request: AppRequest<State>) {
-    //     self.app.request(request)
-    // }
-
-    // pub fn request_ui_window(&self, request: WindowRequest<State>) {
-    //     self.request(AppRequest::OpenWindowRequest(request))
-    // }
-
     // pub fn change_cursor(&self, icon: CursorIcon) {
     //     self.request(AppRequest::ChangeCursorRequest(CursorIconRequest::new(
     //         self.window_id,
