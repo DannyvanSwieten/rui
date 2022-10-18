@@ -56,7 +56,7 @@ pub trait AppAction<State> {
 
 #[allow(unused_variables)]
 pub trait Widget<State: AppState> {
-    fn event(&mut self, event: &Event, ctx: &mut EventCtx, state: &State) -> bool;
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State::Message>, state: &State) -> bool;
 
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size;
 
@@ -67,21 +67,27 @@ pub trait Widget<State: AppState> {
     }
 }
 
-pub struct EventCtx<'a> {
+pub struct EventCtx<'a, Message> {
     properties: &'a Properties,
     window_id: WindowId,
+    phantom: std::marker::PhantomData<Message>,
 }
 
-impl<'a> EventCtx<'a> {
+impl<'a, Message> EventCtx<'a, Message> {
     pub(crate) fn new(properties: &'a Properties, window_id: WindowId) -> Self {
         Self {
             properties,
             window_id,
+            phantom: std::marker::PhantomData,
         }
     }
 
     pub fn size(&self) -> &Size {
         &self.properties.size
+    }
+
+    pub fn publish(&self, message: Message) {
+        todo!()
     }
 
     // pub fn request(&self, request: AppRequest<State>) {

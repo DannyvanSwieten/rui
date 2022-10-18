@@ -26,7 +26,7 @@ struct PopupMenuWidget {
 // }
 
 impl<State: AppState> Widget<State> for PopupMenuWidget {
-    fn event(&mut self, event: &Event, ctx: &mut EventCtx, state: &State) -> bool {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State::Message>, state: &State) -> bool {
         let _ = event;
         let _ = ctx;
         let _ = state;

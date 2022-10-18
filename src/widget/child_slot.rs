@@ -54,7 +54,7 @@ impl<State: AppState> ChildSlot<State> {
     fn propagate_mouse_event(
         &mut self,
         event: &MouseEvent,
-        ctx: &mut EventCtx,
+        ctx: &mut EventCtx<State::Message>,
         state: &State,
     ) -> bool {
         if self.hit_test(event.local_position()) {
@@ -70,6 +70,7 @@ impl<State: AppState> ChildSlot<State> {
             let mut inner_ctx = EventCtx {
                 properties: &self.properties,
                 window_id: ctx.window_id,
+                phantom: std::marker::PhantomData,
             };
             self.widget
                 .event(&Event::Mouse(inner_event), &mut inner_ctx, state)
@@ -90,7 +91,7 @@ impl<State: AppState> ChildSlot<State> {
 }
 
 impl<State: AppState> Widget<State> for ChildSlot<State> {
-    fn event(&mut self, event: &Event, ctx: &mut EventCtx, state: &State) -> bool {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State::Message>, state: &State) -> bool {
         match event {
             Event::Mouse(event) => self.propagate_mouse_event(event, ctx, state),
             Event::Key(_) => self.widget.event(event, ctx, state),

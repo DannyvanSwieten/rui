@@ -105,7 +105,7 @@ impl GpuApi {
 
 pub struct App<State: AppState> {
     gpu_api: GpuApi,
-    pending_messages: VecDeque<State::MessageType>,
+    pending_messages: VecDeque<State::Message>,
     pending_requests: VecDeque<AppRequest<State>>,
     _state: std::marker::PhantomData<State>,
 }
@@ -126,11 +126,11 @@ impl<State: AppState + 'static> App<State> {
         &self.gpu_api
     }
 
-    pub fn send_message(&mut self, msg: State::MessageType) {
+    pub fn send_message(&mut self, msg: State::Message) {
         self.pending_messages.push_back(msg)
     }
 
-    fn pop_message(&mut self) -> Option<State::MessageType> {
+    fn pop_message(&mut self) -> Option<State::Message> {
         self.pending_messages.pop_front()
     }
 

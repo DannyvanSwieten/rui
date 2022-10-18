@@ -6,19 +6,20 @@ use rui::{
 struct State;
 
 impl AppState for State {
-    type MessageType = ();
+    type Message = OpenWindow;
 
-    fn handle_message(&self, _: Self::MessageType) {}
+    fn handle_message(&self, _message: Self::Message) {
+        //
+    }
 }
+
+#[derive(Clone)]
+struct OpenWindow;
 
 fn build_first_window() -> Box<dyn Widget<State>> {
     Box::new(
-        Container::new(TextButton::new("Open new window", 24.0).on_click(|ctx| {
-            // ctx.request_ui_window(WindowRequest::new("Second Window", 600, 400, |_| {
-            //     build_second_window()
-            // }));
-        }))
-        .with_padding(50.0),
+        Container::new(TextButton::new("Open new window", 24.0).on_click(OpenWindow))
+            .with_padding(50.0),
     )
 }
 fn build_second_window() -> Box<dyn Widget<State>> {

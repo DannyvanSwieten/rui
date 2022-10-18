@@ -39,7 +39,7 @@ impl<State: AppState> Expanded<State> {
 }
 
 impl<State: AppState> Widget<State> for Expanded<State> {
-    fn event(&mut self, event: &Event, ctx: &mut EventCtx, state: &State) -> bool {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State::Message>, state: &State) -> bool {
         self.child.event(event, ctx, state)
     }
 

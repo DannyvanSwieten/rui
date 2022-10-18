@@ -1,14 +1,14 @@
 use rui::{
-    app::{App, AppRequest, AppState, UIAppDelegate, WindowRequest},
+    app::{App, AppState, UIAppDelegate, WindowRequest},
     widget::{button::TextButton, container::Container},
 };
 
 struct State;
 
 impl AppState for State {
-    type MessageType = ();
+    type Message = ();
 
-    fn handle_message(&self, _: Self::MessageType) {}
+    fn handle_message(&self, _: Self::Message) {}
 }
 
 fn main() {

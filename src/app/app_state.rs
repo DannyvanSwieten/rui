@@ -1,5 +1,5 @@
 pub trait AppState {
-    type MessageType;
+    type Message: Clone;
 
-    fn handle_message(&self, msg: Self::MessageType);
+    fn handle_message(&self, msg: Self::Message);
 }

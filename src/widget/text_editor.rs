@@ -4,7 +4,7 @@ use crate::{
         textlayout::{self, FontCollection, ParagraphBuilder, ParagraphStyle, TextStyle},
         Canvas2D, Color, Color4f, Paint, Point, Rect, Size,
     },
-    widget::{style::Theme, Event, KeyEvent, PaintCtx, Widget},
+    widget::{style::Theme, Event, EventCtx, KeyEvent, PaintCtx, Widget},
 };
 use skia_safe::FontMgr;
 use std::ops::Range;
@@ -52,7 +52,7 @@ impl<State: AppState + 'static> Widget<State> for TextBox<State> {
     fn event(
         &mut self,
         event: &super::Event,
-        event_ctx: &mut super::EventCtx,
+        event_ctx: &mut EventCtx<State::Message>,
         state: &State,
     ) -> bool {
         match event {

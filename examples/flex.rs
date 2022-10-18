@@ -6,9 +6,9 @@ use rui::{
 struct State;
 
 impl AppState for State {
-    type MessageType = ();
+    type Message = ();
 
-    fn handle_message(&self, _: Self::MessageType) {}
+    fn handle_message(&self, _: Self::Message) {}
 }
 
 fn main() {

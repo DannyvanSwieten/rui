@@ -65,7 +65,7 @@ impl<State: AppState> List<State> {
 }
 
 impl<State: AppState> Widget<State> for List<State> {
-    fn event(&mut self, event: &Event, ctx: &mut EventCtx, state: &State) -> bool {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State::Message>, state: &State) -> bool {
         for child in &mut self.children {
             if child.event(event, ctx, state) {
                 return true;

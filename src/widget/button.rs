@@ -17,15 +17,15 @@ pub enum ButtonStyle {
     Fill,
 }
 
-pub struct TextButton {
+pub struct TextButton<Message> {
     state: ButtonState,
     style: ButtonStyle,
     text: String,
     font: Font,
-    on_click: Option<Box<dyn Fn(&mut EventCtx)>>,
+    on_click: Option<Message>,
 }
 
-impl TextButton {
+impl<Message> TextButton<Message> {
     pub fn new(text: &str, font_size: f32) -> Self {
         let mut font = Font::new(
             Typeface::new("arial black", FontStyle::normal()).unwrap(),
@@ -53,21 +53,21 @@ impl TextButton {
         self
     }
 
-    pub fn on_click(mut self, handler: impl Fn(&mut EventCtx) + 'static) -> Self {
-        self.on_click = Some(Box::new(handler));
+    pub fn on_click(mut self, message: Message) -> Self {
+        self.on_click = Some(message);
         self
     }
 }
 
-impl<State: AppState> Widget<State> for TextButton {
-    fn event(&mut self, event: &Event, ctx: &mut EventCtx, _: &State) -> bool {
+impl<State: AppState> Widget<State> for TextButton<State::Message> {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State::Message>, _: &State) -> bool {
         match event {
             Event::Mouse(MouseEvent::MouseEnter(_)) => self.state = ButtonState::Hover,
             Event::Mouse(MouseEvent::MouseLeave(_)) => self.state = ButtonState::Inactive,
             Event::Mouse(MouseEvent::MouseDown(_)) => self.state = ButtonState::Active,
             Event::Mouse(MouseEvent::MouseUp(_)) => {
-                if let Some(handler) = &self.on_click {
-                    handler(ctx)
+                if let Some(message) = &self.on_click {
+                    ctx.publish(message.clone())
                 }
 
                 self.state = ButtonState::Inactive

@@ -40,7 +40,7 @@ impl Switch {
 }
 
 impl<State: AppState> Widget<State> for Switch {
-    fn event(&mut self, event: &Event, _: &mut EventCtx, _: &State) -> bool {
+    fn event(&mut self, event: &Event, _: &mut EventCtx<State::Message>, _: &State) -> bool {
         match event {
             Event::Mouse(MouseEvent::MouseEnter(_)) => self.state = SwitchState::Active,
             Event::Mouse(MouseEvent::MouseLeave(_)) => self.state = SwitchState::Inactive,
