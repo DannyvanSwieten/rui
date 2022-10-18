@@ -33,14 +33,8 @@ fn build_second_window() -> Box<dyn Widget<State>> {
 fn main() {
     let app = App::new();
 
-    let delegate = UIAppDelegate::new().on_start(|app| {
-        app.request(rui::app::AppRequest::OpenWindowRequest(WindowRequest::new(
-            "Window 1",
-            600,
-            400,
-            |_| build_first_window(),
-        )));
-    });
+    let request = WindowRequest::new("Window 1", 600, 400, |_| build_first_window());
+    let delegate = UIAppDelegate::new(request);
 
     app.run(delegate, State);
 }

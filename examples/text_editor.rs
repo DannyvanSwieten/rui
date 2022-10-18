@@ -14,14 +14,10 @@ impl AppState for State {
 fn main() {
     let app = App::new();
 
-    let delegate = UIAppDelegate::new().on_start(|app| {
-        app.request(rui::app::AppRequest::OpenWindowRequest(WindowRequest::new(
-            "TextBox Example",
-            400,
-            100,
-            |_state| Box::new(Center::new(TextBox::new("Text..."))),
-        )));
+    let request = WindowRequest::new("TextBox Example", 400, 100, |_state| {
+        Box::new(Center::new(TextBox::new("Text...")))
     });
+    let delegate = UIAppDelegate::new(request);
 
     app.run(delegate, State);
 }

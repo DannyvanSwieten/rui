@@ -1,5 +1,5 @@
 use rui::{
-    app::{App, AppState, UIAppDelegate, WindowRequest},
+    app::{App, AppRequest, AppState, UIAppDelegate, WindowRequest},
     widget::{button::TextButton, container::Container},
 };
 
@@ -14,14 +14,10 @@ impl AppState for State {
 fn main() {
     let app = App::new();
 
-    let delegate = UIAppDelegate::new().on_start(|app| {
-        app.request(rui::app::AppRequest::OpenWindowRequest(WindowRequest::new(
-            "Basic Example",
-            600,
-            400,
-            |_state| Box::new(Container::new(TextButton::new("Button", 24.0)).with_padding(50.0)),
-        )));
+    let request = WindowRequest::new("Basic Example", 600, 400, |_state| {
+        Box::new(Container::new(TextButton::new("Button", 24.0)).with_padding(50.0))
     });
+    let delegate = UIAppDelegate::new(request);
 
     app.run(delegate, State);
 }

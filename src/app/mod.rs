@@ -53,7 +53,7 @@ impl<State: AppState> WindowRequest<State> {
 }
 
 pub enum AppRequest<State: AppState> {
-    OpenWindowRequest(WindowRequest<State>),
+    OpenWindow(WindowRequest<State>),
     ChangeCursorRequest(CursorIconRequest),
 }
 
@@ -159,7 +159,7 @@ impl<State: AppState + 'static> App<State> {
 
             while let Some(request) = self.pending_requests.pop_front() {
                 match request {
-                    AppRequest::OpenWindowRequest(request) => {
+                    AppRequest::OpenWindow(request) => {
                         d.window_requested(&self, &s, &mut window_registry, event_loop, request)
                     }
 
