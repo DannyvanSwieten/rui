@@ -1,7 +1,6 @@
-use crate::window::{UiWindowDelegate, WindowDelegate};
 use crate::{
     app::{App, AppDelegate, AppState, WindowRequest},
-    window::WindowRegistry,
+    window::{UiWindowDelegate, WindowDelegate, WindowRegistry},
 };
 use winit::event_loop::EventLoopWindowTarget;
 

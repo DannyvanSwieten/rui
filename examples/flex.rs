@@ -1,9 +1,6 @@
 use rui::{
     app::{App, AppState, UIAppDelegate, WindowRequest},
-    widget::{
-        button::{ButtonStyle, TextButton},
-        flex::Flex,
-    },
+    widget::{button::TextButton, flex::Flex},
 };
 
 struct State;

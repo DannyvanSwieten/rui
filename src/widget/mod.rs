@@ -19,7 +19,6 @@ mod properties;
 pub use child_slot::ChildSlot;
 pub use event::{Event, KeyEvent, MouseEvent};
 pub use properties::Properties;
-use winit::window::WindowId;
 
 use crate::{
     app::AppState,
@@ -28,6 +27,7 @@ use crate::{
 };
 use popup::PopupRequest;
 use style::Theme;
+use winit::window::WindowId;
 
 pub fn map_range(x: f32, a: f32, b: f32, c: f32, d: f32) -> f32 {
     let slope = (d - c) / (b - a);

@@ -1,11 +1,13 @@
-use crate::app::{App, AppState};
-use crate::canvas::{Canvas2D, Point, Size};
-use crate::constraints::BoxConstraints;
-use crate::widget::{
-    style::StyleContext, Action, ChildSlot, Event, EventCtx, KeyEvent, MouseEvent, PaintCtx,
-    Properties, Widget,
+use crate::{
+    app::{App, AppState},
+    canvas::{Canvas2D, Point, Size},
+    constraints::BoxConstraints,
+    widget::{
+        style::StyleContext, Action, ChildSlot, Event, EventCtx, KeyEvent, MouseEvent, PaintCtx,
+        Properties, Widget,
+    },
+    window,
 };
-use crate::window;
 use std::path::Path;
 use winit::{event::KeyboardInput, window::WindowId};
 

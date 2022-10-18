@@ -1,7 +1,6 @@
-use crate::window::{UiWindowDelegate, WindowDelegate};
 use crate::{
     application::{Application, ApplicationDelegate, ApplicationModel, WindowRequest},
-    window::WindowRegistry,
+    window::{UiWindowDelegate, WindowDelegate, WindowRegistry},
 };
 use std::rc::Rc;
 use vk_utils::device_context::DeviceContext;

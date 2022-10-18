@@ -1,8 +1,6 @@
 use rui::{
     app::{App, AppState, UIAppDelegate, WindowRequest},
-    widget::button::ButtonStyle,
-    widget::container::Container,
-    widget::{button::TextButton, Widget},
+    widget::{button::ButtonStyle, button::TextButton, container::Container, Widget},
 };
 
 struct State;

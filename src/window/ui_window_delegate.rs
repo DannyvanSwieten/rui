@@ -1,14 +1,13 @@
+use crate::{
+    app::{App, AppState},
+    canvas::{skia_cpu_canvas::SkiaCanvas, Point},
+    user_interface::UserInterface,
+    widget::Widget,
+    window::{MouseEvent, WindowDelegate},
+};
+use std::{path::Path, rc::Rc};
 use wgpu::{Device, Queue};
 use winit::window::WindowId;
-
-use crate::app::{App, AppState};
-use crate::canvas::{skia_cpu_canvas::SkiaCanvas, Point};
-use crate::user_interface::UserInterface;
-use crate::widget::Widget;
-use crate::window::{MouseEvent, WindowDelegate};
-
-use std::path::Path;
-use std::rc::Rc;
 
 struct UI<State: AppState> {
     canvas: SkiaCanvas,

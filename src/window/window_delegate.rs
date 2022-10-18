@@ -1,7 +1,6 @@
-use winit::window::WindowId;
-
 use crate::app::{App, AppState};
 use std::path::Path;
+use winit::window::WindowId;
 
 pub trait WindowDelegate<State: AppState> {
     fn close_button_pressed(&mut self, state: &State, window_id: WindowId) -> bool;
