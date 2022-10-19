@@ -1,6 +1,6 @@
 use rui::{
     app::{App, AppState, MessageCtx, UIAppDelegate, WindowRequest},
-    widget::{center::Center, text_editor::TextBox},
+    widget::{center::Center, container::Container, text_editor::TextBox},
 };
 
 struct State;
@@ -15,7 +15,7 @@ fn main() {
     let app = App::new();
 
     let request = WindowRequest::new("TextBox Example", 400, 100, |_state| {
-        Box::new(Center::new(TextBox::new("Text...")))
+        Box::new(Container::new(Center::new(TextBox::new("Text..."))).with_padding(15.0))
     });
     let delegate = UIAppDelegate::new(request);
 
