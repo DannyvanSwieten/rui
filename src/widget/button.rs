@@ -28,7 +28,7 @@ pub struct TextButton<Message> {
 impl<Message> TextButton<Message> {
     pub fn new(text: &str, font_size: f32) -> Self {
         let mut font = Font::new(
-            Typeface::new("arial black", FontStyle::normal()).unwrap(),
+            Typeface::new("Monospace", FontStyle::normal()).unwrap(),
             font_size,
         );
         font.set_edging(Edging::SubpixelAntiAlias);

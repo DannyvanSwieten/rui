@@ -8,6 +8,7 @@ struct State;
 impl AppState for State {
     type Message = OpenWindow;
 
+<<<<<<< Updated upstream
     fn handle_message(&mut self, _: Self::Message, ctx: &mut MessageCtx<Self>) {
         ctx.request(AppRequest::OpenWindow(WindowRequest::new(
             "Second window",
@@ -16,6 +17,9 @@ impl AppState for State {
             |_| build_second_window(),
         )))
     }
+=======
+    fn handle_message(&self, _: &mut App<Self>, _: Self::MessageType) {}
+>>>>>>> Stashed changes
 }
 
 #[derive(Clone)]
@@ -27,12 +31,7 @@ fn build_first_window() -> Box<dyn Widget<State>> {
 }
 
 fn build_second_window() -> Box<dyn Widget<State>> {
-    Box::new(
-        Container::new(
-            TextButton::new("You opened a second window", 24.0).style(ButtonStyle::Outline),
-        )
-        .with_padding(50.0),
-    )
+    Box::new(Container::new(TextButton::new("You opened a second window", 24.0)).with_padding(50.0))
 }
 
 fn main() {
