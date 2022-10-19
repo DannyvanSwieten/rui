@@ -1,6 +1,6 @@
 use rui::{
     app::{App, AppRequest, AppState, MessageCtx, UIAppDelegate, WindowRequest},
-    widget::{button::ButtonStyle, button::TextButton, container::Container, Widget},
+    widget::{button::TextButton, container::Container, Widget},
 };
 
 struct State;
@@ -8,7 +8,6 @@ struct State;
 impl AppState for State {
     type Message = OpenWindow;
 
-<<<<<<< Updated upstream
     fn handle_message(&mut self, _: Self::Message, ctx: &mut MessageCtx<Self>) {
         ctx.request(AppRequest::OpenWindow(WindowRequest::new(
             "Second window",
@@ -17,9 +16,6 @@ impl AppState for State {
             |_| build_second_window(),
         )))
     }
-=======
-    fn handle_message(&self, _: &mut App<Self>, _: Self::MessageType) {}
->>>>>>> Stashed changes
 }
 
 #[derive(Clone)]
