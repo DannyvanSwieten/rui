@@ -28,7 +28,7 @@ use crate::{
 use popup::PopupRequest;
 use std::sync::mpsc;
 use style::Theme;
-use winit::window::WindowId;
+use winit::window::{CursorIcon, WindowId};
 
 pub fn map_range(x: f32, a: f32, b: f32, c: f32, d: f32) -> f32 {
     let slope = (d - c) / (b - a);
@@ -63,6 +63,10 @@ pub trait Widget<State: AppState> {
 
     fn paint(&self, theme: &Theme, ctx: &PaintCtx, canvas: &mut dyn Canvas2D, state: &State);
 
+    fn uid(&self) -> usize {
+        std::usize::MAX
+    }
+
     fn flex(&self) -> f32 {
         0.0
     }
@@ -72,6 +76,7 @@ pub struct EventCtx<'a, Message> {
     properties: &'a Properties,
     window_id: WindowId,
     message_tx: mpsc::Sender<Message>,
+    cursor: CursorIcon,
 }
 
 impl<'a, Message> EventCtx<'a, Message> {
@@ -84,6 +89,7 @@ impl<'a, Message> EventCtx<'a, Message> {
             properties,
             window_id,
             message_tx,
+            cursor: CursorIcon::Default,
         }
     }
 
@@ -95,12 +101,13 @@ impl<'a, Message> EventCtx<'a, Message> {
         self.message_tx.send(message).unwrap()
     }
 
-    // pub fn change_cursor(&self, icon: CursorIcon) {
-    //     self.request(AppRequest::ChangeCursorRequest(CursorIconRequest::new(
-    //         self.window_id,
-    //         icon,
-    //     )))
-    // }
+    pub fn change_cursor(&mut self, icon: CursorIcon) {
+        self.cursor = icon
+    }
+
+    pub fn cursor(&self) -> CursorIcon {
+        self.cursor
+    }
 }
 
 pub struct PaintCtx<'a> {

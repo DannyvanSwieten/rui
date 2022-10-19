@@ -56,12 +56,12 @@ impl<State: AppState + 'static> Widget<State> for TextBox<State> {
         state: &State,
     ) -> bool {
         match event {
-            Event::Mouse(MouseEvent::MouseEnter(_)) => {
-                //event_ctx.change_cursor(CursorIcon::Text);
+            Event::Mouse(MouseEvent::MouseMove(_)) => {
+                event_ctx.change_cursor(CursorIcon::Text);
                 true
             }
             Event::Mouse(MouseEvent::MouseLeave(_)) => {
-                //event_ctx.change_cursor(CursorIcon::Default);
+                event_ctx.change_cursor(CursorIcon::Default);
                 true
             }
             Event::Key(KeyEvent::Input(event)) => {

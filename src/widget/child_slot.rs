@@ -1,3 +1,5 @@
+use std::{sync::atomic::AtomicUsize, sync::atomic::Ordering};
+
 use crate::{
     app::AppState,
     canvas::{Canvas2D, Point, Size},
@@ -5,7 +7,13 @@ use crate::{
     widget::{Event, EventCtx, MouseEvent, PaintCtx, Properties, Theme, Widget},
 };
 
+fn next_uid() -> usize {
+    static COUNTER: AtomicUsize = AtomicUsize::new(0);
+    COUNTER.fetch_add(1, Ordering::Relaxed)
+}
+
 pub struct ChildSlot<State> {
+    uid: usize,
     widget: Box<dyn Widget<State>>,
     properties: Properties,
 }
@@ -13,6 +21,7 @@ pub struct ChildSlot<State> {
 impl<State: AppState> ChildSlot<State> {
     pub fn new(widget: impl Widget<State> + 'static) -> Self {
         Self {
+            uid: next_uid(),
             widget: Box::new(widget),
             properties: Properties::default(),
         }
@@ -20,6 +29,7 @@ impl<State: AppState> ChildSlot<State> {
 
     pub fn new_with_box(widget: Box<dyn Widget<State>>) -> Self {
         Self {
+            uid: next_uid(),
             widget,
             properties: Properties::default(),
         }
@@ -71,9 +81,14 @@ impl<State: AppState> ChildSlot<State> {
                 properties: &self.properties,
                 window_id: ctx.window_id,
                 message_tx: ctx.message_tx.clone(),
+                cursor: ctx.cursor,
             };
-            self.widget
-                .event(&Event::Mouse(inner_event), &mut inner_ctx, state)
+            let result = self
+                .widget
+                .event(&Event::Mouse(inner_event), &mut inner_ctx, state);
+
+            ctx.change_cursor(inner_ctx.cursor());
+            result
         } else if self.properties.has_mouse {
             match event {
                 MouseEvent::MouseMove(event) | MouseEvent::MouseUp(event) => {
@@ -113,5 +128,9 @@ impl<State: AppState> Widget<State> for ChildSlot<State> {
 
     fn flex(&self) -> f32 {
         self.widget.flex()
+    }
+
+    fn uid(&self) -> usize {
+        self.uid
     }
 }

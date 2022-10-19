@@ -1,5 +1,5 @@
 use crate::{
-    app::{App, AppState},
+    app::{App, AppRequest, AppState, CursorIconRequest},
     canvas::{Canvas2D, Point, Size},
     constraints::BoxConstraints,
     widget::{
@@ -121,6 +121,11 @@ impl<State: AppState + 'static> UserInterface<State> {
             &mut ctx,
             state,
         );
+
+        app.request(AppRequest::ChangeCursorRequest(CursorIconRequest::new(
+            window_id,
+            ctx.cursor(),
+        )))
     }
 
     pub fn mouse_leave(&self, _: &State, _: &window::MouseEvent) {}
