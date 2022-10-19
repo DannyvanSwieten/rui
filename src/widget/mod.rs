@@ -19,15 +19,16 @@ mod properties;
 pub use child_slot::ChildSlot;
 pub use event::{Event, KeyEvent, MouseEvent};
 pub use properties::Properties;
-use winit::window::{CursorIcon, WindowId};
 
 use crate::{
-    app::{App, AppRequest, AppState, CursorIconRequest, WindowRequest},
+    app::AppState,
     canvas::{Canvas2D, Point, Rect, Size},
     constraints::BoxConstraints,
 };
 use popup::PopupRequest;
+use std::sync::mpsc;
 use style::Theme;
+use winit::window::{CursorIcon, WindowId};
 
 pub fn map_range(x: f32, a: f32, b: f32, c: f32, d: f32) -> f32 {
     let slope = (d - c) / (b - a);
@@ -50,39 +51,45 @@ pub enum Action<State> {
 }
 
 pub trait AppAction<State> {
-    fn undo(&self, _state: &mut State);
-    fn redo(&self, _state: &mut State);
+    fn undo(&self, _state: &State);
+    fn redo(&self, _state: &State);
 }
 
 #[allow(unused_variables)]
 pub trait Widget<State: AppState> {
-    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool;
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State::Message>, state: &State) -> bool;
 
     fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size;
 
     fn paint(&self, theme: &Theme, ctx: &PaintCtx, canvas: &mut dyn Canvas2D, state: &State);
+
+    fn uid(&self) -> usize {
+        std::usize::MAX
+    }
 
     fn flex(&self) -> f32 {
         0.0
     }
 }
 
-pub struct EventCtx<'a, State: AppState> {
-    app: &'a mut App<State>,
+pub struct EventCtx<'a, Message> {
     properties: &'a Properties,
     window_id: WindowId,
+    message_tx: mpsc::Sender<Message>,
+    cursor: CursorIcon,
 }
 
-impl<'a, State: AppState + 'static> EventCtx<'a, State> {
+impl<'a, Message> EventCtx<'a, Message> {
     pub(crate) fn new(
-        app: &'a mut App<State>,
         properties: &'a Properties,
         window_id: WindowId,
+        message_tx: mpsc::Sender<Message>,
     ) -> Self {
         Self {
-            app,
             properties,
             window_id,
+            message_tx,
+            cursor: CursorIcon::Default,
         }
     }
 
@@ -90,19 +97,16 @@ impl<'a, State: AppState + 'static> EventCtx<'a, State> {
         &self.properties.size
     }
 
-    pub fn request(&mut self, request: AppRequest<State>) {
-        self.app.request(request)
-    }
-
-    pub fn request_ui_window(&mut self, request: WindowRequest<State>) {
-        self.request(AppRequest::OpenWindow(request))
+    pub fn publish(&self, message: Message) {
+        self.message_tx.send(message).unwrap()
     }
 
     pub fn change_cursor(&mut self, icon: CursorIcon) {
-        self.request(AppRequest::ChangeCursorRequest(CursorIconRequest::new(
-            self.window_id,
-            icon,
-        )))
+        self.cursor = icon
+    }
+
+    pub fn cursor(&self) -> CursorIcon {
+        self.cursor
     }
 }
 

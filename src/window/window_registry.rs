@@ -52,7 +52,7 @@ impl<State: AppState> WindowRegistry<State> {
         self.entries.len()
     }
 
-    pub(crate) fn update(&mut self, state: &mut State) {
+    pub(crate) fn update(&mut self, state: &State) {
         for entry in self.entries.values_mut() {
             entry.delegate.update(state)
         }
@@ -61,7 +61,7 @@ impl<State: AppState> WindowRegistry<State> {
     pub(crate) fn window_resized(
         &mut self,
         app: &App<State>,
-        state: &mut State,
+        state: &State,
         id: &winit::window::WindowId,
         size: &winit::dpi::PhysicalSize<u32>,
     ) {
@@ -77,7 +77,7 @@ impl<State: AppState> WindowRegistry<State> {
         id: &WindowId,
         app: &mut App<State>,
         character: char,
-        state: &mut State,
+        state: &State,
     ) {
         if let Some(entry) = self.entries.get_mut(id) {
             entry
@@ -91,14 +91,14 @@ impl<State: AppState> WindowRegistry<State> {
         id: &WindowId,
         app: &mut App<State>,
         event: &winit::event::KeyboardInput,
-        state: &mut State,
+        state: &State,
     ) {
         if let Some(entry) = self.entries.get_mut(id) {
             entry.delegate.keyboard_event(app, state, *id, event)
         }
     }
 
-    pub(crate) fn close_button_pressed(&mut self, id: &WindowId, state: &mut State) {
+    pub(crate) fn close_button_pressed(&mut self, id: &WindowId, state: &State) {
         if let Some(entry) = self.entries.get_mut(id) {
             if entry.delegate.close_button_pressed(state, *id) {
                 self.entries.remove(id);
@@ -109,7 +109,7 @@ impl<State: AppState> WindowRegistry<State> {
     pub(crate) fn mouse_moved(
         &mut self,
         app: &mut App<State>,
-        state: &mut State,
+        state: &State,
         id: &WindowId,
         position: &winit::dpi::PhysicalPosition<f64>,
     ) {
@@ -123,7 +123,7 @@ impl<State: AppState> WindowRegistry<State> {
     pub(crate) fn mouse_dragged(
         &mut self,
         app: &mut App<State>,
-        state: &mut State,
+        state: &State,
         id: &winit::window::WindowId,
         position: &winit::dpi::PhysicalPosition<f64>,
         delta: &winit::dpi::PhysicalPosition<f64>,
@@ -144,7 +144,7 @@ impl<State: AppState> WindowRegistry<State> {
     pub(crate) fn mouse_down(
         &mut self,
         app: &mut App<State>,
-        state: &mut State,
+        state: &State,
         id: &winit::window::WindowId,
         position: &winit::dpi::PhysicalPosition<f64>,
     ) {
@@ -158,7 +158,7 @@ impl<State: AppState> WindowRegistry<State> {
     pub(crate) fn mouse_up(
         &mut self,
         app: &mut App<State>,
-        state: &mut State,
+        state: &State,
         id: &winit::window::WindowId,
         position: &winit::dpi::PhysicalPosition<f64>,
     ) {
@@ -170,13 +170,13 @@ impl<State: AppState> WindowRegistry<State> {
     }
 
     pub(crate) fn window_moved(
-        &mut self,
+        &self,
         _: &winit::window::WindowId,
         _: &winit::dpi::PhysicalPosition<i32>,
     ) {
     }
 
-    pub(crate) fn draw(&mut self, app: &App<State>, state: &mut State) {
+    pub(crate) fn draw(&mut self, app: &App<State>, state: &State) {
         for entry in self.entries.values_mut() {
             entry.delegate.draw(app, state)
         }
@@ -189,7 +189,7 @@ impl<State: AppState> WindowRegistry<State> {
     pub(crate) fn file_dropped(
         &mut self,
         id: &WindowId,
-        state: &mut State,
+        state: &State,
         file: &Path,
         position: &winit::dpi::PhysicalPosition<f64>,
     ) {
@@ -203,7 +203,7 @@ impl<State: AppState> WindowRegistry<State> {
     pub(crate) fn file_hovered(
         &mut self,
         id: &WindowId,
-        state: &mut State,
+        state: &State,
         file: &Path,
         position: &winit::dpi::PhysicalPosition<f64>,
     ) {

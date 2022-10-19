@@ -1,7 +1,6 @@
-use crate::window::{UiWindowDelegate, WindowDelegate};
 use crate::{
     application::{Application, ApplicationDelegate, ApplicationModel, WindowRequest},
-    window::WindowRegistry,
+    window::{UiWindowDelegate, WindowDelegate, WindowRegistry},
 };
 use std::rc::Rc;
 use vk_utils::device_context::DeviceContext;
@@ -64,7 +63,7 @@ impl<Model: ApplicationModel> UIApplicationDelegate<Model> {
 
 impl<Model: ApplicationModel> ApplicationDelegate<Model> for UIApplicationDelegate<Model> {
     fn application_will_start(
-        &mut self,
+        &self,
         app: &mut Application<Model>,
         state: &mut Model,
         _: &mut WindowRegistry<Model>,
@@ -89,7 +88,7 @@ impl<Model: ApplicationModel> ApplicationDelegate<Model> for UIApplicationDelega
     }
 
     fn application_will_update(
-        &mut self,
+        &self,
         app: &Application<Model>,
         state: &mut Model,
         _: &mut WindowRegistry<Model>,
@@ -101,7 +100,7 @@ impl<Model: ApplicationModel> ApplicationDelegate<Model> for UIApplicationDelega
     }
 
     fn window_requested(
-        &mut self,
+        &self,
         app: &Application<Model>,
         state: &mut Model,
         window_registry: &mut WindowRegistry<Model>,

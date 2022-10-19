@@ -4,7 +4,7 @@ use crate::{
         textlayout::{self, FontCollection, ParagraphBuilder, ParagraphStyle, TextStyle},
         Canvas2D, Color, Color4f, Paint, Point, Rect, Size,
     },
-    widget::{style::Theme, Event, KeyEvent, PaintCtx, Widget},
+    widget::{style::Theme, Event, EventCtx, KeyEvent, PaintCtx, Widget},
 };
 use skia_safe::FontMgr;
 use std::ops::Range;
@@ -26,7 +26,7 @@ pub struct TextBox<State> {
     state: EditorState,
     placeholder: String,
     style: ParagraphStyle,
-    on_commit: Option<Box<dyn Fn(&mut State, &str)>>,
+    on_commit: Option<Box<dyn Fn(&str, &State)>>,
 }
 
 impl<State> TextBox<State> {
@@ -41,7 +41,7 @@ impl<State> TextBox<State> {
 
     pub fn on_commit<F>(mut self, f: F) -> Self
     where
-        F: Fn(&mut State, &str) + 'static,
+        F: Fn(&str, &State) + 'static,
     {
         self.on_commit = Some(Box::new(f));
         self
@@ -52,11 +52,11 @@ impl<State: AppState + 'static> Widget<State> for TextBox<State> {
     fn event(
         &mut self,
         event: &super::Event,
-        event_ctx: &mut super::EventCtx<State>,
-        state: &mut State,
+        event_ctx: &mut EventCtx<State::Message>,
+        state: &State,
     ) -> bool {
         match event {
-            Event::Mouse(MouseEvent::MouseEnter(_)) => {
+            Event::Mouse(MouseEvent::MouseMove(_)) => {
                 event_ctx.change_cursor(CursorIcon::Text);
                 true
             }
@@ -78,7 +78,7 @@ impl<State: AppState + 'static> Widget<State> for TextBox<State> {
                             }
                             VirtualKeyCode::Return => {
                                 if let Some(on_commit) = &self.on_commit {
-                                    (*on_commit)(state, &self.state.text)
+                                    (*on_commit)(&self.state.text, state)
                                 }
                             }
                             _ => (),

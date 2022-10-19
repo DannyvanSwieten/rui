@@ -1,5 +1,23 @@
-pub trait AppState {
-    type MessageType;
+use super::{App, AppRequest};
 
-    fn handle_message(&mut self, msg: Self::MessageType);
+pub trait AppState: Sized {
+    type Message: Clone;
+
+    fn handle_message(&mut self, msg: Self::Message, ctx: &mut MessageCtx<Self>);
+}
+
+pub struct MessageCtx<'a, State: AppState> {
+    app: &'a mut App<State>,
+}
+
+impl<'a, State: AppState> MessageCtx<'a, State> {
+    pub fn new(app: &'a mut App<State>) -> Self {
+        Self { app }
+    }
+}
+
+impl<'a, State: AppState + 'static> MessageCtx<'a, State> {
+    pub fn request(&mut self, request: AppRequest<State>) {
+        self.app.request(request)
+    }
 }

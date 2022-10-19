@@ -17,18 +17,18 @@ pub enum ButtonStyle {
     Fill,
 }
 
-pub struct TextButton<State: AppState> {
+pub struct TextButton<Message> {
     state: ButtonState,
     style: ButtonStyle,
     text: String,
     font: Font,
-    on_click: Option<Box<dyn Fn(&mut EventCtx<State>, &mut State)>>,
+    on_click: Option<Message>,
 }
 
-impl<State: AppState> TextButton<State> {
+impl<Message> TextButton<Message> {
     pub fn new(text: &str, font_size: f32) -> Self {
         let mut font = Font::new(
-            Typeface::new("arial black", FontStyle::normal()).unwrap(),
+            Typeface::new("Monospace", FontStyle::normal()).unwrap(),
             font_size,
         );
         font.set_edging(Edging::SubpixelAntiAlias);
@@ -44,7 +44,7 @@ impl<State: AppState> TextButton<State> {
             text: text.to_string(),
             font,
             on_click: None,
-            style: ButtonStyle::Text,
+            style: ButtonStyle::Outline,
         }
     }
 
@@ -53,24 +53,21 @@ impl<State: AppState> TextButton<State> {
         self
     }
 
-    pub fn on_click(
-        mut self,
-        handler: impl Fn(&mut EventCtx<State>, &mut State) + 'static,
-    ) -> Self {
-        self.on_click = Some(Box::new(handler));
+    pub fn on_click(mut self, message: Message) -> Self {
+        self.on_click = Some(message);
         self
     }
 }
 
-impl<State: AppState> Widget<State> for TextButton<State> {
-    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool {
+impl<State: AppState> Widget<State> for TextButton<State::Message> {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State::Message>, _: &State) -> bool {
         match event {
             Event::Mouse(MouseEvent::MouseEnter(_)) => self.state = ButtonState::Hover,
             Event::Mouse(MouseEvent::MouseLeave(_)) => self.state = ButtonState::Inactive,
             Event::Mouse(MouseEvent::MouseDown(_)) => self.state = ButtonState::Active,
             Event::Mouse(MouseEvent::MouseUp(_)) => {
-                if let Some(handler) = &self.on_click {
-                    handler(ctx, state)
+                if let Some(message) = &self.on_click {
+                    ctx.publish(message.clone())
                 }
 
                 self.state = ButtonState::Inactive

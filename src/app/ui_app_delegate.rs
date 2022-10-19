@@ -1,19 +1,20 @@
-use crate::window::{UiWindowDelegate, WindowDelegate};
 use crate::{
-    app::{App, AppDelegate, AppState, WindowRequest},
-    window::WindowRegistry,
+    app::{App, AppDelegate, AppRequest, AppState, WindowRequest},
+    window::{UiWindowDelegate, WindowDelegate, WindowRegistry},
 };
 use winit::event_loop::EventLoopWindowTarget;
 
 pub struct UIAppDelegate<State: AppState> {
-    on_start: Option<Box<dyn FnMut(&mut App<State>, &mut State)>>,
-    on_update: Option<Box<dyn FnMut(&App<State>, &mut State)>>,
+    initial_window_request: Option<WindowRequest<State>>,
+    on_start: Option<Box<dyn FnMut(&mut App<State>)>>,
+    on_update: Option<Box<dyn FnMut(&App<State>, &State)>>,
     _state: std::marker::PhantomData<State>,
 }
 
 impl<State: AppState> UIAppDelegate<State> {
-    pub fn new() -> Self {
+    pub fn new(window_request: WindowRequest<State>) -> Self {
         Self {
+            initial_window_request: Some(window_request),
             on_start: None,
             on_update: None,
             _state: std::marker::PhantomData::default(),
@@ -22,7 +23,7 @@ impl<State: AppState> UIAppDelegate<State> {
 
     pub fn on_start<F>(mut self, f: F) -> Self
     where
-        F: FnMut(&mut App<State>, &mut State) + 'static,
+        F: FnMut(&mut App<State>) + 'static,
     {
         self.on_start = Some(Box::new(f));
         self
@@ -30,7 +31,7 @@ impl<State: AppState> UIAppDelegate<State> {
 
     pub fn on_update<F>(mut self, f: F) -> Self
     where
-        F: FnMut(&App<State>, &mut State) + 'static,
+        F: FnMut(&App<State>, &State) + 'static,
     {
         self.on_update = Some(Box::new(f));
         self
@@ -41,20 +42,24 @@ impl<State: AppState> AppDelegate<State> for UIAppDelegate<State> {
     fn app_will_start(
         &mut self,
         app: &mut App<State>,
-        state: &mut State,
+        _: &State,
         _: &mut WindowRegistry<State>,
         _: &EventLoopWindowTarget<()>,
     ) {
         // self.device = Some(device);
+        if let Some(request) = self.initial_window_request.take() {
+            app.request(AppRequest::OpenWindow(request));
+        }
+
         if let Some(cb) = self.on_start.as_mut() {
-            cb(app, state)
+            cb(app)
         }
     }
 
     fn app_will_update(
         &mut self,
         app: &App<State>,
-        state: &mut State,
+        state: &State,
         _: &mut WindowRegistry<State>,
         _: &EventLoopWindowTarget<()>,
     ) {
@@ -66,7 +71,7 @@ impl<State: AppState> AppDelegate<State> for UIAppDelegate<State> {
     fn window_requested(
         &mut self,
         app: &App<State>,
-        state: &mut State,
+        state: &State,
         window_registry: &mut WindowRegistry<State>,
         target: &EventLoopWindowTarget<()>,
         request: WindowRequest<State>,
@@ -94,11 +99,5 @@ impl<State: AppState> AppDelegate<State> for UIAppDelegate<State> {
             window.inner_size().height,
         );
         window_registry.register_with_delegate(window, Box::new(window_delegate));
-    }
-}
-
-impl<State: AppState> Default for UIAppDelegate<State> {
-    fn default() -> Self {
-        Self::new()
     }
 }

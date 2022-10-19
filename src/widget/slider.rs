@@ -10,18 +10,18 @@ enum SliderState {
     Inactive,
 }
 
-pub struct Slider<State> {
+pub struct Slider {
     min: f32,
     max: f32,
     discrete: bool,
     current_normalized: f32,
     current_value: f32,
     last_position: f32,
-    value_changed: Option<Box<dyn FnMut(f32, &mut State)>>,
+    value_changed: Option<Box<dyn FnMut(f32)>>,
     state: SliderState,
 }
 
-impl<State: AppState + 'static> Slider<State> {
+impl Slider {
     pub fn new(min: f32, max: f32, value: f32, discrete: bool) -> Self {
         Slider {
             min,
@@ -37,7 +37,7 @@ impl<State: AppState + 'static> Slider<State> {
 
     pub fn value_changed<F>(mut self, f: F) -> Self
     where
-        F: FnMut(f32, &mut State) + 'static,
+        F: FnMut(f32) + 'static,
     {
         self.value_changed = Some(Box::new(f));
         self
@@ -49,8 +49,8 @@ impl<State: AppState + 'static> Slider<State> {
     }
 }
 
-impl<State: AppState + 'static> Widget<State> for Slider<State> {
-    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State>, state: &mut State) -> bool {
+impl<State: AppState> Widget<State> for Slider {
+    fn event(&mut self, event: &Event, ctx: &mut EventCtx<State::Message>, _: &State) -> bool {
         match event {
             Event::Mouse(MouseEvent::MouseEnter(_)) => self.state = SliderState::Active,
             Event::Mouse(MouseEvent::MouseLeave(_)) => self.state = SliderState::Inactive,
@@ -63,7 +63,7 @@ impl<State: AppState + 'static> Widget<State> for Slider<State> {
                     self.current_value = self.current_value.round();
                 }
                 if let Some(l) = &mut self.value_changed {
-                    (l)(self.current_value, state);
+                    (l)(self.current_value);
                 }
             }
             Event::Mouse(MouseEvent::MouseUp(_)) => self.state = SliderState::Inactive,
@@ -78,7 +78,7 @@ impl<State: AppState + 'static> Widget<State> for Slider<State> {
                     self.current_value = self.current_value.round();
                 }
                 if let Some(l) = &mut self.value_changed {
-                    (l)(self.current_value, state);
+                    (l)(self.current_value);
                 }
             }
             _ => (),
@@ -143,7 +143,7 @@ impl<State: AppState + 'static> Widget<State> for Slider<State> {
     }
 }
 
-impl<State: AppState + 'static> Default for Slider<State> {
+impl Default for Slider {
     fn default() -> Self {
         Self::new(0., 1., 0., false)
     }

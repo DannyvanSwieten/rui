@@ -3,13 +3,12 @@ mod app_state;
 mod ui_app_delegate;
 
 pub use app_delegate::AppDelegate;
-pub use app_state::AppState;
+pub use app_state::{AppState, MessageCtx};
 pub use ui_app_delegate::UIAppDelegate;
 
-use crate::{widget::Widget, window::WindowRegistry};
+use crate::{widget::Widget, window::WindowRegistry, Queue};
 use pollster::block_on;
-use std::{collections::VecDeque, rc::Rc};
-
+use std::{rc::Rc, sync::mpsc};
 use winit::{
     event::{Event, WindowEvent},
     event_loop::{ControlFlow, EventLoop},
@@ -106,8 +105,9 @@ impl GpuApi {
 
 pub struct App<State: AppState> {
     gpu_api: GpuApi,
-    pending_messages: VecDeque<State::MessageType>,
-    pending_requests: VecDeque<AppRequest<State>>,
+    pub message_tx: mpsc::Sender<State::Message>,
+    message_tr: mpsc::Receiver<State::Message>,
+    pending_requests: Queue<AppRequest<State>>,
     _state: std::marker::PhantomData<State>,
 }
 
@@ -115,9 +115,12 @@ impl<State: AppState + 'static> App<State> {
     pub fn new() -> Self {
         let gpu_api = block_on(GpuApi::new());
 
+        let (message_tx, message_tr) = mpsc::channel();
+
         Self {
-            pending_messages: VecDeque::new(),
-            pending_requests: VecDeque::new(),
+            message_tx,
+            message_tr,
+            pending_requests: Queue::new(),
             _state: std::marker::PhantomData::<State>::default(),
             gpu_api,
         }
@@ -127,41 +130,32 @@ impl<State: AppState + 'static> App<State> {
         &self.gpu_api
     }
 
-    pub fn send_message(&mut self, msg: State::MessageType) {
-        self.pending_messages.push_back(msg)
-    }
-
-    fn pop_message(&mut self) -> Option<State::MessageType> {
-        self.pending_messages.pop_front()
-    }
-
     pub fn request(&mut self, request: AppRequest<State>) {
-        self.pending_requests.push_back(request)
+        self.pending_requests.push(request)
     }
 
-    pub fn run<Delegate>(mut self, delegate: Delegate, state: State)
+    pub fn run<Delegate>(mut self, delegate: Delegate, mut state: State)
     where
         Delegate: AppDelegate<State> + 'static,
     {
-        let mut s = state;
         let event_loop = EventLoop::new();
         let mut d = delegate;
 
         let mut window_registry = WindowRegistry::new();
 
-        d.app_will_start(&mut self, &mut s, &mut window_registry, &event_loop);
+        d.app_will_start(&mut self, &state, &mut window_registry, &event_loop);
         let mut last_mouse_position = winit::dpi::PhysicalPosition::<f64>::new(0., 0.);
         let mut last_file_drop: Vec<std::path::PathBuf> = Vec::new();
         let mut mouse_is_down = false;
         event_loop.run(move |e, event_loop, control_flow| {
-            while let Some(msg) = self.pop_message() {
-                s.handle_message(msg)
+            while let Ok(message) = self.message_tr.try_recv() {
+                state.handle_message(message, &mut MessageCtx::new(&mut self));
             }
 
-            while let Some(request) = self.pending_requests.pop_front() {
+            while let Some(request) = self.pending_requests.pop() {
                 match request {
                     AppRequest::OpenWindow(request) => {
-                        d.window_requested(&self, &mut s, &mut window_registry, event_loop, request)
+                        d.window_requested(&self, &state, &mut window_registry, event_loop, request)
                     }
 
                     AppRequest::ChangeCursorRequest(request) => {
@@ -178,7 +172,7 @@ impl<State: AppState + 'static> App<State> {
                     event: WindowEvent::CloseRequested,
                     window_id,
                 } => {
-                    window_registry.close_button_pressed(&window_id, &mut s);
+                    window_registry.close_button_pressed(&window_id, &state);
                     if window_registry.active_window_count() == 0 {
                         *control_flow = ControlFlow::Exit;
                     }
@@ -197,7 +191,7 @@ impl<State: AppState + 'static> App<State> {
                 Event::WindowEvent {
                     event: WindowEvent::Resized(physical_size),
                     window_id,
-                } => window_registry.window_resized(&self, &mut s, &window_id, &physical_size),
+                } => window_registry.window_resized(&self, &state, &window_id, &physical_size),
 
                 Event::WindowEvent {
                     event: WindowEvent::DroppedFile(path_buffer),
@@ -208,7 +202,7 @@ impl<State: AppState + 'static> App<State> {
                     window_id,
                 } => window_registry.file_hovered(
                     &window_id,
-                    &mut s,
+                    &state,
                     &path_buffer,
                     &last_mouse_position,
                 ),
@@ -237,15 +231,15 @@ impl<State: AppState + 'static> App<State> {
                             position.y - last_mouse_position.y,
                         );
                         window_registry
-                            .mouse_dragged(&mut self, &mut s, &window_id, &position, &delta)
+                            .mouse_dragged(&mut self, &state, &window_id, &position, &delta)
                     } else {
-                        window_registry.mouse_moved(&mut self, &mut s, &window_id, &position)
+                        window_registry.mouse_moved(&mut self, &state, &window_id, &position)
                     }
 
                     if !last_file_drop.is_empty() {
                         window_registry.file_dropped(
                             &window_id,
-                            &mut s,
+                            &state,
                             &last_file_drop[0],
                             &position,
                         );
@@ -259,22 +253,22 @@ impl<State: AppState + 'static> App<State> {
                 Event::WindowEvent {
                     window_id,
                     event: WindowEvent::ReceivedCharacter(character),
-                } => window_registry.character_received(&window_id, &mut self, character, &mut s),
+                } => window_registry.character_received(&window_id, &mut self, character, &state),
 
                 Event::WindowEvent {
                     window_id,
                     event: WindowEvent::KeyboardInput { input, .. },
-                } => window_registry.keyboard_event(&window_id, &mut self, &input, &mut s),
+                } => window_registry.keyboard_event(&window_id, &mut self, &input, &state),
 
                 Event::WindowEvent {
-                    event: WindowEvent::MouseInput { state, .. },
+                    event: WindowEvent::MouseInput { state: s, .. },
                     window_id,
-                } => match state {
+                } => match s {
                     winit::event::ElementState::Pressed => {
                         mouse_is_down = true;
                         window_registry.mouse_down(
                             &mut self,
-                            &mut s,
+                            &state,
                             &window_id,
                             &last_mouse_position,
                         )
@@ -283,16 +277,16 @@ impl<State: AppState + 'static> App<State> {
                         mouse_is_down = false;
                         window_registry.mouse_up(
                             &mut self,
-                            &mut s,
+                            &state,
                             &window_id,
                             &last_mouse_position,
                         )
                     }
                 },
                 Event::MainEventsCleared => {
-                    d.app_will_update(&self, &mut s, &mut window_registry, event_loop);
-                    window_registry.update(&mut s);
-                    window_registry.draw(&self, &mut s);
+                    d.app_will_update(&self, &state, &mut window_registry, event_loop);
+                    window_registry.update(&state);
+                    window_registry.draw(&self, &state);
                 }
                 _ => (),
             }
