@@ -3,8 +3,8 @@ use crate::{
     canvas::{Canvas2D, Point, Size},
     constraints::BoxConstraints,
     widget::{
-        style::StyleContext, Action, ChildSlot, Event, EventCtx, KeyEvent, MouseEvent, PaintCtx,
-        Properties, Widget,
+        style::StyleContext, Action, ChildSlot, Event, EventCtx, KeyEvent, LayoutCtx, MouseEvent,
+        PaintCtx, Properties, Widget,
     },
     window,
 };
@@ -26,6 +26,7 @@ pub struct UserInterface<State: AppState> {
     pub style_ctx: StyleContext,
     _actions: Vec<Action<State>>,
     theme: String,
+    mouse_move_consumer: Option<usize>,
 }
 
 impl<State: AppState + 'static> UserInterface<State> {
@@ -35,6 +36,7 @@ impl<State: AppState + 'static> UserInterface<State> {
             style_ctx: StyleContext::new(),
             _actions: Vec::new(),
             theme: theme.to_string(),
+            mouse_move_consumer: None,
         }
     }
 
@@ -122,6 +124,47 @@ impl<State: AppState + 'static> UserInterface<State> {
             state,
         );
 
+        if let Some(consumer) = ctx.consumer() {
+            if self.mouse_move_consumer.is_none() {
+                let mut ctx = EventCtx::new(&properties, window_id, app.message_tx.clone());
+                ctx.set_target(consumer);
+                self.root.event(
+                    &Event::Mouse(MouseEvent::MouseEnter(*event)),
+                    &mut ctx,
+                    state,
+                );
+            } else {
+                let previous_consumer = self.mouse_move_consumer.unwrap();
+                if consumer != previous_consumer {
+                    let mut ctx = EventCtx::new(&properties, window_id, app.message_tx.clone());
+                    ctx.set_target(consumer);
+                    self.root.event(
+                        &Event::Mouse(MouseEvent::MouseEnter(*event)),
+                        &mut ctx,
+                        state,
+                    );
+
+                    let mut ctx = EventCtx::new(&properties, window_id, app.message_tx.clone());
+                    ctx.set_target(previous_consumer);
+                    self.root.event(
+                        &Event::Mouse(MouseEvent::MouseLeave(*event)),
+                        &mut ctx,
+                        state,
+                    );
+                }
+            }
+        } else if let Some(previous_consumer) = self.mouse_move_consumer {
+            let mut ctx = EventCtx::new(&properties, window_id, app.message_tx.clone());
+            ctx.set_target(previous_consumer);
+            self.root.event(
+                &Event::Mouse(MouseEvent::MouseLeave(*event)),
+                &mut ctx,
+                state,
+            );
+        }
+
+        self.mouse_move_consumer = ctx.consumer();
+
         app.request(AppRequest::ChangeCursorRequest(CursorIconRequest::new(
             window_id,
             ctx.cursor(),
@@ -163,12 +206,9 @@ impl<State: AppState + 'static> UserInterface<State> {
     }
 
     pub fn layout(&mut self, constraints: &BoxConstraints, state: &State) {
-        let size = self.root.layout(constraints, state);
+        let mut ctx = LayoutCtx::new();
+        let size = self.root.layout(constraints, &mut ctx, state);
         self.root.set_size(&size);
-    }
-
-    pub fn layout_child_with_name(&self, _: &str, _: &State) {
-        // self.root.layout_child_with_name(child_name, state)
     }
 
     pub fn paint(&self, state: &State, canvas: &mut dyn Canvas2D) {

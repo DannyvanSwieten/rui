@@ -5,6 +5,8 @@ use crate::{
     widget::{style::Theme, ChildSlot, Event, EventCtx, PaintCtx, Widget},
 };
 
+use super::LayoutCtx;
+
 enum Direction {
     Horizontal,
     Vertical,
@@ -50,15 +52,13 @@ impl<State: AppState> Flex<State> {
 impl<State: AppState> Widget<State> for Flex<State> {
     fn event(&mut self, event: &Event, ctx: &mut EventCtx<State::Message>, state: &State) -> bool {
         for child in &mut self.children {
-            if child.event(event, ctx, state) {
-                return true;
-            }
+            child.event(event, ctx, state);
         }
 
         false
     }
 
-    fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
+    fn layout(&mut self, constraints: &BoxConstraints, ctx: &mut LayoutCtx, state: &State) -> Size {
         // This is not a scrollable view. It needs constraints
         // assert!(constraints.has_max());
 
@@ -69,8 +69,9 @@ impl<State: AppState> Widget<State> for Flex<State> {
             .children
             .iter_mut()
             .flat_map(|child| {
+                ctx.register_child(child.uid());
                 if child.flex() == 0.0 {
-                    let child_size = child.layout(&child_constraints, state);
+                    let child_size = child.layout(&child_constraints, ctx, state);
                     child.set_size(&child_size);
                     Some(child_size)
                 } else {
@@ -133,7 +134,7 @@ impl<State: AppState> Widget<State> for Flex<State> {
                         ),
                     };
 
-                    let child_size = child.layout(&child_constraints, state);
+                    let child_size = child.layout(&child_constraints, ctx, state);
                     child.set_size(&child_size);
                 }
             }

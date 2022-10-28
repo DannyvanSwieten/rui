@@ -5,6 +5,8 @@ use crate::{
     widget::{style::Theme, ChildSlot, Event, EventCtx, PaintCtx, Widget},
 };
 
+use super::LayoutCtx;
+
 pub struct Expanded<State> {
     child: ChildSlot<State>,
     width: Option<f32>,
@@ -45,7 +47,8 @@ impl<State: AppState> Widget<State> for Expanded<State> {
 
     // If given to a flex container it will expand based on it's flex parameter in the dominant layout direction.
     // If for example you add it to a row it will expand in the horizontal direction. Therefor you should provide a height.
-    fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
+    fn layout(&mut self, constraints: &BoxConstraints, ctx: &mut LayoutCtx, state: &State) -> Size {
+        ctx.register_child(self.child.uid());
         let size = Size::new(
             self.width
                 .unwrap_or_else(|| constraints.max_width().unwrap()),
@@ -55,6 +58,7 @@ impl<State: AppState> Widget<State> for Expanded<State> {
 
         let child_size = self.child.layout(
             &BoxConstraints::new().with_tight_constraints(size.width, size.height),
+            ctx,
             state,
         );
 

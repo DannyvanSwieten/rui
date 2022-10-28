@@ -4,6 +4,7 @@ use crate::{
         textlayout::{self, FontCollection, ParagraphBuilder, ParagraphStyle, TextStyle},
         Canvas2D, Color, Color4f, Paint, Point, Rect, Size,
     },
+    constraints::BoxConstraints,
     widget::{style::Theme, Event, EventCtx, KeyEvent, PaintCtx, Widget},
 };
 use skia_safe::FontMgr;
@@ -13,7 +14,7 @@ use winit::{
     window::CursorIcon,
 };
 
-use super::MouseEvent;
+use super::{LayoutCtx, MouseEvent};
 
 #[derive(Default)]
 struct EditorState {
@@ -101,7 +102,7 @@ impl<State: AppState + 'static> Widget<State> for TextBox<State> {
         }
     }
 
-    fn layout(&mut self, constraints: &crate::constraints::BoxConstraints, _: &State) -> Size {
+    fn layout(&mut self, constraints: &BoxConstraints, _ctx: &mut LayoutCtx, _: &State) -> Size {
         let mut font_collection = FontCollection::new();
         font_collection.set_default_font_manager(FontMgr::new(), None);
         let mut paragraph_builder = ParagraphBuilder::new(&self.style, font_collection);
