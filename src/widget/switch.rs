@@ -5,6 +5,8 @@ use crate::{
     widget::{style::Theme, Event, EventCtx, MouseEvent, PaintCtx, Widget},
 };
 
+use super::LayoutCtx;
+
 enum SwitchState {
     Active,
     Inactive,
@@ -42,22 +44,30 @@ impl Switch {
 impl<State: AppState> Widget<State> for Switch {
     fn event(&mut self, event: &Event, _: &mut EventCtx<State::Message>, _: &State) -> bool {
         match event {
-            Event::Mouse(MouseEvent::MouseEnter(_)) => self.state = SwitchState::Active,
-            Event::Mouse(MouseEvent::MouseLeave(_)) => self.state = SwitchState::Inactive,
+            Event::Mouse(MouseEvent::MouseEnter(_)) => {
+                self.state = SwitchState::Active;
+                true
+            }
+            Event::Mouse(MouseEvent::MouseLeave(_)) => {
+                self.state = SwitchState::Inactive;
+                true
+            }
             Event::Mouse(MouseEvent::MouseDown(_)) => {
                 self.active = !self.active;
                 if let Some(l) = &self.value_changed {
                     (l)(self.active);
                 }
+                true
             }
-            Event::Mouse(MouseEvent::MouseUp(_)) => self.state = SwitchState::Inactive,
-            _ => (),
+            Event::Mouse(MouseEvent::MouseUp(_)) => {
+                self.state = SwitchState::Inactive;
+                true
+            }
+            _ => false,
         }
-
-        false
     }
 
-    fn layout(&mut self, constraints: &BoxConstraints, _: &State) -> Size {
+    fn layout(&mut self, constraints: &BoxConstraints, _ctx: &mut LayoutCtx, _: &State) -> Size {
         // Boldly unwrapping here. If you have not given constraints to a switch then we don't know how big it should be.
         Size::new(
             constraints.max_width().unwrap(),

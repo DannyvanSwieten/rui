@@ -5,6 +5,8 @@ use crate::{
     widget::{ChildSlot, Event, EventCtx, PaintCtx, Theme, Widget},
 };
 
+use super::LayoutCtx;
+
 pub struct SizedBox<State> {
     size: Size,
     child: ChildSlot<State>,
@@ -24,10 +26,11 @@ impl<State: AppState> Widget<State> for SizedBox<State> {
         self.child.event(event, ctx, state)
     }
 
-    fn layout(&mut self, _: &BoxConstraints, state: &State) -> Size {
+    fn layout(&mut self, _: &BoxConstraints, ctx: &mut LayoutCtx, state: &State) -> Size {
+        ctx.register_child(self.child.uid());
         let child_constraints =
             BoxConstraints::new().with_tight_constraints(self.size.width, self.size.height);
-        self.child.layout(&child_constraints, state);
+        self.child.layout(&child_constraints, ctx, state);
         self.child.set_size(&self.size);
         self.size
     }

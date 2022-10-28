@@ -5,6 +5,8 @@ use crate::{
     widget::{style::Theme, ChildSlot, Event, EventCtx, PaintCtx, Widget},
 };
 
+use super::LayoutCtx;
+
 pub struct List<State> {
     spacing: f32,
     // If not None this will force all children to this size in the scroll direction
@@ -75,7 +77,7 @@ impl<State: AppState> Widget<State> for List<State> {
         false
     }
 
-    fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
+    fn layout(&mut self, constraints: &BoxConstraints, ctx: &mut LayoutCtx, state: &State) -> Size {
         if let Some(builder) = &self.builder {
             self.children.clear();
             for i in 0..self.item_count.unwrap() {
@@ -87,6 +89,7 @@ impl<State: AppState> Widget<State> for List<State> {
         let mut y = 0.0;
 
         for child in &mut self.children {
+            ctx.register_child(child.uid());
             let child_constraints = if let Some(item_size) = self.item_size {
                 BoxConstraints::new()
                     .with_max_height(item_size)
@@ -94,7 +97,7 @@ impl<State: AppState> Widget<State> for List<State> {
             } else {
                 BoxConstraints::new().with_max_width(constraints.max_width().unwrap())
             };
-            let mut child_size = child.layout(&child_constraints, state);
+            let mut child_size = child.layout(&child_constraints, ctx, state);
             child_size.height = self.item_size.unwrap_or(child_size.height);
             child.set_size(&child_size);
             child.set_position(&Point::new(0.0, y));

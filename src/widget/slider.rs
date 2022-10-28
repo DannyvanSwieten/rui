@@ -5,6 +5,8 @@ use crate::{
     widget::{map_range, style::Theme, Event, EventCtx, MouseEvent, PaintCtx, Widget},
 };
 
+use super::LayoutCtx;
+
 enum SliderState {
     Active,
     Inactive,
@@ -52,8 +54,14 @@ impl Slider {
 impl<State: AppState> Widget<State> for Slider {
     fn event(&mut self, event: &Event, ctx: &mut EventCtx<State::Message>, _: &State) -> bool {
         match event {
-            Event::Mouse(MouseEvent::MouseEnter(_)) => self.state = SliderState::Active,
-            Event::Mouse(MouseEvent::MouseLeave(_)) => self.state = SliderState::Inactive,
+            Event::Mouse(MouseEvent::MouseEnter(_)) => {
+                self.state = SliderState::Active;
+                true
+            }
+            Event::Mouse(MouseEvent::MouseLeave(_)) => {
+                self.state = SliderState::Inactive;
+                true
+            }
             Event::Mouse(MouseEvent::MouseDown(event)) => {
                 self.last_position = event.local_position().x;
                 self.current_normalized = (1. / ctx.size().width) * self.last_position;
@@ -65,8 +73,12 @@ impl<State: AppState> Widget<State> for Slider {
                 if let Some(l) = &mut self.value_changed {
                     (l)(self.current_value);
                 }
+                true
             }
-            Event::Mouse(MouseEvent::MouseUp(_)) => self.state = SliderState::Inactive,
+            Event::Mouse(MouseEvent::MouseUp(_)) => {
+                self.state = SliderState::Inactive;
+                true
+            }
             Event::Mouse(MouseEvent::MouseDrag(event)) => {
                 self.last_position = event.local_position().x;
                 self.current_normalized =
@@ -80,14 +92,13 @@ impl<State: AppState> Widget<State> for Slider {
                 if let Some(l) = &mut self.value_changed {
                     (l)(self.current_value);
                 }
+                true
             }
-            _ => (),
+            _ => false,
         }
-
-        false
     }
 
-    fn layout(&mut self, constraints: &BoxConstraints, _: &State) -> Size {
+    fn layout(&mut self, constraints: &BoxConstraints, _ctx: &mut LayoutCtx, _: &State) -> Size {
         // Boldly unwrapping here. If you have not given constraints to a slider then we don't know how big it should be.
         Size::new(
             constraints.max_width().unwrap(),

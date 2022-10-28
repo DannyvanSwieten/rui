@@ -5,6 +5,8 @@ use crate::{
     widget::{style::Theme, Event, EventCtx, MouseEvent, PaintCtx, Widget},
 };
 
+use super::LayoutCtx;
+
 enum ButtonState {
     Inactive,
     Active,
@@ -62,23 +64,35 @@ impl<Message> TextButton<Message> {
 impl<State: AppState> Widget<State> for TextButton<State::Message> {
     fn event(&mut self, event: &Event, ctx: &mut EventCtx<State::Message>, _: &State) -> bool {
         match event {
-            Event::Mouse(MouseEvent::MouseEnter(_)) => self.state = ButtonState::Hover,
-            Event::Mouse(MouseEvent::MouseLeave(_)) => self.state = ButtonState::Inactive,
-            Event::Mouse(MouseEvent::MouseDown(_)) => self.state = ButtonState::Active,
+            Event::Mouse(MouseEvent::MouseEnter(_)) => {
+                self.state = ButtonState::Hover;
+                true
+            }
+            Event::Mouse(MouseEvent::MouseMove(_)) => {
+                self.state = ButtonState::Hover;
+                true
+            }
+            Event::Mouse(MouseEvent::MouseLeave(_)) => {
+                self.state = ButtonState::Inactive;
+                true
+            }
+            Event::Mouse(MouseEvent::MouseDown(_)) => {
+                self.state = ButtonState::Active;
+                true
+            }
             Event::Mouse(MouseEvent::MouseUp(_)) => {
                 if let Some(message) = &self.on_click {
                     ctx.publish(message.clone())
                 }
 
-                self.state = ButtonState::Inactive
+                self.state = ButtonState::Inactive;
+                true
             }
-            _ => (),
+            _ => false,
         }
-
-        false
     }
 
-    fn layout(&mut self, constraints: &BoxConstraints, _: &State) -> Size {
+    fn layout(&mut self, constraints: &BoxConstraints, _ctx: &mut LayoutCtx, _: &State) -> Size {
         let blob = TextBlob::from_str(&self.text, &self.font);
         let size = blob.unwrap().bounds().size();
         let width = constraints.max_width().unwrap_or(size.width);

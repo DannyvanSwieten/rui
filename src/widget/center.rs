@@ -5,6 +5,8 @@ use crate::{
     widget::{ChildSlot, Event, EventCtx, PaintCtx, Theme, Widget},
 };
 
+use super::LayoutCtx;
+
 pub struct Center<State> {
     child: ChildSlot<State>,
     size: Option<Size>,
@@ -26,7 +28,8 @@ impl<State: AppState> Widget<State> for Center<State> {
 
     // The layout strategy for a center node: return own size if not None, otherwise as big as possible within given constraints.
     // Then center the child.
-    fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
+    fn layout(&mut self, constraints: &BoxConstraints, ctx: &mut LayoutCtx, state: &State) -> Size {
+        ctx.register_child(self.child.uid());
         let my_size = if let Some(size) = &self.size {
             *size
         } else {
@@ -41,6 +44,7 @@ impl<State: AppState> Widget<State> for Center<State> {
             &BoxConstraints::new()
                 .with_max_width(my_size.width)
                 .with_max_height(my_size.height),
+            ctx,
             state,
         );
 

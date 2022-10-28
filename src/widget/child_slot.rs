@@ -7,6 +7,8 @@ use crate::{
     widget::{Event, EventCtx, MouseEvent, PaintCtx, Properties, Theme, Widget},
 };
 
+use super::LayoutCtx;
+
 fn next_uid() -> usize {
     static COUNTER: AtomicUsize = AtomicUsize::new(0);
     COUNTER.fetch_add(1, Ordering::Relaxed)
@@ -66,41 +68,37 @@ impl<State: AppState> ChildSlot<State> {
         event: &MouseEvent,
         ctx: &mut EventCtx<State::Message>,
         state: &State,
-    ) -> bool {
-        if self.hit_test(event.local_position()) {
-            if !self.properties.has_mouse {
-                if let MouseEvent::MouseMove(event) = event {
-                    self.properties.has_mouse = true;
-                    self.widget
-                        .event(&Event::Mouse(MouseEvent::MouseEnter(*event)), ctx, state);
-                }
-            }
+    ) {
+        let inner_event = event.to_local(self.position());
+        let mut inner_ctx = EventCtx {
+            properties: &self.properties,
+            window_id: ctx.window_id,
+            message_tx: ctx.message_tx.clone(),
+            cursor: ctx.cursor,
+            consumer: ctx.consumer,
+            target: ctx.target,
+        };
 
+        if let Some(target) = ctx.target() {
+            if target == self.uid() || !self.properties.children.is_empty() {
+                self.widget
+                    .event(&Event::Mouse(inner_event), &mut inner_ctx, state);
+            }
+        }
+
+        if self.hit_test(event.local_position()) {
             let inner_event = event.to_local(self.position());
-            let mut inner_ctx = EventCtx {
-                properties: &self.properties,
-                window_id: ctx.window_id,
-                message_tx: ctx.message_tx.clone(),
-                cursor: ctx.cursor,
-            };
-            let result = self
+            if self
                 .widget
-                .event(&Event::Mouse(inner_event), &mut inner_ctx, state);
+                .event(&Event::Mouse(inner_event), &mut inner_ctx, state)
+            {
+                ctx.set_consumer(self.uid())
+            }
 
             ctx.change_cursor(inner_ctx.cursor());
-            result
-        } else if self.properties.has_mouse {
-            match event {
-                MouseEvent::MouseMove(event) | MouseEvent::MouseUp(event) => {
-                    self.properties.has_mouse = false;
-                    self.widget
-                        .event(&Event::Mouse(MouseEvent::MouseLeave(*event)), ctx, state);
-                    false
-                }
-                _ => false,
+            if let Some(uid) = inner_ctx.consumer() {
+                ctx.set_consumer(uid)
             }
-        } else {
-            false
         }
     }
 }
@@ -109,12 +107,29 @@ impl<State: AppState> Widget<State> for ChildSlot<State> {
     fn event(&mut self, event: &Event, ctx: &mut EventCtx<State::Message>, state: &State) -> bool {
         match event {
             Event::Mouse(event) => self.propagate_mouse_event(event, ctx, state),
-            Event::Key(_) => self.widget.event(event, ctx, state),
+            Event::Key(_) => {
+                if self.widget.event(event, ctx, state) {
+                    ctx.set_consumer(self.uid())
+                }
+            }
         }
+
+        false
     }
 
-    fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
-        self.widget.layout(constraints, state)
+    fn layout(
+        &mut self,
+        constraints: &BoxConstraints,
+        _ctx: &mut LayoutCtx,
+        state: &State,
+    ) -> Size {
+        let mut inner_ctx = LayoutCtx::new();
+        let size = self.widget.layout(constraints, &mut inner_ctx, state);
+        for child in &inner_ctx.children {
+            self.properties.children.push(*child)
+        }
+
+        size
     }
 
     fn paint(&self, theme: &Theme, _: &PaintCtx, canvas: &mut dyn Canvas2D, state: &State) {

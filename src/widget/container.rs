@@ -5,6 +5,8 @@ use crate::{
     widget::{ChildSlot, Event, EventCtx, PaintCtx, Theme, Widget},
 };
 
+use super::LayoutCtx;
+
 pub struct Container<State> {
     padding: f32,
     margin: f32,
@@ -53,7 +55,7 @@ impl<State: AppState> Widget<State> for Container<State> {
     // So shrink input constraints by border, padding and margin
     // Then return its child's size as its own size.
 
-    fn layout(&mut self, constraints: &BoxConstraints, state: &State) -> Size {
+    fn layout(&mut self, constraints: &BoxConstraints, ctx: &mut LayoutCtx, state: &State) -> Size {
         // If the container is not given constraints from the parent check if we've been given a size
         // If not given a size we ask the child to layout without constraints
         // This might panic if the child is a flex container.
@@ -61,12 +63,12 @@ impl<State: AppState> Widget<State> for Container<State> {
         // This might still panic if the child is for example a horizontal container, but only height is given.
 
         // If the container is given constraints we'll shrink them by padding/margin and ask the child to layout with those constraints
-
+        ctx.register_child(self.child.uid());
         let space_around = self.padding + self.margin + self.border;
         let child_size = if constraints.max_width().is_none() || constraints.max_height().is_none()
         {
             if self.width.is_none() || self.height.is_none() {
-                self.child.layout(&BoxConstraints::new(), state)
+                self.child.layout(&BoxConstraints::new(), ctx, state)
             } else {
                 let mut child_constraints = BoxConstraints::new();
                 if self.width.is_some() {
@@ -76,12 +78,15 @@ impl<State: AppState> Widget<State> for Container<State> {
                     child_constraints =
                         child_constraints.with_max_height(self.height.unwrap_or(0.0))
                 }
-                self.child
-                    .layout(&child_constraints.shrunk(space_around, space_around), state)
+                self.child.layout(
+                    &child_constraints.shrunk(space_around, space_around),
+                    ctx,
+                    state,
+                )
             }
         } else {
             let child_constraints = constraints.shrunk(space_around * 2.0, space_around * 2.0);
-            self.child.layout(&child_constraints, state)
+            self.child.layout(&child_constraints, ctx, state)
         };
 
         self.child

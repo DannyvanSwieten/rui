@@ -5,6 +5,8 @@ use crate::{
     widget::{Action, Event, EventCtx, PaintCtx, Theme, Widget},
 };
 
+use super::LayoutCtx;
+
 pub struct PopupMenu {
     _id: usize,
     _name: String,
@@ -34,7 +36,7 @@ impl<State: AppState> Widget<State> for PopupMenuWidget {
         false
     }
 
-    fn layout(&mut self, _: &BoxConstraints, _: &State) -> Size {
+    fn layout(&mut self, _: &BoxConstraints, _ctx: &mut LayoutCtx, _: &State) -> Size {
         todo!()
     }
 
