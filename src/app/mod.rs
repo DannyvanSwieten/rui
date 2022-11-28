@@ -149,7 +149,9 @@ impl<State: AppState + 'static> App<State> {
         let mut mouse_is_down = false;
         event_loop.run(move |e, event_loop, control_flow| {
             while let Ok(message) = self.message_tr.try_recv() {
-                state.handle_message(message, &mut MessageCtx::new(&mut self));
+                let response = state.handle_message(message, &mut MessageCtx::new(&mut self));
+                window_registry.handle_message_response(response);
+                window_registry.layout(&self, &state);
             }
 
             while let Some(request) = self.pending_requests.pop() {

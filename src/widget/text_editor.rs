@@ -23,14 +23,14 @@ struct EditorState {
     selection: Range<usize>,
 }
 
-pub struct TextBox<State> {
+pub struct TextBox<State: AppState> {
     state: EditorState,
     placeholder: String,
     style: ParagraphStyle,
-    on_commit: Option<Box<dyn Fn(&str, &State)>>,
+    on_commit: Option<Box<dyn Fn(&str, &State, &mut EventCtx<State::Message>)>>,
 }
 
-impl<State> TextBox<State> {
+impl<State: AppState> TextBox<State> {
     pub fn new(placeholder: &str) -> Self {
         Self {
             state: EditorState::default(),
@@ -42,7 +42,7 @@ impl<State> TextBox<State> {
 
     pub fn on_commit<F>(mut self, f: F) -> Self
     where
-        F: Fn(&str, &State) + 'static,
+        F: Fn(&str, &State, &mut EventCtx<State::Message>) + 'static,
     {
         self.on_commit = Some(Box::new(f));
         self
@@ -79,7 +79,7 @@ impl<State: AppState + 'static> Widget<State> for TextBox<State> {
                             }
                             VirtualKeyCode::Return => {
                                 if let Some(on_commit) = &self.on_commit {
-                                    (*on_commit)(&self.state.text, state)
+                                    (*on_commit)(&self.state.text, state, event_ctx)
                                 }
                             }
                             _ => (),
@@ -108,6 +108,7 @@ impl<State: AppState + 'static> Widget<State> for TextBox<State> {
         let mut paragraph_builder = ParagraphBuilder::new(&self.style, font_collection);
         let mut ts = TextStyle::new();
         ts.set_font_size(18.0);
+        ts.set_font_families(&["Roboto"]);
         ts.set_foreground_color(Paint::default());
         paragraph_builder.push_style(&ts);
         paragraph_builder.add_text(&self.placeholder);

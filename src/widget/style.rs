@@ -1,3 +1,5 @@
+use skia_safe::{font::Edging, FontStyle, Typeface};
+
 use crate::canvas::{Color, Font};
 use std::collections::HashMap;
 #[derive(Default)]
@@ -30,15 +32,24 @@ impl TextButtonStyle {
         }
     }
 }
+
+#[derive(Default)]
+pub struct LabelStyle {
+    pub background: Color,
+    pub text: Color,
+    pub font: Font,
+}
 #[derive(Default)]
 pub struct Theme {
     pub background: Color,
     pub primary: Color,
     pub secondary: Color,
     pub text: Color,
+    pub font: Font,
 
     pub button: TextButtonStyle,
     pub slider: SliderStyle,
+    pub label: LabelStyle,
 }
 
 impl Theme {
@@ -48,6 +59,12 @@ impl Theme {
             primary: Color::new(0xFF766AC8),
             secondary: Color::new(0xFF73C8A6),
             text: Color::new(0xFFFFFFFF),
+            font: Self::create_default_font(),
+            label: LabelStyle {
+                background: Color::new(0xFFFFFFFF),
+                text: Color::new(0xFFFFFFFF),
+                font: Self::create_default_font(),
+            },
             button: TextButtonStyle::new(),
             slider: SliderStyle {
                 background: Color::new(0xFFFFFFFF),
@@ -60,13 +77,26 @@ impl Theme {
         }
     }
 
+    fn create_default_font() -> Font {
+        let typeface = Typeface::from_name("Roboto", FontStyle::normal()).unwrap();
+        let mut font = Font::from_typeface(typeface, Some(18.0));
+        font.set_edging(Edging::SubpixelAntiAlias);
+        font
+    }
+
     pub fn default_dark() -> Self {
         Self {
             background: Color::new(0xFF333333),
             primary: Color::new(0xFF1E38A1),
             secondary: Color::new(0xFF73C8A6),
             text: Color::new(0xFFFFFFFF),
+            font: Self::create_default_font(),
             button: TextButtonStyle::new(),
+            label: LabelStyle {
+                background: Color::new(0xFF333333),
+                text: Color::new(0xFFFFFFFF),
+                font: Self::create_default_font(),
+            },
             slider: SliderStyle {
                 background: Color::new(0xFF1E1E1E),
                 fill: Color::new(0xFF1E38A1),

@@ -1,6 +1,7 @@
 use crate::{
     app::{App, AppState},
     canvas::{skia_cpu_canvas::SkiaCanvas, Point},
+    constraints::BoxConstraints,
     user_interface::UserInterface,
     widget::Widget,
     window::{MouseEvent, WindowDelegate},
@@ -267,4 +268,16 @@ impl<State: AppState + 'static> WindowDelegate<State> for UiWindowDelegate<State
     }
 
     fn update(&mut self, _state: &State) {}
+
+    fn handle_message_response(&mut self, response: &State::Response) {
+        if let Some(ui) = self.ui.as_mut() {}
+    }
+
+    fn layout(&mut self, app: &App<State>, state: &State) {
+        if let Some(ui) = self.ui.as_mut() {
+            let size = ui.canvas.size;
+            let constraints = BoxConstraints::new_with_max(size.width as _, size.height as _);
+            ui.user_interface.layout(&constraints, state)
+        }
+    }
 }

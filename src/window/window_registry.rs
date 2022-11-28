@@ -27,6 +27,12 @@ impl<State: AppState> WindowRegistry<State> {
         self.entries.get_mut(&id)
     }
 
+    pub fn layout(&mut self, app: &App<State>, state: &State) {
+        for entry in self.entries.values_mut() {
+            entry.delegate.layout(app, state)
+        }
+    }
+
     pub fn create_window(
         &self,
         target: &EventLoopWindowTarget<()>,
@@ -69,6 +75,12 @@ impl<State: AppState> WindowRegistry<State> {
             entry
                 .delegate
                 .resized(&entry.window, app, state, *id, size.width, size.height)
+        }
+    }
+
+    pub(crate) fn handle_message_response(&mut self, response: State::Response) {
+        for entry in self.entries.values_mut() {
+            entry.delegate.handle_message_response(&response)
         }
     }
 

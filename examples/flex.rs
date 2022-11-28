@@ -7,6 +7,7 @@ struct State;
 
 impl AppState for State {
     type Message = ();
+    type Response = ();
 
     fn handle_message(&mut self, _: Self::Message, _: &mut MessageCtx<Self>) {}
 }

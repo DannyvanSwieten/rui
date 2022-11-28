@@ -3,6 +3,8 @@ use std::path::Path;
 use winit::window::WindowId;
 
 pub trait WindowDelegate<State: AppState> {
+    fn layout(&mut self, app: &App<State>, state: &State);
+
     fn close_button_pressed(&mut self, state: &State, window_id: WindowId) -> bool;
 
     fn file_hovered(&mut self, state: &State, window_id: WindowId, path: &Path, x: f32, y: f32);
@@ -71,6 +73,8 @@ pub trait WindowDelegate<State: AppState> {
         window_id: WindowId,
         character: char,
     );
+
+    fn handle_message_response(&mut self, response: &State::Response);
 
     fn draw(&mut self, app: &App<State>, state: &State);
 
