@@ -149,3 +149,9 @@ impl<State: AppState> Widget<State> for ChildSlot<State> {
         self.uid
     }
 }
+
+impl<T: AppState> From<Box<dyn Widget<T>>> for ChildSlot<T> {
+    fn from(w: Box<dyn Widget<T>>) -> Self {
+        ChildSlot::new_with_box(w)
+    }
+}

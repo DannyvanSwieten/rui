@@ -5,7 +5,7 @@ use crate::{
     widget::{style::Theme, Event, EventCtx, MouseEvent, PaintCtx, Widget},
 };
 
-use super::LayoutCtx;
+use super::{ChildSlot, LayoutCtx};
 
 enum ButtonState {
     Inactive,
